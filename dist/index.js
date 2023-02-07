@@ -1,11 +1,13 @@
 const locale = "cs-CZ";
 let matrix;
+const selector = "#table";
 
 $(function(){
     init();
     matrix = new Matrix(StringVector.generate({total: 5000, list: 5, nullprob: 0.2}).name("groups"), NumericVector.generate({total: 5000, min: 200, max: 500, nullprob: 0.2}).name("score"));
-    loadMatrixToTable(matrix);   
+    loadMatrixToTable(matrix);
 })
+
 
 // #region Retusa extensions
 
@@ -21,7 +23,8 @@ function init(){
                 field: c.name(),
                 title: c.name(),
                 sortable: true,
-                filterControl: c.type() == 1? "input" : "select"
+                filterControl: c.type() == 1? "input" : "select",
+                formatter: nullFormatter
             })
         }
         return t;   
@@ -29,17 +32,109 @@ function init(){
     Matrix.prototype.readData = function() {
         return this.toTable();
     }
+// #region Cell editor
+
+    /* render input control on cell doubleclick */
+    $(document).one("click-cell.bs.table.bs.table", function(event, field, value, row, $e){onClickCellBs(...arguments)}).on("mouseleave", function(){});
+    function onClickCellBs(event, field, value, row, $e) {
+        var index = Number($e.closest("tr").attr("data-index"));
+        var $i = $(`<input bootstrap-table-cell-input data-index = ${index} data-field = "${field}"  data-value = "${value}" style="z-index: 100;" class="form-control" ${nullify(value) ? 'value = "' + nullify(value) + '"' : ""}>`);
+        $e.html($i).find("input").focus().select();
+    }
+    /* update or leave cell on keydown */
+    $(document).on("keydown","[bootstrap-table-cell-input]",function(event){onCellInputKeyDown(this, event)});
+    function onCellInputKeyDown($e, event){
+        if(event.key == "Escape") $(this).closest("td").empty().text($(this).attr("data-value"));
+        /* renders the select control with distinct values */
+        else if(event.key == "Control" || event.key == "Alt") {
+            var index = Number($($e).attr("data-index"));
+            var field = $($e).attr("data-field");
+            var value = $($e).attr("data-value");
+            var values = $(selector).bootstrapTable("getData").map(r => r[field]).distinct().sort((a,b) => a > b ? 1 : -1).filter(_ => (_ !== null && _ !== undefined));
+            var $s = `<select bootstrap-table-cell-select class="form-select" data-index = ${index} data-field="${field}" data-value = "${$($e).attr("data-value")}">`;
+            for(var v of values) {$s += `<option ${v == value ? "selected" : ""}>${v}</option>`};
+            $s += "</select>";
+            $($e).closest("td").empty().html($s).focus().click(function(){$("option").slideDown()});
+        }
+        else if(event.key == "Enter") {
+            var field = $($e).attr("data-field");
+            var index = Number($($e).attr("data-index"));
+            var value = nullify($($e).val());
+            try {
+                var value = matrix.item(field).parse(value);
+                $(this).closest("td").empty().text(value);      
+                $("#table").bootstrapTable('updateCell', {
+                    index: index,
+                    field: field,
+                    value: value,
+                    reinit: false
+                });
+            }
+            catch (e) {
+                iziToast.error({
+                    title: "Nepovolená hodnota",
+                    message: e.toString(),
+                    timeout: 5000
+                });
+            }
+        }  
+    }
+    /* on input edit mouse leave */
+    $(document).on("mouseleave","[bootstrap-table-cell-input]",function(e){
+        $(this).closest("td").empty().text($(this).attr("data-value"));
+    });
+    /* reinitializes the mouseenter event only after the mouse has left the last cell */
+    $(document).on("mouseleave", "td", function(){
+        $(document).one("click-cell.bs.table.bs.table", function(event, field, value, row, $e){onClickCellBs(...arguments)}).on("mouseleave", function(){});
+    });
+    /* on select control changed/option selected */
+    $(document).on("change", "[bootstrap-table-cell-select]", function(){
+        var field = $(this).attr("data-field");
+        var index = Number($(this).attr("data-index"));
+        var value = nullify($(this).val());
+        try {
+            var value = matrix.item(field).parse(value);
+            $(this).closest("td").empty().text(value);      
+            $("#table").bootstrapTable('updateCell', {
+                index: index,
+                field: field,
+                value: value,
+                reinit: false
+            });
+        }
+        catch (e) {
+            iziToast.error({
+                title: "Nepovolená hodnota",
+                message: e.toString(),
+                timeout: 5000
+            });
+        }
+    });
+    $(document).on("mouseleave", "[bootstrap-table-cell-select]", function(){
+        var v = nullify($(this).attr("data-value"));
+        if(v !== null) $(this).closest("td").empty().text(v);
+        else $(this).closest("td").empty();
+    })
+    function nullify(v) {
+        if(v === undefined || v === "undefined") return null;
+        else if(v === 0 || v == "0") return 0;
+        else if(v === false || v === "false") return false;
+        else if(v) return v;
+        else return null;
+    }
+    // #endregion
 }
 
 // #endregion
 
 // #region Table rendering
 
-function loadMatrixToTable(matrix, selector = "#table") {
+function loadMatrixToTable(matrix) {
     $(selector).bootstrapTable(matrix.readConfig());
     $(selector).bootstrapTable("load", matrix.readData());
     $(selector).bootstrapTable("refreshOptions", {
-        locale: locale
+        locale: locale,
+        smartDisplay: true
     });
     for(let c of matrix) {
         $(selector).find(`[data-field="${c.name()}"]`).attr("data-vector-type", c.type())
@@ -54,6 +149,36 @@ function createVectorMenu(vector) {
         if((_m.wiki.applies.find(_ => _.type == vector.type())?.apply)) $m.find("ul").append(`<li><button data-vector-analysis-trigger class="dropdown-item" type="button" data-model = "${_m.name}" data-model-has-args = ${!!_m.model.args}>${_m.wiki.title}</button></li>`)
     }
     return $m.html();
+}
+
+function createResultCard() {
+    var card = `
+    <div class="card" style="padding-top: 1rem;">
+    <div class="card-body">
+      <div class="card-header">
+        <span class="close-card"> 
+            <div class="title"></div>
+            <button class="btn close-card-btn" style="display: flex;flex-direction: row-reverse;">🗑️</button>
+          </span></div>
+      <div class="parameters"></div><br>
+      <div class="sample"></div><br>
+      <div class="content"></div>
+    </div>
+  </div>`
+    return card
+}
+
+function renderParameters(args) {
+
+}
+
+function renderSampleSize(data) {
+    var $t = `<div class="sample-info">`;
+    $t += `<div class="sample-info-item">počet případů: ${N(data.net,{d:0})}</>`;
+    $t += `<div class="sample-info-item">vstupní soubor: ${N(data.raw,{d:0})}</>`;
+    $t += `<div class="sample-info-item">% vyřazených případů: ${N(data.net/data.raw,{style: "percent"})}</>`;
+    $t += `<div class="sample-info-item">aplikovaný filtr: ${data.filter}</>`;
+    return $t;
 }
 
 // #endregion
@@ -82,7 +207,6 @@ $(document).on('shown.bs.collapse', "#wsCollapseOutput", function () {
 function renderVectorFormSchema(schema, vector, methodName) {
     var $f = `<form data-vector-form action = "javascript:void(0)" data-vector-type = "${vector.type()}" data-field = "${vector.name()}" data-method = "${methodName}"><table class="table"><tbody>`;
     for(let a of schema) {
-        console.log(a);
         $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description ? "form-control-tooltip" : ""}" ${a.description ? "title=" + a.description : ""}">${a.title}</td>`;
         $f += `<td title="${a.description || ""}">`;
         if(a.type == "enum") {
@@ -218,7 +342,7 @@ function renderVectorAnalysisResult(result, vector, model) {
         $t += "</tr>";
         var i = 0;
         for(let r of result) {
-            $t += `<tr><td><i>${i}</i></td>`;
+            $t += `<tr><td><small><i>${i+1}</i></small></td>`;
             for(let h of model.schema.output.items) {
                 var val = F(r[h.id], h);
                 $t += `<td>${val}</td>`;
@@ -231,24 +355,7 @@ function renderVectorAnalysisResult(result, vector, model) {
     }
 }
 
-function createResultCard() {
-    var card = `
-    <div class="card" style="padding-top: 1rem;">
-    <div class="card-body">
-      <div class="card-header">
-        <span class="close-card"> 
-            <div class="title"></div>
-            <button class="btn close-card-btn" style="display: flex;flex-direction: row-reverse;">🗑️</button>
-          </span></div>
-      <div class="parameters"></div><br>
-      <div class="sample"></div><br>
-      <div class="content"></div>
-    </div>
-  </div>`
-    return card
-}
-
-// #region Number formaters 
+// #region Formaters 
 
 /**
  * 
@@ -270,6 +377,11 @@ function F(v,p) {
     else if(p.type == "number") {
         return v.toLocaleString(locale, {style: "decimal"})
     }
+    else return v;
+}
+
+function nullFormatter(v) {
+    if(v === null || v === undefined) return `<i style="color: gray" title="prázdná buňka">-</i>`;
     else return v;
 }
 

@@ -13,8 +13,12 @@ html
     script(src="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table.min.js")
     script(src="https://unpkg.com/bootstrap-table@1.21.2/dist/locale/bootstrap-table-cs-CZ.min.js")
     script(src="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/filter-control/bootstrap-table-filter-control.js")
+    script(src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js")
     script(src="./index.js")
   body
+    nav#top.navbar.navbar-light.bg-light.sticky-top
+      a.navbar-brand(href='#top')
+        img(src='./media/retusa-logo-v1-main.png' height='50' alt='Retusa' style="margin: 10px 20px;")
     #workspace.accordion
       .accordion-item
         h2#wsHeaderData.accordion-header
@@ -28,7 +32,7 @@ html
                   .col-sm
                     button.btn.btn-info#toggle-paste-editor(data-bs-toggle="modal" data-bs-target="#modal_paste_editor") Vložit data
               #table-container
-                #table(data-filter-control="true")
+                #table(data-filter-control="true" data-filter-control-multiple-search data-show-search-clear-button="true" data-formatter="nullFormatter")
       .accordion-item
         h2#wsHeaderAnalysis.accordion-header
           button.accordion-button.collapsed(type='button' data-bs-toggle='collapse' data-bs-target='#wsCollapseAnalysis' aria-expanded='false' aria-controls='wsCollapseAnalysis')
