@@ -1,9 +1,15 @@
-
 const locale = "cs-CZ";
 let matrix;
 
 $(function(){
-    // #region Matrix extensions
+    init();
+    matrix = new Matrix(StringVector.generate({total: 5000, list: 5, nullprob: 0.2}).name("groups"), NumericVector.generate({total: 5000, min: 200, max: 500, nullprob: 0.2}).name("score"));
+    loadMatrixToTable(matrix);   
+})
+
+// #region Retusa extensions
+
+function init(){
     Matrix.prototype.readConfig = function(){
         var t = {
             pagination: true,
@@ -15,7 +21,7 @@ $(function(){
                 field: c.name(),
                 title: c.name(),
                 sortable: true,
-                custom: "typeo"
+                filterControl: c.type() == 1? "input" : "select"
             })
         }
         return t;   
@@ -23,10 +29,9 @@ $(function(){
     Matrix.prototype.readData = function() {
         return this.toTable();
     }
-    // #endregion
-    matrix = new Matrix(StringVector.generate({total: 50, list: 5}).name("groups"), NumericVector.generate({total: 50, min: 200, max: 500}).name("score"));
-    loadMatrixToTable(matrix);   
-})
+}
+
+// #endregion
 
 // #region Table rendering
 
@@ -43,7 +48,7 @@ function loadMatrixToTable(matrix, selector = "#table") {
 }
 
 function createVectorMenu(vector) {
-    var $m = $(`<div><span class="bt-header-btn-panel"><button class="btn bt-header-icon">⚙️</button><div class="dropdown"><button data-toggle="tooltip" title="Kliknutím otevřete nabídku analyticých nástrojů pro tuto proměnnou." class="btn bt-header-icon dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">🩼</button><ul class="dropdown-menu"></ul></div></span></div>`);
+    var $m = $(`<div><span class="bt-header-btn-panel"><button class="btn bt-header-icon bt-header-config">⚙️</button><div class="dropdown"><button data-toggle="tooltip" title="Kliknutím otevřete nabídku analyticých nástrojů pro tuto proměnnou." class="btn bt-header-icon dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">🩼</button><ul class="dropdown-menu"></ul></div></span></div>`);
     for(let m of Object.keys(vectorModels)) {
         var _m = vectorModels[m];
         if((_m.wiki.applies.find(_ => _.type == vector.type())?.apply)) $m.find("ul").append(`<li><button data-vector-analysis-trigger class="dropdown-item" type="button" data-model = "${_m.name}" data-model-has-args = ${!!_m.model.args}>${_m.wiki.title}</button></li>`)
@@ -55,15 +60,18 @@ function createVectorMenu(vector) {
 
 // #region Vector analysis results rendering
 
-function renderSingleVectorAnalysisItem(result, vector, model, args) {
+function renderSingleVectorAnalysisItem(result, vector, model, meta) {
     var $c = $(createResultCard());
     var content = renderVectorAnalysisResult(result, vector, model);
     $c.find(".title").html(`<h5>${vector.name()}: <code>${model.wiki.title}</code></h5>`)
-    $c.find(".parameters").html(args);
+    $c.find(".parameters").html(meta.args);
+    $c.find(".sample").html(`<p>Původní velikost vzorku: ${meta.raw}</p><p>Konečná velikost vzorku: ${meta.net}</p><p>Aplikovaný filtr: ${meta.filter}</p>`);
     $c.find(".content").append($(content));
     $("#output-container").append($c);
     $("#wsCollapseOutput").collapse("toggle");
 }
+
+// #region EVENTS
 
 // autoscrolls the the bottom of the page when a new result card is added
 $(document).on('shown.bs.collapse', "#wsCollapseOutput", function () {
@@ -72,9 +80,10 @@ $(document).on('shown.bs.collapse', "#wsCollapseOutput", function () {
 
 // renders Vector form for methods with arguments
 function renderVectorFormSchema(schema, vector, methodName) {
-    var $f = `<form data-vector-form action = "javascript:void(0)" data-vector = "${vector.name()}" data-method = "${methodName}"><table class="table"><tbody>`;
+    var $f = `<form data-vector-form action = "javascript:void(0)" data-vector-type = "${vector.type()}" data-field = "${vector.name()}" data-method = "${methodName}"><table class="table"><tbody>`;
     for(let a of schema) {
-        $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description ? "form-control-tooltip" : ""}" title="${a.description || ""}">${a.title}</td>`;
+        console.log(a);
+        $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description ? "form-control-tooltip" : ""}" ${a.description ? "title=" + a.description : ""}">${a.title}</td>`;
         $f += `<td title="${a.description || ""}">`;
         if(a.type == "enum") {
             $f += `<select data-control-type="${a.type}" class = "form-select" name = "${a.id}" value = ${a.default ? a.default : ""} ${a.required ? "required" : ""}>`
@@ -101,12 +110,18 @@ function renderVectorFormSchema(schema, vector, methodName) {
 /** vector analysis single method trigger*/
 $(document).on("click", "[data-vector-analysis-trigger]", function(){
     var method = $(this).attr("data-model");
-    var vector = matrix.item($(this).closest("[data-field]").attr("data-field"))        
+    var vector = getVectorFromBT($(this).closest("[data-field]").attr("data-field"),$(this).closest("[data-vector-type]").attr("data-vector-type"));
+    var m = vector.model(method);
+    var sample = {
+        filter: m.wiki.filter,
+        raw: vector.length,
+        net: vector.filter(m.filter).length
+    };
     if($(this).attr("data-model-has-args") == "true") {
         renderVectorFormSchema(vectorModels[method].schema.form, vector, method);
     } else {
         var result = vector[method]();
-        renderSingleVectorAnalysisItem(result, vector, vectorModels[method]);
+        renderSingleVectorAnalysisItem(result, vector, vectorModels[method], sample);
     }
 })
 
@@ -121,31 +136,64 @@ $(document).on("submit", "[data-vector-form]", function(){
             else a.value = Number(a.value)
         }
     }
-    var vector = matrix.item($(this).attr("data-vector"));
     var method = vectorModels[$(this).attr("data-method")];
+    var vector = getVectorFromBT($(this).closest("[data-field]").attr("data-field"),$(this).closest("[data-vector-type]").attr("data-vector-type"));
+    var m = vector.model(method.name);
+    var sample = {
+        filter: m.wiki.filter,
+        raw: vector.length,
+        net: vector.filter(m.filter).length,
+        args: argsToTextPreview(args, method.schema.form, method.model.args)
+    };
     try {
         var result = vector[method.name](...args.map(_ => _.value));
-        var argsText = argsToTextPreview(args, method.schema.form);
-        renderSingleVectorAnalysisItem(result,vector,method, argsText);
+        renderSingleVectorAnalysisItem(result,vector,method, sample);
         $(this).closest(".modal").modal("hide");
     } catch(e) {
-        console.dir(e.toString());
         iziToast.error({
-            title: `Pozor, budete muset něco opravit`,
-            message: e.toString(),
+            title: e.toString(),
+            //message: e.toString(),
             timeout: 15000
         });
         return;
     }
 });
 
+$(document).on("click",".close-card-btn", function(){
+    $(this).closest(".card").remove();
+});
+
+$(document).on("click", ".bt-header-config", function(){
+    var field = $(this).closest(`[data-field]`).attr("data-field");
+    var type = $(this).closest("[data-vector-type]").attr("data-vector-type");
+    var vector = getVectorFromBT(field,type);
+    /* show vector setup modal form */
+    
+});
+
+// #endregion
+
+function getVectorFromBT(field, type){
+    var data = $("#table").bootstrapTable("getData", {unfiltered: false}).map(r => r[field]);
+    if(type == 1) return new NumericVector(...data).name(field);
+    else if(type == 2) return new StringVector(...data).name(field);
+    else if(type == 3) return new BooleanVector(...data).name(field);
+    else throw new Error("Unknown vector type")
+}
+
 function argsToTextPreview(args, schema) {
-    if(!args || args?.length == 0) return "<small><i>bez parametrů</i></small>";
-    var t = "<small><u>Parametry</u><ul> "
+    if(!args || args?.length == 0) return null;
+    var t = "<small><u>Parametry</u><ul>"
     for(var i = 0; i < schema.length; i++) {
         value = args.find(a => a.key = schema[i].id)?.value || null;
-        if(value === true) value = "✅";
-        else if(value === false || value == undefined) value = "❌";
+        if(schema[i].enums) {
+            value = schema[i].enums.find(e => e.id == value)?.title;            
+        }
+        else if(value === true) value = "✅";
+        else if(value === false) value = "❌";
+        else if(value !== 0 && !value) {
+            value = "dle interního nastavení"
+        }
         t += `<li>${schema[i].title}: ${value ? value : "-"}</li>`
     };
     return t + "</ul></small>";
@@ -193,15 +241,12 @@ function createResultCard() {
             <button class="btn close-card-btn" style="display: flex;flex-direction: row-reverse;">🗑️</button>
           </span></div>
       <div class="parameters"></div><br>
+      <div class="sample"></div><br>
       <div class="content"></div>
     </div>
   </div>`
     return card
 }
-
-$(document).on("click",".close-card-btn", function(){
-    $(this).closest(".card").remove();
-});
 
 // #region Number formaters 
 
