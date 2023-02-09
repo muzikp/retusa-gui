@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css" integrity="sha512-O03ntXoVqaGUTAeAmvQ2YSzkCvclZEcPQu1eqloPaHfJ5RuNGiS4l+3duaidD801P50J28EHyonCV06CUlTSag==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/filter-control/bootstrap-table-filter-control.css"/>
+    <link href="https://unpkg.com/treeflex/dist/css/treeflex.css" rel="stylesheet"/>
     <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
     <script type="text/javascript" src="c:/Users/Pavel/github/retusa/dist/bundle.min.js" charset="UTF-8"></script>
@@ -15,6 +16,8 @@
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/locale/bootstrap-table-cs-CZ.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/filter-control/bootstrap-table-filter-control.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="./chart.js"></script>
     <script src="./index.js"></script>
   </head>
   <body>
@@ -46,7 +49,32 @@
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#wsCollapseAnalysis" aria-expanded="false" aria-controls="wsCollapseAnalysis">Analýza</button>
         </h2>
         <div class="accordion-collapse collapse" id="wsCollapseAnalysis" aria-labelledby="wsHeaderAnalysis" data-bs-parent="#workspace">
-          <div class="accordion-body"><strong>This is the second item&apos;s accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It&apos;s also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.</div>
+          <div class="accordion-body">
+            <div class="tf-tree example" id="matrix-method-tree">
+              <ul>
+                <li><span class="tf-nc">Korelace</span>
+                  <ul>
+                    <li><span class="tf-nc">Spojitá</span>
+                      <ul>
+                        <li><span class="tf-nc" data-target="correlPearson"></span></li>
+                        <li><span class="tf-nc" data-target="correlPartial"></span></li>
+                      </ul>
+                    </li>
+                    <li><span class="tf-nc">Pořadová</span>
+                      <ul>
+                        <li><span class="tf-nc" data-target="correlSpearman"></span></li>
+                        <li><span class="tf-nc" data-target="correlKendall"></span></li>
+                      </ul>
+                    </li>
+                    <li><span class="tf-nc" data-target="correlBiserial"></span></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul>
+                <li><span class="tf-nc">ANOVA</span></li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
       <div class="accordion-item">
@@ -124,6 +152,16 @@
         </div>
       </div>
     </div>
+    <div class="modal" id="modal_matrix_analysis_form" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body"></div>
+        </div>
+      </div>
+    </div>
   </body>
   <style>
     .form-control-required:before {
@@ -143,11 +181,12 @@
     .card {
       margin-top: 0.5rem;
     }
-    .parameters {
+    .sample-info, .parameter-info {
       padding: 5px;
       margin: 10px 0px;
-      background-color: lightgray;
+      border: lightgray 1px solid;
       border-radius: 5px;
+      font-size: 0.9rem;
     }
     th[data-field] {
         background-color: lightgray !important;
@@ -163,9 +202,16 @@
         padding: 0px;
         margin: 0px;
     }
-    td[title]:after {
-        content: "???";
-        color: blue;
+    td[_title]:after {
+        content: "💡";
+    }
+    .box-header {
+      font-size: 1.2rem;
+      color: blue;
+      margin: 5px 0;
+    }
+    .canvas-layout .title {
+      margin-top: 10px;
     }
   </style>
 </html>
