@@ -1,15 +1,29 @@
+const version = "1.0";
 const locale = "cs-CZ";
-let matrix;
+//let matrix;
 const tableSelector = "#table";
 const log = [];
+const env = "development";
+const defTableName = "lastTable";
+var source;
 
 $(function(){
     init(); /* IMPORTANT!! */
     renderMatrixAnalysisMenu();
-    matrix = new Matrix(StringVector.generate({total: 5000, list: 5, nullprob: 0.2}).name("groups"), NumericVector.generate({total: 5000, min: 200, max: 500, nullprob: 0.2}).name("pre-score"), NumericVector.generate({total: 5000, min: 300, max: 500, nullprob: 0.2}).name("post-score"), BooleanVector.generate({total: 5000, nullprob: 0.2}).name("yes or no"));
+    /*
+    if(localStorage.getItem(defTableName))
+    {
+        //console.log(localStorage.getItem(defTableName));
+        matrix = Matrix.deserialize(localStorage.getItem(defTableName));
+    }
+    else {
+        var n = 500;
+        var empty = 0.05;
+        matrix = new Matrix(StringVector.generate({total: n, list: 5, nullprob: empty}).name("groups"), NumericVector.generate({total: n, min: 200, max: 500, nullprob: empty}).name("pre-score"), NumericVector.generate({total: n, min: 300, max: 500, nullprob: empty}).name("post-score"), BooleanVector.generate({n: 5000, nullprob: empty}).name("yes or no"));
+    }
     loadMatrixToTable(matrix);
+    */
 })
-
 
 // #region Retusa extensions
 
@@ -17,7 +31,7 @@ function init(){
     Matrix.prototype.readConfig = function(){
         var t = {
             pagination: true,
-            search: true,
+            //search: true,
             columns: []
         };
         for(let c of this) {
@@ -25,15 +39,59 @@ function init(){
                 field: c.name(),
                 title: c.name(),
                 sortable: true,
-                filterControl: c.type() == 1? "input" : "select",
+                filterControl: "select-multiple", //|| c.type() == 1? "input" : "select",
                 formatter: nullFormatter
             })
         }
         return t;   
     }
-    Matrix.prototype.readData = function() {
-        return this.toTable();
+    Matrix.prototype.readData = function(config) {
+        return this.toTable(config);
     }
+    Matrix.prototype.updateCell = function(index,field,value) {
+        try {
+            this.item(field)[index] = this.item(field).parse(value);
+            return true;
+        } catch(e) {
+            msg.error("Chybná hodnota", e.message, 3000);
+            return false;
+        }
+    };
+    Matrix.prototype.toTable = function(config) {
+       var table = [];
+       for(var r = config.offset; r <= ((config.offset + config.limit -1) > this.maxRows() ? this.maxRows() : config.offset + config.limit -1); r++) {
+           var row = {};
+           for(var v = 0; v < this.length; v++) {
+               row[this[v].name() || v] = this[v][r];
+           }
+           table.push(row);
+       }
+       return table;
+   }
+   Matrix.prototype.ajax = function(p) {
+    console.log(p);
+    var data = [];
+    /* collect the data first */
+    for(var r = 0; r < this.maxRows(); r++) {
+        var row = {};
+        for(var v = 0; v < this.length; v++) {
+            row[this[v].name() || v] = this[v][r];
+        }
+        data.push(row);
+    }
+    /* then filter */
+    if(p.data.filter) {
+
+    }
+    /* then sort */
+    if(p.data.sort) {
+        var order = p.data.order == "asc" ? 1 : -1;
+        data = data.sort((a,b) => a[p.data.sort] > b[p.data.sort] ? order : -order);
+    }
+    /* finally limit - offset */
+    data = data.slice(p.data.offset, p.data.limit + p.data.offset);
+    return {total: source.maxRows(), totalNotFiltered: data.length, rows: data};
+}
 // #region Cell editor
 
     /* render input control on cell doubleclick */
@@ -62,21 +120,13 @@ function init(){
             var field = $($e).attr("data-field");
             var index = Number($($e).attr("data-index"));
             var value = nullify($($e).val());
-            try {
-                var value = matrix.item(field).parse(value);
+            if(source.updateCell(index,field,value)) {
                 $(this).closest("td").empty().text(value);      
                 $("#table").bootstrapTable('updateCell', {
                     index: index,
                     field: field,
                     value: value,
                     reinit: false
-                });
-            }
-            catch (e) {
-                iziToast.error({
-                    title: "Nepovolená hodnota",
-                    message: e.toString(),
-                    timeout: 5000
                 });
             }
         }  
@@ -94,21 +144,13 @@ function init(){
         var field = $(this).attr("data-field");
         var index = Number($(this).attr("data-index"));
         var value = nullify($(this).val());
-        try {
-            var value = matrix.item(field).parse(value);
+        if(source.updateCell(index,field,value)) {
             $(this).closest("td").empty().text(value);      
             $("#table").bootstrapTable('updateCell', {
                 index: index,
                 field: field,
                 value: value,
                 reinit: false
-            });
-        }
-        catch (e) {
-            iziToast.error({
-                title: "Nepovolená hodnota",
-                message: e.toString(),
-                timeout: 5000
             });
         }
     });
@@ -131,30 +173,57 @@ function init(){
 
 // #region Table rendering
 
+function matrixAJAX(p){
+    if(!source) p.success({total: 0, totalNotFiltered: 0, rows: []});
+    var data = source.ajax(p); 
+    p.success(data);    
+}
+
 /* transfer the matrix to the Bootstrap Table */
-function loadMatrixToTable(matrix) {
-    $(tableSelector).bootstrapTable(matrix.readConfig());
-    $(tableSelector).bootstrapTable("load", matrix.readData());
+function loadMatrixToTable(matrix, callback) {
+    source = matrix;
+    $(tableSelector).empty().bootstrapTable(source.readConfig());
+    //$(tableSelector).bootstrapTable("load", new Array(...matrix.readData()));
     $(tableSelector).bootstrapTable("refreshOptions", {
         locale: locale,
         smartDisplay: true
     });
-    for(let c of matrix) {
+    for(let c of source) {
         $(tableSelector).find(`[data-field="${c.name()}"]`).attr("data-vector-type", c.type())
         $(tableSelector).find(`[data-field="${c.name()}"]`).append(createVectorMenu(c));
     }
+    $("#table-name").val(source.name() || "");
+    if(callback) callback($(tableSelector));
 }
+/*
+function createVectorHeaderDropDown(c) {
+    <div class="dropdown"><a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Dropdown link
+  </a>
 
-/* creates a new matrix from the Bootstrap Table */
-function createMatrixFromTable(config = {numeric: false}) {
-    var m = config?.numeric ? new NumericMatrix() : new Matrix();
+  <ul class="dropdown-menu">
+    <li><a class="dropdown-item" href="#">Action</a></li>
+    <li><a class="dropdown-item" href="#">Another action</a></li>
+    <li><a class="dropdown-item" href="#">Something else here</a></li>
+  </ul>
+</div>
+}
+*/
+
+/*
+- creates a new matrix from the Bootstrap Table
+function _createMatrixFromTable(config = {numeric: false}) {
+    var m = (config?.numeric ? new NumericMatrix() : new Matrix());
+    m.name($("#table-name").val() || null);
     $(tableSelector).find(`[data-field]`).each(function(){
         m.push(getVectorFromBT($(this).attr("data-field"),$(this).attr("data-vector-type")))
     });
     return m;
 }
+*/
 
-/* returns a new Vector instance based on the table column; the vector type is specified by the header data-vector-type attribute */
+
+/* returns a new Vector instance based on the table column; the vector type is specified by the header data-vector-type attribute 
 function getVectorFromBT(field, type, config = {unfiltered: false}){
     var data = $("#table").bootstrapTable("getData", {unfiltered: config?.unfiltered}).map(r => r[field]);
     if(type == 1) return new NumericVector(...data).name(field);
@@ -162,6 +231,7 @@ function getVectorFromBT(field, type, config = {unfiltered: false}){
     else if(type == 3) return new BooleanVector(...data).name(field);
     else throw new Error("Unknown vector type")
 }
+*/
 
 function createVectorMenu(vector) {
     var $m = $(`<div><span class="bt-header-btn-panel"><button class="btn bt-header-icon bt-header-config">⚙️</button><div class="dropdown"><button data-toggle="tooltip" title="Kliknutím otevřete nabídku analyticých nástrojů pro tuto proměnnou." class="btn bt-header-icon dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">🩼</button><ul class="dropdown-menu"></ul></div></span></div>`);
@@ -193,6 +263,7 @@ function createResultCard() {
             <div class="col-6"><div class="parameters"></div><br></div>
         </div>
         <div class="content"></div>
+        <canvas class="chart-container"></canvas>
       </div>
     </div>
   </div>`
@@ -216,16 +287,11 @@ $(document).on("click",".copy-canvas-layout-btn", function(){
         }
         const blob = new Blob([byteArray], { type: 'image/png' });
         navigator.clipboard.write([new ClipboardItem({'image/png': blob})]).then(function() {
-            iziToast.success({
-                title: "Zkopírováno do schránky.",
-                timeout: 3000
-            });
+            msg.ok("Zkopírováno do schránky.", null, 3000);
             copyContainer.remove();
         }).catch(function(error) {
-            iziToast.error({
-                title: "Nepodařilo se zkopírovat.",
-                timeout: 3000
-            });
+            msg.error("Nepodařilo se zkopírovat.", env == "development" ? e.toString() : "", 3000)
+            if(env === "development") console.error(e);
             copyContainer.remove();
         });
     });
@@ -284,14 +350,18 @@ function renderSampleSize(bundle) {
 function renderSingleVectorAnalysisItem(bundle) {
     var $c = $(createResultCard());
     var content = renderAnalysisResult(bundle);
+    activateTab("output", true)
     $c.find(".title").html(`<h5>${bundle.parent.name()}: <code>${bundle.wiki.title}</code></h5>`)
     $c.find(".parameters").html(renderAnalysisParameters(bundle));
     $c.find(".sample").html(renderSampleSize(bundle));
     $c.find(".content").append($(content));
     var $card = $("#output-container").append($c);
-    chartmaker(bundle, $card);
-    $("#wsCollapseOutput").collapse("toggle");
-    
+    chartMaker(bundle, $card);    
+    //$(`[tab-target="#output"]`).tab("show");        
+}
+
+function activateTab(name, scrollBottom = false) {
+    $(`[tab-target="${name}"]`).tab("show");
 }
 
 // #region VECTOR ANALYSIS EVENTS
@@ -332,7 +402,7 @@ function renderVectorFormSchema(schema, vector, methodName) {
 /** vector analysis single method trigger*/
 $(document).on("click", "[data-vector-analysis-trigger]", function(){
     var method = $(this).attr("data-model");
-    var vector = getVectorFromBT($(this).closest("[data-field]").attr("data-field"),$(this).closest("[data-vector-type]").attr("data-vector-type"));
+    var vector = source.item($(this).closest("[data-field]").attr("data-field")); //getVectorFromBT($(this).closest("[data-field]").attr("data-field"),$(this).closest("[data-vector-type]").attr("data-vector-type"));
     if($(this).attr("data-model-has-args") == "true") {
         renderVectorFormSchema(vectorModels[method].schema.form, vector, method);
     } else {
@@ -340,11 +410,8 @@ $(document).on("click", "[data-vector-analysis-trigger]", function(){
             var bundle = vector.analyze(method).run();
             renderSingleVectorAnalysisItem(bundle);
         } catch(e) {
-            iziToast.error({
-                title: e.toString(),
-                //message: e.toString(),
-                timeout: 15000
-            });
+            msg.error("Chyba", env === "development" ? e.toString() : "", 15000);
+            if(env === "development") console.error(e);
             return;
         }
     }
@@ -362,17 +429,17 @@ $(document).on("submit", "[data-vector-form]", function(){
         }
     }
     args = args.map(a => a.value);
-    var vector = getVectorFromBT($(this).closest("[data-field]").attr("data-field"),$(this).closest("[data-vector-type]").attr("data-vector-type")); 
+    var vector = source.item($(this).closest("[data-field]").attr("data-field")); //getVectorFromBT($(this).closest("[data-field]").attr("data-field"),$(this).closest("[data-vector-type]").attr("data-vector-type")); 
     try {
         var bundle = vector.analyze($(this).attr("data-method")).run(...args);
         renderSingleVectorAnalysisItem(bundle);
         $("#modal_vector_analysis_form, #modal_matrix_analysis_form").modal("hide");
     } catch(e) {
-        iziToast.error({
-            title: e.toString(),
-            timeout: 15000
-        });
+        msg.error("Chyba", env === "development" ?  e.toString() : "",null, 15000);
+        if(env === "development") console.error(e);
         return;
+    } finally {
+        $("#modal_vector_analysis_form, #modal_matrix_analysis_form").modal("hide");
     }
     
 });
@@ -391,7 +458,6 @@ $(document).on("click", ".back-to-data-btn", function(){
 $(document).on("click", ".bt-header-config", function(){
     var field = $(this).closest(`[data-field]`).attr("data-field");
     var type = $(this).closest("[data-vector-type]").attr("data-vector-type");
-    var vector = getVectorFromBT(field,type);
     /* show vector setup modal form */
     
 });
@@ -477,6 +543,8 @@ function renderMatrixAnalysisForm(method) {
         if(a.class == 1 || a.class ==2) {
             var opts = mconfig.filter(v => (a.type || [1,2,3]).indexOf(v.type) > -1);
             $f += `<select data-arg = ${JSON.stringify(a)} name = "${a.name}" ${a.class == 2 ? "multiple" : ""} class="form-select" ${a.required ? "required" : ""} ${a.multiple ? "multiple" : ""}>`;
+            /* prompts select */
+            if(!a.required || a.required) $f += `<option value="" disabled selected="true">-- vyberte --</option>`;
             for(let o of opts) {
                 $f += `<option value = "${o.name}">${o.name}</option>`;
             }
@@ -504,30 +572,40 @@ function renderMatrixAnalysisForm(method) {
         $f += `</td></tr>`
     }
     $f += `</tbody></table><br><br><button data-matrix-form-args-submit type="submit" class="btn btn-primary">Spočítat</button></form>`;
+    $("#modal_matrix_analysis_form").find(".title").text(analysis.wiki.title);
     $("#modal_matrix_analysis_form").find(".modal-body").empty().append($($f));
     $("#modal_matrix_analysis_form").modal("show");
 }
 
 /* calculates and renders the matrix analysis method/output */
 $(document).on("submit","[data-matrix-form]", function(){
-    var tmpm = createMatrixFromTable();
+    //var tmpm = createMatrixFromTable();
     var fm = new Matrix();
     var args = [];
     $(this).find("[data-arg]").each(function(){
         var arg = JSON.parse($(this).attr("data-arg"));
         var value = $(this).val();
         if(arg.class == 1) {
-            var v = tmpm.item(value);
-            if((arg.vtype || [1,2,3]).indexOf(v?.type()) < 0) throw new Error("Hovno");
-            else fm.push(v);
+            if(!arg.required && !value) value = null;
+            else if(value) value = source.item(value);
+            else {
+                msg.error("Povinné");
+                return;
+            }
+            if(value) 
+            {
+                fm.push(value);
+                args.push(value.name());
+            } else args.push(null);
+        } else {
+            args.push(value);
         }
-        args.push(value);
     });
+    $("#modal_vector_analysis_form, #modal_matrix_analysis_form").modal("hide");
     var method = $(this).attr("data-method");
     var analysis = fm.analyze(method);
     analysis.run(...args);
     renderMatrixAnalysisItem(analysis);
-    $("#modal_vector_analysis_form, #modal_matrix_analysis_form").modal("hide");    
 });
 
 function renderMatrixAnalysisItem(bundle) {
@@ -537,7 +615,8 @@ function renderMatrixAnalysisItem(bundle) {
     $c.find(".parameters").html(renderAnalysisParameters(bundle));
     $c.find(".sample").html(renderSampleSize(bundle));
     $c.find(".content").append($(content));
-    $("#output-container").append($c);
+    var $card = $("#output-container").append($c);
+    chartMaker(bundle, $card);
     $("#wsCollapseOutput").collapse("toggle");
 }
 
@@ -565,7 +644,7 @@ function collectVectorConfigsFromBT() {
  */
 function F(v,p) {
     if(v === undefined) return "❔";
-    else if(v === null) return "<i>prázné</i>";
+    else if(v === null) return "<i>prázdné</i>";
     if(p.type == "boolean") {
         if(!v) return "❌";
         else return "✅"
@@ -589,6 +668,26 @@ function N(v, options) {
 function nullFormatter(v) {
     if(v === null || v === undefined) return `<i style="color: gray" title="prázdná buňka">-</i>`;
     else return v;
+}
+function srnd(total = 8) {
+    return Array(total).fill().map(()=>"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".charAt(Math.random()*62)).join("")
+}
+
+const msg = {
+    error: function(title = "", message = "", timeout = 3000) {
+        iziToast.error({
+            title: title || "",
+            message: message || "",
+            timeout: timeout
+        });
+    },
+    ok: function(title = "", message = "", timeout = 3000) {
+        iziToast.success({
+            title: title || "",
+            message: message || "",
+            timeout: timeout
+        });
+    }
 }
 
 // #endregion

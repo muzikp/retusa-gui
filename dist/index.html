@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css" integrity="sha512-O03ntXoVqaGUTAeAmvQ2YSzkCvclZEcPQu1eqloPaHfJ5RuNGiS4l+3duaidD801P50J28EHyonCV06CUlTSag==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/filter-control/bootstrap-table-filter-control.css"/>
     <link href="https://unpkg.com/treeflex/dist/css/treeflex.css" rel="stylesheet"/>
+    <link href="https://unpkg.com/multiple-select@1.5.2/dist/themes/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
     <script type="text/javascript" src="c:/Users/Pavel/github/retusa/dist/bundle.min.js" charset="UTF-8"></script>
@@ -15,78 +17,79 @@
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/locale/bootstrap-table-cs-CZ.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/filter-control/bootstrap-table-filter-control.js"></script>
+    <script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
     <script src="./chart.js"></script>
+    <script src="./source.js"></script>
     <script src="./index.js"></script>
   </head>
   <body>
     <nav class="navbar navbar-light bg-light sticky-top" id="top"><a class="navbar-brand" href="#top"><img src="./media/retusa-logo-v1-main.png" height="50" alt="Retusa" style="margin: 10px 20px;"/></a></nav>
-    <div class="accordion" id="workspace">
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="wsHeaderData">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#wsCollapseData" aria-expanded="true" aria-controls="wsCollapseData">Data</button>
-        </h2>
-        <div class="accordion-collapse collapse show" id="wsCollapseData" aria-labelledby="wsHeaderData" data-bs-parent="#workspace">
-          <div class="accordion-body">
-            <div class="accordion-body">
-              <div id="panel">
-                <div class="row">
-                  <div class="col-sm">
-                    <button class="btn btn-info" id="toggle-paste-editor" data-bs-toggle="modal" data-bs-target="#modal_paste_editor">Vložit data</button>
-                  </div>
-                </div>
-              </div>
-              <div id="table-container">
-                <div id="table" data-filter-control="true" data-filter-control-multiple-search="data-filter-control-multiple-search" data-show-search-clear-button="true" data-formatter="nullFormatter"></div>
-              </div>
-            </div>
+    <ul class="nav nav-tabs" id="workspace" role="tablist">
+      <li class="nav-item" role="presentation" tab-target="source">
+        <button class="nav-link active" id="source-tab" data-bs-toggle="tab" data-bs-target="#source-tab-pane" type="button" role="tab" aria-controls="source-tab-pane" aria-selected="true">Zdroje</button>
+      </li>
+      <li class="nav-item" role="presentation" tab-target="table">
+        <button class="nav-link" id="table-tab" data-bs-toggle="tab" data-bs-target="#table-tab-pane" type="button" role="tab" aria-controls="table-tab-pane" aria-selected="false">Tabulka</button>
+      </li>
+      <li class="nav-item" role="presentation" tab-target="analysis">
+        <button class="nav-link" id="analysis-tab" data-bs-toggle="tab" data-bs-target="#analysis-tab-pane" type="button" role="tab" aria-controls="analysis-tab-pane" aria-selected="false">Analýza</button>
+      </li>
+      <li class="nav-item" role="presentation" tab-target="output">
+        <button class="nav-link" id="output-tab" data-bs-toggle="tab" data-bs-target="#output-tab-pane" type="button" role="tab" aria-controls="output-tab-pane" aria-selected="false">Výsledky</button>
+      </li>
+    </ul>
+    <div class="tab-content" id="tabContent">
+      <div class="tab-pane fade show active" id="source-tab-pane" role="tabpanel" aria-labelledby="source-tab" tabindex="0">
+        <div class="source-container">
+          <div class="buttons">
+            <button class="btn btn-info" data-source-action="open">Otevřít</button>
+            <button class="btn btn-info" data-source-action="save">Uložit</button>
+            <button class="btn btn-info" data-source-action="paste" data-bs-toggle="modal" data-bs-target="#modal_paste_editor">Vložit data            </button>
+            <button class="btn btn-info" data-source-action="import">Importovat</button>
           </div>
+          <div class="last-files"></div>
         </div>
       </div>
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="wsHeaderAnalysis">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#wsCollapseAnalysis" aria-expanded="false" aria-controls="wsCollapseAnalysis">Analýza</button>
-        </h2>
-        <div class="accordion-collapse collapse" id="wsCollapseAnalysis" aria-labelledby="wsHeaderAnalysis" data-bs-parent="#workspace">
-          <div class="accordion-body">
-            <div class="tf-tree example" id="matrix-method-tree">
+      <div class="tab-pane fade" id="table-tab-pane" role="tabpanel" aria-labelledby="table-tab" tabindex="0">
+        <input class="form-control" id="table-name" type="text" maxLength="64" placeholder="název tabulky (nepovinné)"/>
+        <div id="table" data-filter-control="true" data-filter-control-multiple-search="data-filter-control-multiple-search" data-show-search-clear-button="true" data-formatter="nullFormatter" data-ajax="matrixAJAX" data-side-pagination="server"></div>
+      </div>
+      <div class="tab-pane fade" id="analysis-tab-pane" role="tabpanel" aria-labelledby="analysis-tab" tabindex="0">
+        <div class="tf-tree example" id="matrix-method-tree">
+          <ul>
+            <li><span class="tf-nc">Korelace</span>
               <ul>
-                <li><span class="tf-nc">Korelace</span>
+                <li><span class="tf-nc">Spojitá</span>
                   <ul>
-                    <li><span class="tf-nc">Spojitá</span>
-                      <ul>
-                        <li><span class="tf-nc" data-target="correlPearson"></span></li>
-                        <li><span class="tf-nc" data-target="correlPartial"></span></li>
-                      </ul>
-                    </li>
-                    <li><span class="tf-nc">Pořadová</span>
-                      <ul>
-                        <li><span class="tf-nc" data-target="correlSpearman"></span></li>
-                        <li><span class="tf-nc" data-target="correlKendall"></span></li>
-                      </ul>
-                    </li>
-                    <li><span class="tf-nc" data-target="correlBiserial"></span></li>
+                    <li><span class="tf-nc" data-target="correlPearson"></span></li>
+                    <li><span class="tf-nc" data-target="correlPartial"></span></li>
                   </ul>
                 </li>
+                <li><span class="tf-nc">Pořadová</span>
+                  <ul>
+                    <li><span class="tf-nc" data-target="correlSpearman"></span></li>
+                    <li><span class="tf-nc" data-target="correlKendall"></span></li>
+                  </ul>
+                </li>
+                <li><span class="tf-nc" data-target="correlBiserial"></span></li>
               </ul>
-              <ul>
-                <li><span class="tf-nc">ANOVA</span></li>
-              </ul>
-            </div>
-          </div>
+            </li>
+          </ul>
+          <ul>
+            <li><span class="tf-nc">ANOVA</span></li>
+          </ul>
+          <ul>
+            <li><span class="tf-nc" data-target="contingency"></span></li>
+          </ul>
         </div>
       </div>
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="headingThree">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#wsCollapseOutput" aria-expanded="false" aria-controls="wsCollapseOutput">Výsledky</button>
-        </h2>
-        <div class="accordion-collapse collapse" id="wsCollapseOutput" aria-labelledby="wsHeaderOutput" data-bs-parent="#workspace">
-          <div class="accordion-body">
-            <!--code#output-container.accordion-body            -->
-            <div class="accordion-body col-12" id="output-container"></div>
-          </div>
-        </div>
+      <div class="tab-pane fade" id="output-tab-pane" role="tabpanel" aria-labelledby="output-tab" tabindex="0">
+        <div class="accordion-body col-12" id="output-container"></div>
       </div>
     </div>
     <div class="modal" id="modal_paste_editor" tabindex="-1">
@@ -162,6 +165,41 @@
         </div>
       </div>
     </div>
+    <div class="modal" id="modal_xls_sheet_select" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Vyberte list</h5>
+            <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="selector"></div>
+            <div class="form-check form-switch">
+              <input class="headers-in-first-row form-check-input" type="checkbox" role="switch"/>
+              <label class="form-check-label">první sloupec tvoří záhlaví</label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="confirm btn btn-primary" type="button">Další</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="modal_xls_vector_config" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Nastavení proměnných</h5>
+            <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">   </div>
+          <div class="modal-footer">
+            <button class="prev btn btn-secondary" type="button">Zpět</button>
+            <button class="confirm btn btn-primary" type="button">Dokončit</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
   <style>
     .form-control-required:before {
@@ -182,7 +220,7 @@
       margin-top: 0.5rem;
     }
     .sample-info, .parameter-info {
-      padding: 5px;
+      padding: 10px 20px;
       margin: 10px 0px;
       border: lightgray 1px solid;
       border-radius: 5px;
@@ -212,6 +250,9 @@
     }
     .canvas-layout .title {
       margin-top: 10px;
+    }
+    .tab-pane {
+      padding: 2%;
     }
   </style>
 </html>
