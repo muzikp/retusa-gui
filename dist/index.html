@@ -23,7 +23,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
-    <script src="./chart.js"></script>
+    <!--script(src="./chart.js")-->
+    <script src="./result-addons.js"></script>
+    <script src="./test-tables.js"></script>
     <script src="./source.js"></script>
     <script src="./index.js"></script>
   </head>
@@ -62,26 +64,48 @@
       <div class="tab-pane fade" id="analysis-tab-pane" role="tabpanel" aria-labelledby="analysis-tab" tabindex="0">
         <div class="tf-tree example" id="matrix-method-tree">
           <ul>
-            <li><span class="tf-nc">Korelace</span>
-              <ul>
-                <li><span class="tf-nc">Spojitá</span>
-                  <ul>
-                    <li><span class="tf-nc" data-target="correlPearson"></span></li>
-                    <li><span class="tf-nc" data-target="correlPartial"></span></li>
-                  </ul>
-                </li>
-                <li><span class="tf-nc">Pořadová</span>
-                  <ul>
-                    <li><span class="tf-nc" data-target="correlSpearman"></span></li>
-                    <li><span class="tf-nc" data-target="correlKendall"></span></li>
-                  </ul>
-                </li>
-                <li><span class="tf-nc" data-target="correlBiserial"></span></li>
-              </ul>
-            </li>
+            <li><span class="analytic-group">
+                <div class="analytics-header" style="background-color: salmon;">Zkoumání závislosti</div>
+                <ul>
+                  <li><span class="tf-nc" data-target="genreg"></span></li>
+                  <li><span class="tf-nc tf-inter-node">Korelace</span>
+                    <ul>
+                      <li><span class="tf-nc tf-inter-node">Spojitá</span>
+                        <ul>
+                          <li><span class="tf-nc" data-target="correlPearson"></span></li>
+                          <li><span class="tf-nc" data-target="correlPartial"></span></li>
+                        </ul>
+                      </li>
+                      <li><span class="tf-nc tf-inter-node">Pořadová</span>
+                        <ul>
+                          <li><span class="tf-nc" data-target="correlSpearman"></span></li>
+                          <li><span class="tf-nc" data-target="correlKendall"></span></li>
+                        </ul>
+                      </li>
+                      <li><span class="tf-nc" data-target="correlBiserial"></span></li>
+                    </ul>
+                  </li>
+                </ul></span></li>
           </ul>
           <ul>
-            <li><span class="tf-nc">ANOVA</span></li>
+            <li><span class="analytic-group">
+                <div class="analytics-header" style="background-color: cadetblue;">Zkoumání rozdílů</div>
+                <ul>
+                  <li><span class="tf-nc tf-inter-node">Spojitá</span>
+                    <ul>
+                      <li><span class="tf-nc" data-target="anovaow"></span></li>
+                      <li><span class="tf-nc" data-target="ttestind"></span></li>
+                      <li><span class="tf-nc" data-target="ttestpair"></span></li>
+                    </ul>
+                    <li><span class="tf-nc tf-inter-node">Pořadová</span>
+                      <ul>
+                        <li><span class="tf-nc" data-target="mannwhitney"></span></li>
+                        <li><span class="tf-nc in-backlog">Kruskall-Wallisova ANOVA</span></li>
+                        <li><span class="tf-nc in-backlog">Friedmanova ANOVA</span></li>
+                      </ul>
+                    </li>
+                  </li>
+                </ul></span></li>
           </ul>
           <ul>
             <li><span class="tf-nc" data-target="contingency"></span></li>
@@ -90,37 +114,6 @@
       </div>
       <div class="tab-pane fade" id="output-tab-pane" role="tabpanel" aria-labelledby="output-tab" tabindex="0">
         <div class="accordion-body col-12" id="output-container"></div>
-      </div>
-    </div>
-    <div class="modal" id="modal_paste_editor" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Vložit data</h5>
-            <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <p>Zkopírujte tabulku v Excelu a vložit jí do pole níže pomocí CTRL+V. Pak stiskněte pokračovat.</p><br/>
-            <div class="form-check">
-              <input class="form-check-input" id="pasted-data-has-headers" type="checkbox" value=""/>
-              <label class="form-check-label" for="pasted-data-has-headers">data obsahují záhlaví</label>
-            </div>
-            <textarea class="form-control" id="pasted-data" rows="20">číslo	text	binární
-15	Pavel	PRAVDA
-12,3	Petr	PRAVDA
-79	Miloš	NEPRAVDA
-54	Eman	
--4	Josef	0
--19	Holý	1</textarea>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-primary" id="confirm-paste" type="button">Pokračovat</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal" id="modal_paste_config" tabindex="-1">
-      <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Vložit data</h5>
@@ -216,6 +209,11 @@
       display: flex;
       justify-content: space-between;
     }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-content: center;
+    }
     .card {
       margin-top: 0.5rem;
     }
@@ -244,15 +242,84 @@
         content: "💡";
     }
     .box-header {
-      font-size: 1.2rem;
-      color: blue;
+      color: black;
       margin: 5px 0;
+      background-color: lightskyblue;
+      font-weight: 600;
+      padding: 5px 10px;
+      text-align: center;
+      width: fit-content;
+      border-radius: 7px;
     }
     .canvas-layout .title {
       margin-top: 10px;
     }
     .tab-pane {
       padding: 2%;
+    }
+    .result-addon-table-container {
+      margin: 1rem 0px;
+    }
+    .result-addon-table-container .table-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 3rem 0px 3rem 0px;
+        width: 100%;
+        padding: 5px;
+        text-align: center;
+        background-color: lightblue;
+        border-radius: 10px;
+    }
+    .method-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      font-variant: all-small-caps;
+    }
+    .argument-badge-panel {
+      display: flex;
+    }
+    .argument-badge {
+      font-family: monospace;
+      background-color: lightsteelblue;
+      padding: 5px;
+      border-radius: 5px;
+      margin-left: 10px;
+      line-height: 2;
+    }
+    .duration {
+      font-family: monospace;
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 5px;
+    }
+    .analytic-group {
+      text-align: center;
+      /*border: lightgray solid 1px;*/
+      border-radius: 10px;
+      font-weight: 600;
+      padding-top: 20;
+    }
+    .analytics-header {
+      font-size: 1.8rem;
+      font-weight: 600;
+      border-radius: 10px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: 2rem;
+      padding: 0% 2rem;
+    }
+    .tf-inter-node {
+      font-style: italic !important;
+      background-color: lightgray !important;
+      border-radius: 50% !important;
+    }
+    .in-backlog {
+      font-style: italic;
+      font-weight: 100;
+      color: brown;
+      border: dashed 1px brown !important;
     }
   </style>
 </html>

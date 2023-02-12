@@ -10,19 +10,22 @@ var source;
 $(function(){
     init(); /* IMPORTANT!! */
     renderMatrixAnalysisMenu();
-    /*
-    if(localStorage.getItem(defTableName))
-    {
-        //console.log(localStorage.getItem(defTableName));
-        matrix = Matrix.deserialize(localStorage.getItem(defTableName));
-    }
-    else {
-        var n = 500;
-        var empty = 0.05;
-        matrix = new Matrix(StringVector.generate({total: n, list: 5, nullprob: empty}).name("groups"), NumericVector.generate({total: n, min: 200, max: 500, nullprob: empty}).name("pre-score"), NumericVector.generate({total: n, min: 300, max: 500, nullprob: empty}).name("post-score"), BooleanVector.generate({n: 5000, nullprob: empty}).name("yes or no"));
-    }
-    loadMatrixToTable(matrix);
-    */
+    
+    source = testTables.anova1();
+    calculateMatrixAnalysis(source.analyze("anovaow"), [[0],1]);
+    return;
+    //return;
+    source = testTables.genreg();
+    loadMatrixToTable(source);
+    calculateMatrixAnalysis(source.analyze("genreg"), [0,1,1]);
+    setTimeout(calculateMatrixAnalysis(source.analyze("genreg"), [0,1,3]), 2000)
+    setTimeout(calculateMatrixAnalysis(source.analyze("genreg"), [0,1,5]), 000)
+    //calculateMatrixAnalysis(source.analyze("genreg"), [0,1,1]);
+    return;
+
+    
+    //loadMatrixToTable(matrix);
+
 })
 
 // #region Retusa extensions
@@ -67,9 +70,31 @@ function init(){
            table.push(row);
        }
        return table;
+    }
+    Matrix.prototype.toArray = function() {
+        var _ = [];
+        for(var i = 0; i < this.maxRows(); i++) {
+            var r = [];
+            for(var c = 0; c < this.length; c++) {
+                r.push(this[c][i])
+            }
+            _.push(r);
+        };
+        return _;
    }
+   Matrix.prototype.toNamedArray = function() {
+    var _ = [];
+    for(var i = 0; i < this.maxRows(); i++) {
+        var r = {};
+        for(var c = 0; c < this.length; c++) {
+            r[this[c].name()] = this[c][i];            
+        }
+        _.push(r);
+    };
+    return _;
+}
    Matrix.prototype.ajax = function(p) {
-    console.log(p);
+    //console.log(p);
     var data = [];
     /* collect the data first */
     for(var r = 0; r < this.maxRows(); r++) {
@@ -174,7 +199,8 @@ function init(){
 // #region Table rendering
 
 function matrixAJAX(p){
-    if(!source) p.success({total: 0, totalNotFiltered: 0, rows: []});
+    //if(!source) p.success({total: 0, totalNotFiltered: 0, rows: []});
+    if(!source) p.error();
     var data = source.ajax(p); 
     p.success(data);    
 }
@@ -243,27 +269,28 @@ function createVectorMenu(vector) {
 }
 
 /** returns HTML layout for the result card */
-function createResultCard() {
+function createResultCard(id = srnd()) {
     var card = `
-    <div class="card" style="padding-top: 1rem;">
+    <div id = "${id}" class="card result-card" style="padding-top: 1rem;">
     <div class="card-body">
       <div class="card-header">
+        <div class="title" style="display: flex"></div>
         <span class="close-card"> 
             <span style="display: flex;flex-direction: row-reverse;">
               <button title="Smazat kartu výsledku." class="btn close-card-btn" style="display: flex;flex-direction: row-reverse;">🗑️</button>
-              <button title="Vložit výsledek do slipbo" class="btn copy-canvas-layout-btn" style="display: flex;flex-direction: row-reverse;">🖼️</button>
+              <button title="Vložit výsledek do clipboardu" class="btn copy-canvas-layout-btn" style="display: flex;flex-direction: row-reverse;">🖼️</button>
               <button title="Zpět na data" class="btn back-to-data-btn" style="display: flex;flex-direction: row-reverse;">⏫</button>
             </span>
           </span>
       </div>
+      <div class="duration"></div>
       <div class="canvas-layout">
-        <div class="title"></div>
         <div class="row">
             <div class="col-6"><div class="sample"></div><br></div>
             <div class="col-6"><div class="parameters"></div><br></div>
         </div>
         <div class="content"></div>
-        <canvas class="chart-container"></canvas>
+        <div class="result-addons"></div>
       </div>
     </div>
   </div>`
@@ -308,11 +335,12 @@ function renderAnalysisParameters(bundle) {
         if(value?.isVector) {
             value = `<code>${value.name() || "nepojmenovaná proměnná"}</code>`
         }
-        else if(value?.isMatrix) {
-            var _value = ""
+        else if(value?.isMatrix || Array.isArray(value) ? value.hasOnlyVectorChildren() : false) {
+            var _value = "";
             for(let v = 0; v < value.length; v++) {
-                value = `<code>${value[v].name() || "nepojmenovaná proměnná"}</code>${v < value.length -1 ? ", " : ""}`
+                _value += `<code>${value[v]?.name() || "nepojmenovaná proměnná"}</code>${v < value.length -1 ? ", " : ""}`
             }
+            value= _value;
         }
         if(schema[i].enums) {
             value = schema[i].enums.find(e => e.id == value)?.title;            
@@ -345,24 +373,15 @@ function renderSampleSize(bundle) {
 
 // #endregion
 
-// #region Vector analysis results rendering
-
-function renderSingleVectorAnalysisItem(bundle) {
-    var $c = $(createResultCard());
-    var content = renderAnalysisResult(bundle);
-    activateTab("output", true)
-    $c.find(".title").html(`<h5>${bundle.parent.name()}: <code>${bundle.wiki.title}</code></h5>`)
-    $c.find(".parameters").html(renderAnalysisParameters(bundle));
-    $c.find(".sample").html(renderSampleSize(bundle));
-    $c.find(".content").append($(content));
-    var $card = $("#output-container").append($c);
-    chartMaker(bundle, $card);    
-    //$(`[tab-target="#output"]`).tab("show");        
+function activateTab(name, scrollBottom = false, callback) {
+    $(`[tab-target="${name}"]`).tab("show").ready(function(){
+        $("#output-container").animate({ scrollTop: $(document).height() }, 1000);
+        //$("#myTabContent").load(location.href + " #myTabContent");
+        callback();
+    });
 }
 
-function activateTab(name, scrollBottom = false) {
-    $(`[tab-target="${name}"]`).tab("show");
-}
+// #region analysis results rendering
 
 // #region VECTOR ANALYSIS EVENTS
 
@@ -407,8 +426,8 @@ $(document).on("click", "[data-vector-analysis-trigger]", function(){
         renderVectorFormSchema(vectorModels[method].schema.form, vector, method);
     } else {
         try {
-            var bundle = vector.analyze(method).run();
-            renderSingleVectorAnalysisItem(bundle);
+            var analysis = vector.analyze(method).run();
+            renderAnalysisResult(analysis);
         } catch(e) {
             msg.error("Chyba", env === "development" ? e.toString() : "", 15000);
             if(env === "development") console.error(e);
@@ -432,7 +451,7 @@ $(document).on("submit", "[data-vector-form]", function(){
     var vector = source.item($(this).closest("[data-field]").attr("data-field")); //getVectorFromBT($(this).closest("[data-field]").attr("data-field"),$(this).closest("[data-vector-type]").attr("data-vector-type")); 
     try {
         var bundle = vector.analyze($(this).attr("data-method")).run(...args);
-        renderSingleVectorAnalysisItem(bundle);
+        renderAnalysisResult(bundle)
         $("#modal_vector_analysis_form, #modal_matrix_analysis_form").modal("hide");
     } catch(e) {
         msg.error("Chyba", env === "development" ?  e.toString() : "",null, 15000);
@@ -484,7 +503,7 @@ function argsToTextPreview(bundle) {
     return t + "</ul></small>";
 }
 
-function renderAnalysisResult(bundle) {
+function createAnalysisResultHtml(bundle) {
     if(bundle.schema.output.isSimple) return `<code>${F(bundle.result, bundle.schema.output)}</code>`;
     else if (bundle.schema.output.isObject) {
         var $t = `<table class = "table"><tbody><tr><th>ukazatel</th><th>hodnota</th><tr>`;
@@ -535,6 +554,7 @@ function renderMatrixAnalysisForm(method) {
     var analysis = new MatrixAnalysis(method);
     var mconfig = collectVectorConfigsFromBT();
     var $f = `<h5>${analysis.wiki.title}</h5><br><form data-matrix-form action = "javascript:void(0)" data-method = "${method}"><table class="table"><tbody>`;
+    var i = 0;
     for(let a of analysis.model.args) {
         var schema = analysis.wiki.arguments.find(_ => _.name == a.name);
         $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description ? "form-control-tooltip" : ""}" ${a.description ? "title=" + a.description : ""}">${schema.title}</td>`;
@@ -554,11 +574,12 @@ function renderMatrixAnalysisForm(method) {
         else
         {
             if(a.type == "enum") {
-                $f += `<select data-control-type="${a.type}" class = "form-select" name = "${a.id}" value = ${a.default ? a.default : ""} ${a.required ? "required" : ""}>`
-                for(let e of a.enums) {
-                    $f += `<option value = ${e.id} ${e.id == a.default ? "selected" : ""}>${e.title}</option>`
+                $f += `<select name = "${a.name}" data-arg = ${JSON.stringify(a)} data-control-type="${a.type}" class = "form-select" ${a.required ? "required" : ""}>`
+                //$f += `<option value="" disabled ${a.required ? "selected" : ""}>-- vyberte --</option>`;
+                for(let e of a.enums.values) {
+                    $f += `<option value = ${e.key} ${e.id == a.default ? "selected" : ""}>${analysis.schema.form[i].enums.find(_ => _.id == e.key).title}</option>`
                 }
-                $f += "</select>"
+                $f += "</select>";
             }
             else if(a.type == "boolean") {
                 $f += `<div class="form-check form-switch"><input data-control-type="${a.type}" checked = ${a.default} ${a.required ? "required" : ""} class="form-check-input" type="checkbox" role="switch" name="${a.id}"></div>`
@@ -569,7 +590,8 @@ function renderMatrixAnalysisForm(method) {
                 $f += `<input type = "${_type}" data-control-type="${a.type}" ${_step > 0 ? "step=" + _step : null} class="form-control" name = "${a.id}" ${a.default ? "value = " + a.default : ""} ${a.required ? "required" : ""} placeholder = "${a.validatorText}"}>`;
             }
         }
-        $f += `</td></tr>`
+        $f += `</td></tr>`;
+        i++;
     }
     $f += `</tbody></table><br><br><button data-matrix-form-args-submit type="submit" class="btn btn-primary">Spočítat</button></form>`;
     $("#modal_matrix_analysis_form").find(".title").text(analysis.wiki.title);
@@ -577,9 +599,8 @@ function renderMatrixAnalysisForm(method) {
     $("#modal_matrix_analysis_form").modal("show");
 }
 
-/* calculates and renders the matrix analysis method/output */
+/* collects the form data, calculates and renders the matrix analysis method/output */
 $(document).on("submit","[data-matrix-form]", function(){
-    //var tmpm = createMatrixFromTable();
     var fm = new Matrix();
     var args = [];
     $(this).find("[data-arg]").each(function(){
@@ -597,27 +618,59 @@ $(document).on("submit","[data-matrix-form]", function(){
                 fm.push(value);
                 args.push(value.name());
             } else args.push(null);
-        } else {
+        } 
+        else if (arg.class == 2) {
             args.push(value);
+        } 
+        else if (arg.class == 3) {
+            if(arg.type == "enum") args.push(Number(value));
+            else args.push(value);
         }
-    });
+    });    
     $("#modal_vector_analysis_form, #modal_matrix_analysis_form").modal("hide");
     var method = $(this).attr("data-method");
     var analysis = fm.analyze(method);
-    analysis.run(...args);
-    renderMatrixAnalysisItem(analysis);
+    calculateMatrixAnalysis(analysis, args);
 });
 
-function renderMatrixAnalysisItem(bundle) {
-    var $c = $(createResultCard());
-    var content = renderAnalysisResult(bundle);
-    $c.find(".title").html(`<h5>${bundle.wiki.title}</h5>`)
-    $c.find(".parameters").html(renderAnalysisParameters(bundle));
-    $c.find(".sample").html(renderSampleSize(bundle));
+function calculateMatrixAnalysis(analysis, args) {
+    analysis.run(...args);
+    renderAnalysisResult(analysis);
+}
+
+function renderAnalysisResult(analysis) {
+    var id = srnd();
+    var $c = $(createResultCard(id));
+    var content = createAnalysisResultHtml(analysis);
+    var d = analysis.duration();
+    //$c.find(".title").html(`<h5>${analysis.wiki.title}</h5>`)
+    $c.find(".title").html(createResultCardTitle(analysis));
+    $c.find(".parameters").html(renderAnalysisParameters(analysis));
+    $c.find(".sample").html(renderSampleSize(analysis));
     $c.find(".content").append($(content));
-    var $card = $("#output-container").append($c);
-    chartMaker(bundle, $card);
-    $("#wsCollapseOutput").collapse("toggle");
+    $c.find(".duration").text(`doba výpočtu: ${d < 1000 ? (d) + " ms" : d < 60000 ? N(d/1000) + " sekund" : N(d/60000) + " minut" }`)
+    $("#output-container").append($c).ready(function(){
+        var $card = $("#output-container").find(`.result-card[id="${id}"]`);
+        resultAddons(analysis, $card, function(){
+            $(document).find(`[id="output-tab"]`).click();    
+        });
+    });    
+}
+
+function createResultCardTitle(analysis) {
+    var $t = `<div class="method-title">${analysis.wiki.title}: </div>`;
+    if(analysis.parent.isVector) $t += `<div class="argument-badge-panel"><div class="argument-badge">${analysis.parent.name()}</div></div>`
+    else if(analysis.parent.isMatrix) {
+        $t += `<div class="argument-badge-panel">`;
+        for(var a = 0; a < analysis.args.length; a++) {
+            var arg = analysis.args[a];
+            if(analysis.model.args[a]?.class == 1) {
+                $t += `<div class="argument-badge ${arg.type == 1 ? "text-bg-success" : arg.type == 2 ? "text-bg-warning" : "text-bg-secondary"}">${analysis.parent.item(arg).name()}</div>`;
+            }
+        };
+        $t += "</div>";
+    }
+    return $t;
 }
 
 function collectVectorConfigsFromBT() {
