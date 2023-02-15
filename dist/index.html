@@ -13,17 +13,21 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
     <script type="text/javascript" src="c:/Users/Pavel/github/retusa/dist/bundle.min.js" charset="UTF-8"></script>
+    <!--script(src="https://cdn.statically.io/gh/muzikp/retusa/main/dist/bundle.min.js")-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js" integrity="sha512-Zq9o+E00xhhR/7vJ49mxFNJ0KQw1E1TMWkPTxrWcnpfEFDEXgUiwJHIKit93EW/XxE31HSI5GEOW06G6BF1AtA==" crossorigin="anonymous" referrerpolicy="no-referrer">   </script>
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/locale/bootstrap-table-cs-CZ.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/filter-control/bootstrap-table-filter-control.js"></script>
-    <script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/export/bootstrap-table-export.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin/tableExport.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin/libs/jsPDF/jspdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin/libs/jsPDF-AutoTable/jspdf.plugin.autotable.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.1.1/build/index.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
-    <!--script(src="./chart.js")-->
     <script src="./result-addons.js"></script>
     <script src="./test-tables.js"></script>
     <script src="./source.js"></script>
@@ -50,16 +54,37 @@
         <div class="source-container">
           <div class="buttons">
             <button class="btn btn-info" data-source-action="open">Otevřít</button>
-            <button class="btn btn-info" data-source-action="save">Uložit</button>
-            <button class="btn btn-info" data-source-action="paste" data-bs-toggle="modal" data-bs-target="#modal_paste_editor">Vložit data            </button>
-            <button class="btn btn-info" data-source-action="import">Importovat</button>
+            <button class="btn btn-success" data-source-action="save">Uložit</button>
+            <button class="btn btn-warning" data-source-action="import">Importovat</button>
+          </div>
+          <hr/>
+          <h5>Testovací datasety</h5>
+          <div class="sample-sets">
+            <button class="btn btn-info" data-test-dataset="genreg">Regrese</button>
+            <button class="btn btn-success" data-test-dataset="muvslinreg">Regrese (MÚVS)</button>
+            <button class="btn btn-success" data-test-dataset="anycorrel">Korelace</button>
+            <button class="btn btn-info" data-test-dataset="anova2">ANOVA bez faktoru</button>
+            <button class="btn btn-info" data-test-dataset="anova1">ANOVA s faktorem</button>
+            <button class="btn btn-info" data-test-dataset="ttestind1">T-test nez. s faktorem</button>
+            <button class="btn btn-info" data-test-dataset="ttestind2">T-test nez. bez faktoru</button>
+          </div>
+          <hr/>
+          <h5>Makro</h5>
+          <div class="sample-sets">
+            <button class="btn btn-info" data-makro="genreg">Regrese</button>
+            <button class="btn btn-success" data-makro="muvslinreg">Regrese (MÚVS)</button>
+            <button class="btn btn-success" data-makro="anycorrel">Všechny korelace</button>
+            <button class="btn btn-info" data-makro="anova2">ANOVA bez faktoru</button>
+            <button class="btn btn-info" data-makro="anova1">ANOVA s faktorem</button>
+            <button class="btn btn-info" data-makro="ttestind1">T-test nez. s faktorem</button>
+            <button class="btn btn-info" data-makro="ttestind2">T-test nez. bez faktoru</button>
           </div>
           <div class="last-files"></div>
         </div>
       </div>
       <div class="tab-pane fade" id="table-tab-pane" role="tabpanel" aria-labelledby="table-tab" tabindex="0">
         <input class="form-control" id="table-name" type="text" maxLength="64" placeholder="název tabulky (nepovinné)"/>
-        <div id="table" data-filter-control="true" data-filter-control-multiple-search="data-filter-control-multiple-search" data-show-search-clear-button="true" data-formatter="nullFormatter" data-ajax="matrixAJAX" data-side-pagination="server"></div>
+        <div id="table" data-toolbar="#tabletoolbar" data-show-export="true" data-filter-control="true" data-filter-control-multiple-search="data-filter-control-multiple-search" data-show-search-clear-button="true" data-formatter="nullFormatter" data-ajax="matrixAJAX" data-side-pagination="server"></div>
       </div>
       <div class="tab-pane fade" id="analysis-tab-pane" role="tabpanel" aria-labelledby="analysis-tab" tabindex="0">
         <div class="tf-tree example" id="matrix-method-tree">
@@ -99,7 +124,7 @@
                     </ul>
                     <li><span class="tf-nc tf-inter-node">Pořadová</span>
                       <ul>
-                        <li><span class="tf-nc" data-target="mannwhitney"></span></li>
+                        <li><span class="tf-nc" data-target="mwu"></span></li>
                         <li><span class="tf-nc in-backlog">Kruskall-Wallisova ANOVA</span></li>
                         <li><span class="tf-nc in-backlog">Friedmanova ANOVA</span></li>
                       </ul>
@@ -108,34 +133,16 @@
                 </ul></span></li>
           </ul>
           <ul>
-            <li><span class="tf-nc" data-target="contingency"></span></li>
+            <li><span class="analytic-group">
+                <div class="analytics-header" style="background-color: cadetblue;">Analýza nominálních dat</div>
+                <ul>
+                  <li><span class="tf-nc" data-target="contingency"></span></li>
+                </ul></span></li>
           </ul>
         </div>
       </div>
       <div class="tab-pane fade" id="output-tab-pane" role="tabpanel" aria-labelledby="output-tab" tabindex="0">
         <div class="accordion-body col-12" id="output-container"></div>
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Vložit data</h5>
-            <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <p>Upřesněte typ proměnných, případně změňte název.</p><br/>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>název proměnné</th>
-                  <th>typ proměnné</th>
-                </tr>
-              </thead>
-              <tbody id="pasted-data-config-table"></tbody>
-            </table>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" id="confirm-paste-previous" type="button">Zpět</button>
-            <button class="btn btn-primary" id="confirm-pasted-config" type="button">Pokračovat</button>
-          </div>
-        </div>
       </div>
     </div>
     <div class="modal" id="modal_vector_analysis_form" tabindex="-1">
@@ -320,6 +327,57 @@
       font-weight: 100;
       color: brown;
       border: dashed 1px brown !important;
+    }
+    .context-menu {
+      display: none;
+      position: absolute;
+    }
+    th {
+      z-index: 100 !important;
+    }
+    [data-matrix-form-args-submit] {
+      width: 100%;
+    }
+    .dropdown-submenu {
+      position:relative;
+    }
+    .dropdown-submenu > .dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top:-6px;
+    }
+    
+    /* rotate caret on hover */
+    .dropdown-menu > li > a:hover:after {
+        text-decoration: underline;
+        transform: rotate(-90deg);
+    } 
+    [data-vector-analysis-trigger], .dropdown-item-button {
+      padding: 0px;
+    }
+    .dropdown:hover>.dropdown-menu {
+      display: block;
+      left: 100%;
+      bottom: -50%;
+      margin-right: 10px;
+    }
+    .dropdown-item:hover>.dropdown-menu {
+      display: block;
+    }
+    ul li{
+    list-style-type:none;
+    display: inline;
+    }
+    .navbar-nav .nav-link{display:inline-block;}
+    .ml-auto {display:inline-block!important;}
+    .dropdown>.dropdown-toggle:active {
+      pointer-events: none;
+    }
+    .context-menu-header {
+      font-weight: 600;
+      dark-blue;
+      padding-left: 10px;
+      color: gray;
     }
   </style>
 </html>

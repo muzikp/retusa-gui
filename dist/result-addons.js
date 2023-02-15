@@ -1,10 +1,12 @@
+$(function(){
+
+})
+
 const resultAddons = function(analysis, $card, callback) {
     if(!addonLibs[analysis.name]) {
-        //$($card).find(".chart-container").remove();
-        //setTimeout((callback || function(){return true})(), 5000)
+        if(callback) callback();
     }
     else {        
-        //var eid = getChartContainerId($card);
         for(let addon of addonLibs[analysis.name]) {
             if(addon.type == "chart") {
                 var chdata = addon.data(analysis);
@@ -260,7 +262,7 @@ const addonLibs = {
                         }
                       },
                       plugins: {
-                        ...ch_Title(`${analysis.wiki.title} (${analysis.schema.form[2].enums.find(e => e.id == analysis.args[2]).title} model)`, subtitle)
+                        ...ch_title(`${analysis.wiki.title} (${analysis.schema.form[2].enums.find(e => e.id == analysis.args[2]).title} model)`, subtitle)
                       }
                     }
                 }
@@ -300,29 +302,64 @@ const addonLibs = {
                 });  
                 $t += "</tr>";           
                 $t += "</tbody></table></div></div>";
-                console.log($t);
                 return $t;
             }
         }
-    ]
+    ],
+    "anovaow": [
+        {
+            type: "chart",
+            data: function(analysis) {
+                var arrays = analysis.args[1] ? new Array(...new Matrix(analysis.matrix.item(analysis.args[1]), analysis.matrix.item(analysis.args[0][0])).pivot(1,0)) : new Array(...analysis.matrix);
+                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                
+            }
+        }
+    ],
+    "ttestind": [
+        {
+            type: "chart",
+            data: function(analysis) {
+                var arrays = (analysis.args[1] ? new Array(...new Matrix(analysis.matrix.item(analysis.args[1]), analysis.matrix.item(analysis.args[0][0])).pivot(1,0)).slice(0,2) : new Array(...analysis.matrix).slice(0,2));
+                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                              
+            }
+        }
+    ],
+    "ttestpair": [
+        {
+            type: "chart",
+            data: function(analysis) {
+                var arrays = new Array(...analysis.matrix);
+                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                            
+            }
+        }
+    ],
+    "mwu": [
+        {
+            type: "chart",
+            data: function(analysis) {
+                var arrays = (analysis.args[1] ? new Array(...new Matrix(analysis.matrix.item(analysis.args[1]), analysis.matrix.item(analysis.args[0][0])).pivot(1,0)).slice(0,2) : new Array(...analysis.matrix).slice(0,2));
+                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                              
+            }
+        }
+    ],
 };
 
 function createChartContainer($card, callback) {
     /* adds and returns a unique ID of the .chart-container element for hosting the ChartJS object */
     var chid = srnd();
-    $($card).find(".result-addons").append(`<canvas id = "${chid}"></canvas>`).ready(function(){
+    $($card).find(".result-addons").append(`<canvas data-exportable id = "${chid}"></canvas>`).ready(function(){
         callback(chid);
     });
 }
 
 function createTableContainer($card, callback) {
     var t = srnd();
-    $($card).find(".result-addons").append(`<canvas id = "${chid}"></canvas>`).ready(function(){
+    $($card).find(".result-addons").append(`<canvas data-exportable id = "${chid}"></canvas>`).ready(function(){
         callback(chid);
     });
 }
 
-function ch_Title(title, subtitle) {
+function ch_title(title, subtitle) {
     var t = {};
     if(title) {
         t.title = {
@@ -382,4 +419,224 @@ percentTicks = {
     callback: function(val, index) {
       return N(val, {style: "percent"});
     }
-  }
+}
+
+function getBoxPlot(analysis, labels, data) {
+    var ch = {
+        type: 'boxplot',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Pořadové statistiky',
+                ...pluginColors(analysis),
+                borderWidth: 1,
+                padding: 10,
+                itemRadius: 2,
+                itemStyle: 'circle',
+                itemBackgroundColor: '#000',
+                outlierBackgroundColor: '#000',
+                data: data,
+              }],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            ...ch_title(analysis.wiki.title, "min = 0,05p, max = 0,95p"),
+            }
+        }
+    };
+    console.log(ch.data.datasets[0].backgroundColor);
+    return ch;
+}
+
+function getArraysPercentiles(arrays) {
+   return arrays.map(function(vector) {
+        return {
+            min: vector.percentile(0.05),
+            q1: vector.percentile(0.25),
+            median: vector.percentile(0.5),
+            mean: vector.avg(),
+            q3: vector.percentile(0.75),
+            max: vector.percentile(0.95)
+        }
+    });
+}
+
+function pluginColors(method) {
+    if(typeof method == "object") method = method.name;
+    return scaleColor(chartColorsByMethod[method] || chartColorsByMethod.default)
+}
+
+function scaleColor(o) {
+    return {
+        backgroundColor: `rgba(${o.r},${o.g},${o.b},0.2)`,
+        borderColor: `rgba(${o.r},${o.g},${o.b},1)`,
+    }                
+}
+
+chartColorsByMethod = {
+    "anovaow": {r:64,g:12,b:15},
+    "ttestind": {r:13,g:60,b:59},
+    "ttestpair": {r:179,g:200,b:200},
+    "mwu": {r: 66, g: 76, b: 86},
+    "default": {r:12,g:12,b:12}
+}
+
+vectorContextMenuTree = [
+    {
+        type: "header",
+        value: "Nastavení"
+    },
+    {
+        type: "custom",
+        id: "config",
+        value: "konfigurace",
+        function: function(sender){
+            console.log(source.item($(sender).attr("data-vector-name")));
+        }        
+    },
+    {
+        type: "divider"      
+    },
+    {
+        type: "header",
+        value: "Analýza"
+    },
+    {
+        type: "method",
+        value: "count"        
+    },
+    {
+        type: "method",
+        value: "sum",        
+    },
+    {
+        type: "parent",
+        value: "poloha",
+        id: "location",
+        children: [
+            {
+                type: "method",
+                value: "avg"        
+            },
+            {
+                type: "method",
+                value: "harmean"        
+            },
+            {
+                type: "method",
+                value: "geomean"        
+            },
+            {
+                type: "divider"
+            },
+            {
+                type: "method",
+                value: "min"        
+            },
+            {
+                type: "method",
+                value: "max"        
+            },
+            {
+                type: "method",
+                value: "range"        
+            },
+            {
+                type: "divider"
+            },
+            {
+                type: "method",
+                value: "median"        
+            },
+            {
+                type: "method",
+                value: "percentile"        
+            },
+            {
+                type: "method",
+                value: "mode"        
+            }
+        ]        
+    },
+    {
+        type: "parent",
+        value: "rozložení",
+        id: "structure",
+        children: [
+            {
+                type: "method",
+                value: "stdev"        
+            },
+            {
+                type: "method",
+                value: "variance"        
+            },
+            {
+                type: "method",
+                value: "varc"        
+            },
+            {
+                type: "method",
+                value: "kurtosis"        
+            },
+            {
+                type: "method",
+                value: "skewness"        
+            }
+        ]        
+    },
+    {
+        type: "parent",
+        value: "frekvence",
+        id: "freq",
+        children: [
+            {
+                type: "method",
+                value: "frequency"        
+            },
+            {
+                type: "method",
+                value: "histogram"        
+            }
+        ]        
+    },
+    {
+        type: "parent",
+        value: "testy",
+        id: "tests",
+        children: [
+            {
+                type: "method",
+                value: "ttest"        
+            },
+            {
+                type: "method",
+                value: "swtest"        
+            },
+            {
+                type: "method",
+                value: "kstest"        
+            }
+        ]        
+    },
+    {
+        type: "parent",
+        value: "chybové testy",
+        id: "errors",
+        children: [
+            {
+                type: "method",
+                value: "sem"        
+            },
+            {
+                type: "method",
+                value: "mci"        
+            },
+            {
+                type: "method",
+                value: "pci"        
+            }
+        ]        
+    }
+]
