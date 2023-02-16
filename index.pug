@@ -6,7 +6,8 @@ html
     link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous")
     link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css" integrity="sha512-O03ntXoVqaGUTAeAmvQ2YSzkCvclZEcPQu1eqloPaHfJ5RuNGiS4l+3duaidD801P50J28EHyonCV06CUlTSag==" crossorigin="anonymous" referrerpolicy="no-referrer")
     link(rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/filter-control/bootstrap-table-filter-control.css")
-    link(href="https://unpkg.com/treeflex/dist/css/treeflex.css" rel="stylesheet")
+    //link(href="https://unpkg.com/treeflex/dist/css/treeflex.css" rel="stylesheet")
+    link(href="https://cdn.jsdelivr.net/npm/treeflex@2.0.1/dist/css/treeflex.min.css" rel="stylesheet")
     link(href="https://unpkg.com/multiple-select@1.5.2/dist/themes/bootstrap.min.css" rel="stylesheet")
     link(rel="stylesheet" href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css")
     script(src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js")
@@ -27,7 +28,8 @@ html
     script(src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.1.1/build/index.umd.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ==" crossorigin="anonymous" referrerpolicy="no-referrer")
     script(lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js")
-    script(src="./result-addons.js")
+    //script(src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js")
+    script(src="./addons.js")
     script(src="./test-tables.js")
     script(src="./source.js")
     script(src="./index.js")
@@ -170,6 +172,59 @@ html
           .modal-footer
             button.prev.btn.btn-secondary(type='button') Zpět
             button.confirm.btn.btn-primary(type='button') Dokončit
+    #modal_vector_config.modal(tabindex='-1')
+      .modal-dialog
+        form#vector-config(action="javascript:void(0)").modal-content
+          .modal-header
+            h5.modal-title Konfigurace proměnné
+            button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+          .modal-body
+              .mb-3
+                label.form-label() Název proměnné
+                input.form-control(type='text' name = "name" required placeholder='unikátní název')
+              hr
+              .mb-3
+                label.form-label() Převést na
+                .form-check
+                  input.form-check-input(type='radio' data-type = 1 name='type')
+                  label.form-check-label() numerickou proměnnou
+                .form-check
+                  input.form-check-input(type='radio' data-type = 2 name='type')
+                  label.form-check-label() textovou proměnnou
+                .form-check
+                  input.form-check-input(type='radio' data-type = 3 name='type')
+                  label.form-check-label() binární proměnnou
+          .modal-footer
+            button.confirm.btn.btn-primary(type='submit') Potvrdit
+    #modal_vector_filter.modal(tabindex='-1')
+      .modal-dialog
+        form#vector-filter(action="javascript:void(0)").modal-content
+          .modal-header
+            h5.modal-title Filtr proměnné
+            button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+          .modal-body
+              .selectable-filters
+                .mb-3
+                  label.form-label() Vyberte hodnoty
+                  select.form-select(name = "filter" multiple data-filter-type = "select")
+              .numeric-filters
+                .mb-3
+                  label.form-label(title="pokud je zároveň vyplněna hodnota 'větší než rovno', budere se jako přednostní ona") větší než
+                  input.form-control(name = "greater" type="number")
+                .mb-3
+                  label.form-label(title="pokud je zároveň vyplněna hodnota 'větší', nevadí, bude ignorována") větší než nebo rovno
+                  input.form-control(name = "grequal" type="number")
+                .mb-3
+                  hr
+                .mb-3
+                  label.form-label() menší než
+                  input.form-control(name = "less" type="number")
+                .mb-3
+                  label.form-label() menší než nebo rovno
+                  input.form-control(name = "lessqual" type="number")  
+          .modal-footer
+            button.btn.btn-secondary(type='submit' data-action = "clear") Zrušit filtrování
+            button.btn.btn-primary(type='submit' data-action="confirm") Potvrdit
   style. 
     .form-control-required:before {
       color: red;
@@ -201,7 +256,7 @@ html
       font-size: 0.9rem;
     }
     th[data-field] {
-        background-color: lightgray !important;
+        /*background-color: lightgray;*/
     }
     .bt-header-btn-panel {
         display: flex;
@@ -334,8 +389,8 @@ html
       display: block;
     }
     ul li{
-    list-style-type:none;
-    display: inline;
+      list-style-type:none;
+      display: inline;
     }
     .navbar-nav .nav-link{display:inline-block;}
     .ml-auto {display:inline-block!important;}
@@ -347,4 +402,20 @@ html
       dark-blue;
       padding-left: 10px;
       color: gray;
+    }
+    .th-numeric {
+      background-color: lightblue !important;
+    }
+    .th-string {
+      background-color: lightgreen !important;
+    }
+    .th-boolean {
+      background-color: lightbrown !important;
+    }
+    [data-filter]:before {
+      content: "🌪️" !important;,
+      margin-right: 5px !important;
+    }
+    th {
+      diplay: flex !important;
     }

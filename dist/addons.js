@@ -492,8 +492,47 @@ vectorContextMenuTree = [
         id: "config",
         value: "konfigurace",
         function: function(sender){
-            console.log(source.item($(sender).attr("data-vector-name")));
+            var vector = source.item($(sender).attr("data-vector-name"));
+            var $f = $("#vector-config");
+            $($f).attr("data-field", vector.name());
+            $($f).find('[name="name"]').val(vector.name());
+            $($f).find(`[data-type=${vector.type()}]`).prop("checked", true);
+            $($f).attr("data-vector-name", vector.name());
+            $("#modal_vector_config").modal("show");
         }        
+    },
+    {
+        type: "custom",
+        id: "filter",
+        value: "filtrování dat",
+        function: function(sender) {
+            var vector = source.item($(sender).attr("data-vector-name"));
+            var $f = $("#vector-filter");
+            $($f).attr("data-field", vector.name());
+            $($f).find('[name="name"]').val(vector.name());
+            $f.find(".numeric-filters").attr("hidden", vector.type() > 1);
+            $f.find(".selectable-filters").attr("hidden", vector.type() < 2);
+            //var filter = $f.find(`[data-filter-type = "select"]`).val();
+            var vf = collectFiltersFromHeaders(vector.name());
+            if(vector.type() > 1) {
+                var $s = $f.find(`[data-filter-type = "select"]`).empty();
+                for(var v of vector.distinct().asc()) {
+                    var $o = $("<option>").text(v !== null ? v : "- prázdné -").attr("value", v !== null ? v : "");
+                    if((vf.filter || []).indexOf(v) > -1) $o.attr("selected", true);
+                    $s.append($o);
+                }
+            } else {
+                if(typeof vf.filter == "object") {
+                    if(vf.greater) $f.find(`[name="greater"]`).val(vf.greater);
+                    if(vf.grequal) $f.find(`[name="greater"]`).val(vf.grequal);
+                    if(vf.less) $f.find(`[name="greater"]`).val(vf.less);
+                    if(vf.lessqual) $f.find(`[name="greater"]`).val(vf.lessqual);
+                }
+            }
+            $(document).ready(function(){
+                $("#modal_vector_filter").modal("show");
+            });
+        }
     },
     {
         type: "divider"      
@@ -640,3 +679,67 @@ vectorContextMenuTree = [
         ]        
     }
 ]
+
+$(document).on("submit", "#vector-config", function() {
+    var $f = $(this);
+    var newName = $f.find(`[name="name"]`).val();
+    var newType = $f.find(`[name="type"]:checked`).attr("data-type");
+    var vector = source.item($f.attr("data-field"));
+    var changes = 0;
+    if(Number(newType) !== vector.type()) {
+        try {
+            source[source.indexOf(vector)] = vector.convert(newType, (v,i,a) => v === "null" ? null : v);
+            changes++;
+        } catch(e) {
+            msg.error("Proměnnou nešlo zkonvertovat", e.message, 60000);
+            $f.one("submit", vectorCustomFns.configure($f));
+        }
+    }
+    if(newName != vector.name()) {
+        source[source.indexOf(vector)] = source[source.indexOf(vector)].name(newName);
+        changes++;
+    }
+    if(changes > 0) loadMatrixToTable(source, function(){
+        $("#modal_vector_config").modal("hide");
+    }) 
+    else $("#modal_vector_config").modal("hide");
+    return false;
+});
+
+$(document).on("submit", "#vector-filter", function(event) {
+    var $f = $(this);
+    var vector = source.item($f.attr("data-field"));
+    if($(event.originalEvent.submitter).attr("data-action") == "confirm") {
+        /* prepares select */
+        if(vector.type() > 1) {
+            var filter = $f.find(`[data-filter-type = "select"]`).val();
+            $(tableSelector).find(`th[data-field='${vector.name()}']`).attr("data-filter",JSON.stringify(filter)).attr("data-filter-type", "array");
+        } else {
+            var filter = {
+                greater: $f.find(`[name="greater"]`).val(),
+                grequal: $f.find(`[name="grequal"]`).val(),
+                less: $f.find(`[name="less"]`).val(),
+                lessqual: $f.find(`[name="lessqual"]`).val(),
+            };
+            filter.greater == "" && filter.greater !== "0" ? delete filter.greater : filter.greater = Number(filter.greater);
+            filter.grequal == "" && filter.grequal !== "0" ? delete filter.grequal : filter.grequal = Number(filter.grequal);
+            filter.less == "" && filter.less !== "0" ? delete filter.less : filter.less = Number(filter.less);
+            filter.lessqual == "" && filter.lessqual !== "0" ? delete filter.lessqual : filter.lessqual = Number(filter.lessqual);
+            $(tableSelector).find(`th[data-field='${vector.name()}']`).attr("data-filter",JSON.stringify(filter)).attr("data-filter-type", "numeric");
+        }
+        $(document).ready(function(){
+            $(tableSelector).bootstrapTable('refresh');
+            $("#modal_vector_filter").modal("hide");
+        });
+    }
+    else if($(event.originalEvent.submitter).attr("data-action") == "clear") {  
+        $(tableSelector).find(`th[data-field='${vector.name()}']`).removeAttr("data-filter").removeAttr("data-filter-type");
+        $(document).ready(function(){
+            $(tableSelector).bootstrapTable('refresh');
+            $("#modal_vector_filter").modal("hide");
+        });
+    } else {
+        console.log("Something else...")
+    }
+    return false;
+})

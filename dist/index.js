@@ -1,6 +1,5 @@
 const version = "1.0";
 const locale = "cs-CZ";
-//let matrix;
 const tableSelector = "#table";
 const log = [];
 const env = "development";
@@ -12,6 +11,8 @@ $(function() {
   init();
   renderMatrixAnalysisMenu();
   initContextMenus();
+  source = testTables.anova1();
+  if(source) loadMatrixToTable(source);
 });
 
 function initContextMenus() {
@@ -41,14 +42,6 @@ function createVectorMenu(sender) {
   }
   parent += "</div>";
   return parent;
-  /*
-  var $m = $(`<div><div id="context-menu" class="dropdown-menu" aria-labelledby="dropdownMenuButton"></div></div>`);
-  for (let m of Object.keys(vectorModels)) {
-    var _m = vectorModels[m];
-    if ((_m.wiki.applies.find(_ => _.type == vector.type())?.apply)) $m.find("#context-menu").append(`<li><button data-field = "${vector.name()}" data-vector-analysis-trigger class="dropdown-item" type="button" data-model = "${_m.name}" data-model-has-args = ${!!_m.model.args}>${_m.wiki.title}</button></li>`)
-  }
-  return $m.html();
-  */
 }
 
 function createVectorMenuNode(node, vector) {
@@ -149,21 +142,20 @@ function init() {
     };
     return _;
   }
-  Matrix.prototype.ajax = function(p) {
-    //console.log(p);
+  Matrix.prototype.ajax = function(p) {    
     var data = [];
-    /* collect the data first */
-    for (var r = 0; r < this.maxRows(); r++) {
-      var row = {};
-      for (var v = 0; v < this.length; v++) {
-        row[this[v].name() || v] = this[v][r];
-      }
-      data.push(row);
+    /* try filter first */
+    var filters = collectFiltersFromHeaders();
+    if(filters.length > 0) {
+      try {
+        data = matrixToBSFormat(this.filter(...filters));
+      } catch(e){
+        console.error(e);
+      }      
+    } else {
+      data = matrixToBSFormat(this);
     }
-    /* then filter */
-    if (p.data.filter) {
-
-    }
+  
     /* then sort */
     if (p.data.sort) {
       var order = p.data.order == "asc" ? 1 : -1;
@@ -178,6 +170,17 @@ function init() {
     };
   }
   // #region Cell editor
+  function matrixToBSFormat(m) {
+    var data = [];
+    for (var r = 0; r < m.maxRows(); r++) {
+      var row = {};
+      for (var v = 0; v < m.length; v++) {
+        row[m[v].name() || v] = m[v][r];
+      }
+      data.push(row);
+    }
+    return data;
+  }
 
   /* render input control on cell doubleclick */
   $(document).one("click-cell.bs.table.bs.table", function(event, field, value, row, $e) {
@@ -266,6 +269,48 @@ function init() {
   // #endregion
 }
 
+function collectFiltersFromHeaders(dataField) {
+  // nahradit ve filtr undefined za null
+  if(dataField) {
+    var th = $(tableSelector).find(`[data-field="${dataField}"]`);
+    var type = th.attr("data-filter-type") || null;
+    var filter = th.attr("data-filter") || null;
+    return {
+      type: type,
+      filter: filter ? JSON.parse(filter) : null
+    }
+  } else {
+    var filters = [];
+    $(tableSelector).find("[data-field]").each(function(){
+      if($(this).attr("data-filter")) {
+        var filter = JSON.parse($(this).attr("data-filter"));
+        filters.push($(this).attr("data-field"));
+        if($(this).attr("data-filter-type") == "array") {
+          const filterContent = JSON.parse($(this).attr("data-filter"));
+          filters.push(function(v,i,a) {return filterContent.indexOf(v) > -1 })
+        } else {
+          var min = isN(filter.grequal) ? Number(filter.grequal) : isN(filter.greater) ? Number(filter.greater) : -Number.MAX_SAFE_INTEGER;
+          var max = isN(filter.lessqual) ? Number(filter.lessqual) : isN(filter.less) ? Number(filter.less) : Number.MAX_SAFE_INTEGER;
+          var fn;
+          if(isN(filter.greater) && isN(filter.less)) fn = (v) => v > min && v < max;
+          else if(isN(filter.grequal) && isN(filter.less)) fn = (v) => v >= min && v < max;
+          else if(isN(filter.greater) && isN(filter.lessqual)) fn = (v) => v > min && v <= max;
+          else if(isN(filter.grequal) && isN(filter.lessqual)) fn = (v) => v >= min && v <= max;
+          filters.push(fn);
+        }
+      }
+    });
+    return filters;
+  }
+}
+
+// returns true if the value is number, incluing zero
+function isN(v) {
+  if(Number(v) > 0 || Number(v) < 0) return true;
+  else if(v === "0" || v === 0) return true;
+  else return false;
+}
+
 // #endregion
 
 // #region test datasets & makro
@@ -301,7 +346,7 @@ function loadMatrixToTable(matrix, callback) {
     smartDisplay: true
   });
   for (let c of source) {
-    $(tableSelector).find(`[data-field="${c.name()}"]`).attr("data-vector-type", c.type())
+    $(tableSelector).find(`[data-field="${c.name()}"]`).attr("data-vector-type", c.type()).addClass(c.type() == 1 ? "th-numeric" : c.type() == 2 ? "th-string" : c.type == 3 ? "th-boolean" : "")
     //$(tableSelector).find(`[data-field="${c.name()}"]`).append(createVectorMenu(c));
   }
   $("#table-name").val(source.name() || "");
@@ -508,7 +553,7 @@ $(document).on("submit", "[data-vector-form]", function() {
     }
   }
   args = args.map(a => a.value);
-  var vector = source.item($(this).closest("[data-field]").attr("data-field")); //getVectorFromBT($(this).closest("[data-field]").attr("data-field"),$(this).closest("[data-vector-type]").attr("data-vector-type")); 
+  var vector = source.item($(this).closest("[data-field]").attr("data-field"));
   try {
     var bundle = vector.analyze($(this).attr("data-method")).run(...args);
     renderAnalysisResult(bundle)
@@ -607,7 +652,7 @@ $(document).on("click", "[data-matrix-analysis-form-trigger]", function() {
 
 function renderMatrixAnalysisForm(method) {
   var analysis = new MatrixAnalysis(method);
-  var mconfig = collectVectorConfigsFromBT();
+  var mconfig = collectVectorConfigsForMatrixForm();
   var $f = `<div><h5>${analysis.wiki.title}`
   if(analysis.wiki?.description) $f += `<button title="Kliknutím zobrazíte informaci o metodě." data-btn-method-title = "${analysis.wiki?.title || ""}" data-btn-method-description = "${analysis.wiki.description || ""}" class="btn">📓</button>`;
   $f += "</h5></div>";
@@ -763,16 +808,8 @@ function createResultCardTitle(analysis) {
   return $t;
 }
 
-function collectVectorConfigsFromBT() {
-  var vs = [];
-  $(tableSelector).find("th[data-field]").each(function() {
-    var v = {
-      name: $(this).attr("data-field"),
-      type: Number($(this).attr("data-vector-type"))
-    };
-    vs.push(v);
-  });
-  return vs;
+function collectVectorConfigsForMatrixForm() {
+  return source.smap(function(v){return {name: v.name(), type: v.type()}});
 }
 
 // #endregion
