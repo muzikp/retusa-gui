@@ -7,7 +7,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css" integrity="sha512-O03ntXoVqaGUTAeAmvQ2YSzkCvclZEcPQu1eqloPaHfJ5RuNGiS4l+3duaidD801P50J28EHyonCV06CUlTSag==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/filter-control/bootstrap-table-filter-control.css"/>
-    <link href="https://unpkg.com/treeflex/dist/css/treeflex.css" rel="stylesheet"/>
+    <!--link(href="https://unpkg.com/treeflex/dist/css/treeflex.css" rel="stylesheet")-->
+    <link href="https://cdn.jsdelivr.net/npm/treeflex@2.0.1/dist/css/treeflex.min.css" rel="stylesheet"/>
     <link href="https://unpkg.com/multiple-select@1.5.2/dist/themes/bootstrap.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
@@ -28,7 +29,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.1.1/build/index.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
-    <script src="./result-addons.js"></script>
+    <!--script(src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js")-->
+    <script src="./addons.js"></script>
     <script src="./test-tables.js"></script>
     <script src="./source.js"></script>
     <script src="./index.js"></script>
@@ -200,6 +202,84 @@
         </div>
       </div>
     </div>
+    <div class="modal" id="modal_vector_config" tabindex="-1">
+      <div class="modal-dialog">
+        <form class="modal-content" id="vector-config" action="javascript:void(0)">
+          <div class="modal-header">
+            <h5 class="modal-title">Konfigurace proměnné</h5>
+            <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Název proměnné</label>
+              <input class="form-control" type="text" name="name" required="required" placeholder="unikátní název"/>
+            </div>
+            <hr/>
+            <div class="mb-3">
+              <label class="form-label">Převést na</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" data-type="1" name="type"/>
+                <label class="form-check-label">numerickou proměnnou</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" data-type="2" name="type"/>
+                <label class="form-check-label">textovou proměnnou</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" data-type="3" name="type"/>
+                <label class="form-check-label">binární proměnnou</label>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="confirm btn btn-primary" type="submit">Potvrdit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="modal" id="modal_vector_filter" tabindex="-1">
+      <div class="modal-dialog">
+        <form class="modal-content" id="vector-filter" action="javascript:void(0)">
+          <div class="modal-header">
+            <h5 class="modal-title">Filtr proměnné</h5>
+            <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="selectable-filters">
+              <div class="mb-3">
+                <label class="form-label">Vyberte hodnoty</label>
+                <select class="form-select" name="filter" multiple="multiple" data-filter-type="select"></select>
+              </div>
+            </div>
+            <div class="numeric-filters">
+              <div class="mb-3">
+                <label class="form-label" title="pokud je zároveň vyplněna hodnota 'větší než rovno', budere se jako přednostní ona">větší než</label>
+                <input class="form-control" name="greater" type="number"/>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" title="pokud je zároveň vyplněna hodnota 'větší', nevadí, bude ignorována">větší než nebo rovno</label>
+                <input class="form-control" name="grequal" type="number"/>
+              </div>
+              <div class="mb-3">
+                <hr/>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">menší než</label>
+                <input class="form-control" name="less" type="number"/>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">menší než nebo rovno</label>
+                <input class="form-control" name="lessqual" type="number"/>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" type="submit" data-action="clear">Zrušit filtrování</button>
+            <button class="btn btn-primary" type="submit" data-action="confirm">Potvrdit</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </body>
   <style>
     .form-control-required:before {
@@ -232,7 +312,7 @@
       font-size: 0.9rem;
     }
     th[data-field] {
-        background-color: lightgray !important;
+        /*background-color: lightgray;*/
     }
     .bt-header-btn-panel {
         display: flex;
@@ -365,8 +445,8 @@
       display: block;
     }
     ul li{
-    list-style-type:none;
-    display: inline;
+      list-style-type:none;
+      display: inline;
     }
     .navbar-nav .nav-link{display:inline-block;}
     .ml-auto {display:inline-block!important;}
@@ -378,6 +458,22 @@
       dark-blue;
       padding-left: 10px;
       color: gray;
+    }
+    .th-numeric {
+      background-color: lightblue !important;
+    }
+    .th-string {
+      background-color: lightgreen !important;
+    }
+    .th-boolean {
+      background-color: lightbrown !important;
+    }
+    [data-filter]:before {
+      content: "🌪️" !important;,
+      margin-right: 5px !important;
+    }
+    th {
+      diplay: flex !important;
     }
   </style>
 </html>
