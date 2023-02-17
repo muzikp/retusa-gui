@@ -4,7 +4,9 @@ const tableSelector = "#table";
 const log = [];
 const env = "development";
 const defTableName = "lastTable";
-var source, activeAnalysisModalForm;;
+let source;
+var activeAnalysisModalForm;
+var filterOn = true;
 
 /* IMPORTANT!! */
 $(function() {
@@ -145,14 +147,20 @@ function init() {
   Matrix.prototype.ajax = function(p) {    
     var data = [];
     /* try filter first */
-    var filters = collectFiltersFromHeaders();
-    if(filters.length > 0) {
-      try {
-        data = matrixToBSFormat(this.filter(...filters));
-      } catch(e){
-        console.error(e);
-      }      
-    } else {
+    if(filterOn) {
+      var filters = collectFiltersFromHeaders();
+      if(filters.length > 0) {
+        try {
+          data = matrixToBSFormat(this.filter(...filters));
+        } catch(e){
+          console.error(e);
+        }      
+      }
+      else {
+        data = matrixToBSFormat(this);
+      }
+    }
+    else {
       data = matrixToBSFormat(this);
     }
   
@@ -292,6 +300,7 @@ function collectFiltersFromHeaders(dataField) {
           var min = isN(filter.grequal) ? Number(filter.grequal) : isN(filter.greater) ? Number(filter.greater) : -Number.MAX_SAFE_INTEGER;
           var max = isN(filter.lessqual) ? Number(filter.lessqual) : isN(filter.less) ? Number(filter.less) : Number.MAX_SAFE_INTEGER;
           var fn;
+          /* je potřeba implementovat všechyn podmínky (včetně toho, když jedna ze stran je prázdná) */
           if(isN(filter.greater) && isN(filter.less)) fn = (v) => v > min && v < max;
           else if(isN(filter.grequal) && isN(filter.less)) fn = (v) => v >= min && v < max;
           else if(isN(filter.greater) && isN(filter.lessqual)) fn = (v) => v > min && v <= max;
@@ -329,14 +338,16 @@ $(document).on("click", "[data-makro]", function() {
 // #region Table rendering
 
 function matrixAJAX(p) {
-  //if(!source) p.success({total: 0, totalNotFiltered: 0, rows: []});
-  if (!source) p.error();
-  var data = source.ajax(p);
-  p.success(data);
+  if (!source) return;
+  else {
+    var data = source.ajax(p);
+    p.success(data);
+  }
 }
 
 /* transfer the matrix to the Bootstrap Table */
 function loadMatrixToTable(matrix, callback) {
+  toggleFilteringStatus(false);
   source = matrix;
   $(tableSelector).bootstrapTable('destroy');
   $(tableSelector).empty().bootstrapTable(source.readConfig());
@@ -351,9 +362,10 @@ function loadMatrixToTable(matrix, callback) {
   }
   $("#table-name").val(source.name() || "");
   $(document).ready(function() {
+    toggleFilteringStatus(undefined, true);
     $(document).find(`[id="table-tab"]`).click();
     if (callback) callback($(tableSelector));
-  })
+  });
 
 }
 /*
@@ -851,6 +863,8 @@ function N(v, options) {
 
 function nullFormatter(v) {
   if (v === null || v === undefined) return `<i style="color: gray" title="prázdná buňka">-</i>`;
+  //else if(v === true) return "✅";
+  //else if(v === false) return "❌";
   else return v;
 }
 
@@ -886,3 +900,20 @@ const msg = {
 }
 
 // #endregion
+
+$(document).on("click","#toggle-table-filter", function(){
+  toggleFilteringStatus();
+})
+
+function toggleFilteringStatus(status = undefined, skipRefresh) {
+  if(status !== undefined) filterOn = !!!status;
+  if(filterOn) {
+    filterOn = false;
+    $("#toggle-table-filter").css("background-color", "lightgray").css("color", "black").attr("title", "Filtrování je vypnuté.").text("vypnuto");
+    if(!skipRefresh) $(tableSelector).bootstrapTable("refresh");
+  } else {
+    filterOn = true;
+    $("#toggle-table-filter").css("background-color", "red").css("color", "white").attr("title", "Filtrování je zapnuté, ovlivní také vstupy do analýzy.").text("zapnuto");
+    if(!skipRefresh) $(tableSelector).bootstrapTable("refresh");
+  }
+}

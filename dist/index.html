@@ -3,14 +3,15 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
     <title>Retusa GUI (demo)</title>
+    <!--link(href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,300;0,600;1,300;1,600&display=swap" rel="stylesheet")-->
+    <link rel="stylesheet" href="./retusa-gui.css"/>
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table.min.css"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css" integrity="sha512-O03ntXoVqaGUTAeAmvQ2YSzkCvclZEcPQu1eqloPaHfJ5RuNGiS4l+3duaidD801P50J28EHyonCV06CUlTSag==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/filter-control/bootstrap-table-filter-control.css"/>
-    <!--link(href="https://unpkg.com/treeflex/dist/css/treeflex.css" rel="stylesheet")-->
     <link href="https://cdn.jsdelivr.net/npm/treeflex@2.0.1/dist/css/treeflex.min.css" rel="stylesheet"/>
     <link href="https://unpkg.com/multiple-select@1.5.2/dist/themes/bootstrap.min.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css"/>
+    <!--link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.css")-->
     <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
     <script type="text/javascript" src="c:/Users/Pavel/github/retusa/dist/bundle.min.js" charset="UTF-8"></script>
@@ -18,25 +19,28 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js" integrity="sha512-Zq9o+E00xhhR/7vJ49mxFNJ0KQw1E1TMWkPTxrWcnpfEFDEXgUiwJHIKit93EW/XxE31HSI5GEOW06G6BF1AtA==" crossorigin="anonymous" referrerpolicy="no-referrer">   </script>
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/locale/bootstrap-table-cs-CZ.min.js"></script>
-    <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/filter-control/bootstrap-table-filter-control.js"></script>
-    <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/export/bootstrap-table-export.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin/tableExport.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin/libs/jsPDF/jspdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin/libs/jsPDF-AutoTable/jspdf.plugin.autotable.js"></script>
+    <!--script(src="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/export/bootstrap-table-export.min.js")-->
+    <!--script(src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin/tableExport.min.js")-->
+    <!--script(src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin/libs/jsPDF/jspdf.min.js")-->
+    <!--script(src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin/libs/jsPDF-AutoTable/jspdf.plugin.autotable.js")-->
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.1.1/build/index.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
-    <!--script(src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js")-->
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
+    <script src="https://kit.fontawesome.com/53e6813db7.js" crossorigin="anonymous"></script>
     <script src="./addons.js"></script>
     <script src="./test-tables.js"></script>
     <script src="./source.js"></script>
     <script src="./index.js"></script>
   </head>
   <body>
-    <nav class="navbar navbar-light bg-light sticky-top" id="top"><a class="navbar-brand" href="#top"><img src="./media/retusa-logo-v1-main.png" height="50" alt="Retusa" style="margin: 10px 20px;"/></a></nav>
+    <!--
+    nav#top.navbar.navbar-light.bg-light.sticky-top
+      a.navbar-brand(href='#top')
+        img(src='./media/retusa-logo-v1-main.png' height='50' alt='Retusa' style="margin: 10px 20px;")
+    -->
     <ul class="nav nav-tabs" id="workspace" role="tablist">
       <li class="nav-item" role="presentation" tab-target="source">
         <button class="nav-link active" id="source-tab" data-bs-toggle="tab" data-bs-target="#source-tab-pane" type="button" role="tab" aria-controls="source-tab-pane" aria-selected="true">Zdroje</button>
@@ -50,6 +54,7 @@
       <li class="nav-item" role="presentation" tab-target="output">
         <button class="nav-link" id="output-tab" data-bs-toggle="tab" data-bs-target="#output-tab-pane" type="button" role="tab" aria-controls="output-tab-pane" aria-selected="false">Výsledky</button>
       </li>
+      <li class="nav-item logo-tab"><a href="https://github.com/muzikp/retusa" target="_blank"><img src="./media/retusa-logo-v1-main.png" height="30" alt="Retusa"/></a></li>
     </ul>
     <div class="tab-content" id="tabContent">
       <div class="tab-pane fade show active" id="source-tab-pane" role="tabpanel" aria-labelledby="source-tab" tabindex="0">
@@ -85,8 +90,15 @@
         </div>
       </div>
       <div class="tab-pane fade" id="table-tab-pane" role="tabpanel" aria-labelledby="table-tab" tabindex="0">
-        <input class="form-control" id="table-name" type="text" maxLength="64" placeholder="název tabulky (nepovinné)"/>
-        <div id="table" data-toolbar="#tabletoolbar" data-show-export="true" data-filter-control="true" data-filter-control-multiple-search="data-filter-control-multiple-search" data-show-search-clear-button="true" data-formatter="nullFormatter" data-ajax="matrixAJAX" data-side-pagination="server"></div>
+        <div id="table-toolbar">
+          <div class="col-6">
+            <input class="form-control" id="table-name" type="text" maxLength="64" placeholder="název tabulky (nepovinné)" style="padding-right: 15px;"/>
+          </div>
+          <div class="col-6">
+            <button class="btn btn-info" id="toggle-table-filter"></button>
+          </div>
+        </div>
+        <div id="table" data-show-export="true" data-toggle="table" data-formatter="nullFormatter" data-ajax="matrixAJAX" data-side-pagination="server"></div>
       </div>
       <div class="tab-pane fade" id="analysis-tab-pane" role="tabpanel" aria-labelledby="analysis-tab" tabindex="0">
         <div class="tf-tree example" id="matrix-method-tree">
@@ -99,13 +111,13 @@
                     <ul>
                       <li><span class="tf-nc tf-inter-node">Spojitá</span>
                         <ul>
-                          <li><span class="tf-nc" data-target="correlPearson"></span></li>
+                          <li><span class="tf-nc" data-target="correlPearson">                           </span></li>
                           <li><span class="tf-nc" data-target="correlPartial"></span></li>
                         </ul>
                       </li>
                       <li><span class="tf-nc tf-inter-node">Pořadová</span>
                         <ul>
-                          <li><span class="tf-nc" data-target="correlSpearman"></span></li>
+                          <li><span class="tf-nc" data-target="correlSpearman">                           </span></li>
                           <li><span class="tf-nc" data-target="correlKendall"></span></li>
                         </ul>
                       </li>
@@ -281,199 +293,4 @@
       </div>
     </div>
   </body>
-  <style>
-    .form-control-required:before {
-      color: red;
-      margin-right: 0.2rem;
-      content: "*"
-    }
-    .form-control-tooltip:after {
-      color: blue;
-      content: "👁️‍🗨️",
-      margin-left: 0.5rem;
-    }
-    .close-card {
-      display: flex;
-      justify-content: space-between;
-    }
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-content: center;
-    }
-    .card {
-      margin-top: 0.5rem;
-    }
-    .sample-info, .parameter-info {
-      padding: 10px 20px;
-      margin: 10px 0px;
-      border: lightgray 1px solid;
-      border-radius: 5px;
-      font-size: 0.9rem;
-    }
-    th[data-field] {
-        /*background-color: lightgray;*/
-    }
-    .bt-header-btn-panel {
-        display: flex;
-        border-bottom: solid black 1px;
-        justify-content: flex-end;
-        padd    ing: 10px 0px;
-    
-    }
-    .bt-header-icon {
-        padding: 0px;
-        margin: 0px;
-    }
-    td[_title]:after {
-        content: "💡";
-    }
-    .box-header {
-      color: black;
-      margin: 5px 0;
-      background-color: lightskyblue;
-      font-weight: 600;
-      padding: 5px 10px;
-      text-align: center;
-      width: fit-content;
-      border-radius: 7px;
-    }
-    .canvas-layout .title {
-      margin-top: 10px;
-    }
-    .tab-pane {
-      padding: 2%;
-    }
-    .result-addon-table-container {
-      margin: 1rem 0px;
-    }
-    .result-addon-table-container .table-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin: 3rem 0px 3rem 0px;
-        width: 100%;
-        padding: 5px;
-        text-align: center;
-        background-color: lightblue;
-        border-radius: 10px;
-    }
-    .method-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      font-variant: all-small-caps;
-    }
-    .argument-badge-panel {
-      display: flex;
-    }
-    .argument-badge {
-      font-family: monospace;
-      background-color: lightsteelblue;
-      padding: 5px;
-      border-radius: 5px;
-      margin-left: 10px;
-      line-height: 2;
-    }
-    .duration {
-      font-family: monospace;
-      font-size: 0.8rem;
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 5px;
-    }
-    .analytic-group {
-      text-align: center;
-      /*border: lightgray solid 1px;*/
-      border-radius: 10px;
-      font-weight: 600;
-      padding-top: 20;
-    }
-    .analytics-header {
-      font-size: 1.8rem;
-      font-weight: 600;
-      border-radius: 10px;
-      width: fit-content;
-      margin-left: auto;
-      margin-right: auto;
-      margin-bottom: 2rem;
-      padding: 0% 2rem;
-    }
-    .tf-inter-node {
-      font-style: italic !important;
-      background-color: lightgray !important;
-      border-radius: 50% !important;
-    }
-    .in-backlog {
-      font-style: italic;
-      font-weight: 100;
-      color: brown;
-      border: dashed 1px brown !important;
-    }
-    .context-menu {
-      display: none;
-      position: absolute;
-    }
-    th {
-      z-index: 100 !important;
-    }
-    [data-matrix-form-args-submit] {
-      width: 100%;
-    }
-    .dropdown-submenu {
-      position:relative;
-    }
-    .dropdown-submenu > .dropdown-menu {
-        top: 0;
-        left: 100%;
-        margin-top:-6px;
-    }
-    
-    /* rotate caret on hover */
-    .dropdown-menu > li > a:hover:after {
-        text-decoration: underline;
-        transform: rotate(-90deg);
-    } 
-    [data-vector-analysis-trigger], .dropdown-item-button {
-      padding: 0px;
-    }
-    .dropdown:hover>.dropdown-menu {
-      display: block;
-      left: 100%;
-      bottom: -50%;
-      margin-right: 10px;
-    }
-    .dropdown-item:hover>.dropdown-menu {
-      display: block;
-    }
-    ul li{
-      list-style-type:none;
-      display: inline;
-    }
-    .navbar-nav .nav-link{display:inline-block;}
-    .ml-auto {display:inline-block!important;}
-    .dropdown>.dropdown-toggle:active {
-      pointer-events: none;
-    }
-    .context-menu-header {
-      font-weight: 600;
-      dark-blue;
-      padding-left: 10px;
-      color: gray;
-    }
-    .th-numeric {
-      background-color: lightblue !important;
-    }
-    .th-string {
-      background-color: lightgreen !important;
-    }
-    .th-boolean {
-      background-color: lightbrown !important;
-    }
-    [data-filter]:before {
-      content: "🌪️" !important;,
-      margin-right: 5px !important;
-    }
-    th {
-      diplay: flex !important;
-    }
-  </style>
 </html>
