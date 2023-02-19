@@ -14,8 +14,8 @@ html
     //link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.css")
     script(src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js")
     script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous")
-    script(type="text/javascript" src="c:/Users/Pavel/github/retusa/dist/bundle.min.js" charset="UTF-8")
-    //script(src="https://cdn.statically.io/gh/muzikp/retusa/main/dist/bundle.min.js")
+    //script(type="text/javascript" src="c:/Users/Pavel/github/retusa/dist/bundle.min.js" charset="UTF-8")
+    script(src="https://cdn.statically.io/gh/muzikp/retusa/main/dist/bundle.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js" integrity="sha512-Zq9o+E00xhhR/7vJ49mxFNJ0KQw1E1TMWkPTxrWcnpfEFDEXgUiwJHIKit93EW/XxE31HSI5GEOW06G6BF1AtA==" crossorigin="anonymous" referrerpolicy="no-referrer")    
     script(src="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table.min.js")
     script(src="https://unpkg.com/bootstrap-table@1.21.2/dist/locale/bootstrap-table-cs-CZ.min.js")
@@ -35,10 +35,6 @@ html
     script(src="./source.js")
     script(src="./index.js")
   body
-    //
-      nav#top.navbar.navbar-light.bg-light.sticky-top
-        a.navbar-brand(href='#top')
-          img(src='./media/retusa-logo-v1-main.png' height='50' alt='Retusa' style="margin: 10px 20px;")
     ul#workspace.nav.nav-tabs(role='tablist')
       li.nav-item(role='presentation' tab-target="source")
         button#source-tab.nav-link.active(data-bs-toggle='tab' data-bs-target='#source-tab-pane' type='button' role='tab' aria-controls='source-tab-pane' aria-selected='true') Zdroje
@@ -49,6 +45,8 @@ html
       li.nav-item(role='presentation' tab-target="output")
         button#output-tab.nav-link(data-bs-toggle='tab' data-bs-target='#output-tab-pane' type='button' role='tab' aria-controls='output-tab-pane' aria-selected='false') Výsledky
       li.nav-item.logo-tab
+        span.badge.bg-light-blue(style="margin-right: 20px") 
+          small verze: 1.0
         a(href="https://www.muvs.cvut.cz/" target="_blank" style="margin-right: 20px;")
           img(src='./media/muvs_logo.png' height='30' alt='MÚVS ČVUT')
         a(href="https://github.com/muzikp/retusa" target="_blank")

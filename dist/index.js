@@ -53,9 +53,7 @@ function createVectorMenuNode(node, vector) {
   else if(node.type == "method") {
     var _m = vectorModels[node.value];
     if(!_m) console.error(node.value);
-    if ((_m.model.type || [1,2,3]).indexOf(vector.type() > -1)) {
-      return (`<li class="dropdown-item"><button data-field = "${vector.name()}" data-vector-analysis-trigger class="dropdown-item" type="button" data-model = "${node.value}" data-model-has-args = ${!!_m.model.args}>${_m.wiki.title}</button></li>`);
-    }    
+    return (`<li class="dropdown-item"><button ${(_m.model.type).indexOf(vector.type()) < 0 ? "disabled" : ""} data-field = "${vector.name()}" data-vector-analysis-trigger class="dropdown-item" type="button" data-model = "${node.value}" data-model-has-args = ${!!_m.model.args}>${_m.wiki.title}</button></li>`);
   }
   else if(node.type == "parent") {
     var e = `<li class="dropdown"><a class="dropdown-item dropdown-toggle" href="#" id="${node.id}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${node.value}</a><ul class="dropdown-menu" aria-labelledby="${node.id}">`;
@@ -217,11 +215,11 @@ function init() {
   function onCellInputKeyDown($e, event) {
     if (event.key == "Escape") $(this).closest("td").empty().text($(this).attr("data-value"));
     /* renders the select control with distinct values */
-    else if (event.key == "Control" || event.key == "Alt") {
+    else if (event.key == "Control" || event.key == "Tab") {
       var index = Number($($e).attr("data-index"));
       var field = $($e).attr("data-field");
       var value = $($e).attr("data-value");
-      var values = $(tableSelector).bootstrapTable("getData").map(r => r[field]).distinct().sort((a, b) => a > b ? 1 : -1).filter(_ => (_ !== null && _ !== undefined));
+      var values = source.item(field).distinct().sort((a, b) => a > b ? 1 : -1).filter(_ => (_ !== null && _ !== undefined));
       var $s = `<select bootstrap-table-cell-select class="form-select" data-index = ${index} data-field="${field}" data-value = "${$($e).attr("data-value")}">`;
       for (var v of values) {
         $s += `<option ${v == value ? "selected" : ""}>${v}</option>`
@@ -310,8 +308,8 @@ function collectFiltersFromHeaders(dataField) {
         } 
         else if($(this).attr("data-filter-type") == "numrange") {
           filter = JSON.parse(filter);
-          var min = filter.minv !== undefined && filter.minv !== null ? Number(filter.minv) : -Number.MAX_SAFE_INTEGER;
-          var max = filter.maxv !== undefined && filter.maxv !== null ? Number(filter.maxv) : Number.MAX_SAFE_INTEGER;
+          var min = isN(filter.minv) ? Number(filter.minv) : -Number.MAX_SAFE_INTEGER;
+          var max = isN(filter.maxv) ? Number(filter.maxv) : Number.MAX_SAFE_INTEGER;
           var fn = (v,i,a) => (filter.minop == 1 ? v > min : filter.minop == 2 ? v >= min : false) && (filter.maxop == 3 ? v < max : filter.maxop == 4 ? v <= max : false);
           filters.push(fn);
         }
@@ -326,6 +324,7 @@ function collectFiltersFromHeaders(dataField) {
 
 // returns true if the value is number, incluing zero
 function isN(v) {
+  if(v === "" || v === undefined || v === null) return false;
   if(Number(v) > 0 || Number(v) < 0) return true;
   else if(v === "0" || v === 0) return true;
   else return false;
@@ -403,20 +402,22 @@ function createResultCard(id = srnd()) {
         <div class="title" style="display: flex"></div>
         <span class="close-card"> 
             <span style="display: flex;flex-direction: row-reverse;">
-              <button title="Smazat kartu výsledku." class="btn close-card-btn" style="display: flex;flex-direction: row-reverse;">🗑️</button>
-              <button title="Vložit výsledek do clipboardu" class="btn copy-canvas-layout-btn" style="display: flex;flex-direction: row-reverse;">🖼️</button>
-              <button title="Zpět na data" class="btn back-to-data-btn" style="display: flex;flex-direction: row-reverse;">⏫</button>
+              <button title="Smazat kartu výsledku." class="btn close-card-btn" style="display: flex;flex-direction: row-reverse;"><i class="fa-solid fa-trash"></i></button>
+              <button title="Vložit výsledek do clipboardu" class="btn copy-canvas-layout-btn" style="display: flex;flex-direction: row-reverse;"><i class="fa-solid fa-copy"></i></button>
+              <button title="Minimalizovat/expandovat kartu výsledku" class="btn collapse-result-card" style="display: flex;flex-direction: row-reverse;"><i class="fa-solid fa-eye"></i></button>
             </span>
           </span>
       </div>
-      <div class="duration"></div>
-      <div class="canvas-layout">
-        <div class="row">
-            <div class="col-6"><div class="sample"></div><br></div>
-            <div class="col-6"><div class="parameters"></div><br></div>
+      <div class="result-content">
+        <div class="duration"></div>
+        <div class="canvas-layout">
+          <div class="row">
+              <div class="col-6"><div class="sample"></div><br></div>
+              <div class="col-6"><div class="parameters"></div><br></div>
+          </div>
+          <div class="content"></div>
+          <div class="result-addons"></div>
         </div>
-        <div class="content"></div>
-        <div class="result-addons"></div>
       </div>
     </div>
   </div>`
@@ -602,8 +603,13 @@ $(document).on("click", ".close-card-btn", function() {
 });
 
 /* expand the data collapsible and scroll up */
-$(document).on("click", ".back-to-data-btn", function() {
-  $(document).scrollTop(0);
+$(document).on("click", ".collapse-result-card", function() {
+  var $c = $(this).closest(".result-card").find(".result-content");
+  var isCollapsed = $c.hasClass("collapsed") ;
+  $(this).closest(".result-card").find(".result-content").toggleClass("collapsed");
+  if(!isCollapsed) {
+    $(this).html(`<i class="fa-solid fa-eye-slash"></i>`);
+  } else $(this).html(`<i class="fa-solid fa-eye"></i>`);
 })
 
 $(document).on("click", ".bt-header-config", function() {

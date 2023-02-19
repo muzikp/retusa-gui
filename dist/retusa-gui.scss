@@ -62,6 +62,10 @@ $dark-orange: rgb(236,137,6);
     width: fit-content;
     border-radius: 7px;
   }
+  .collapsed {
+    visibility: collapse !important;
+    height: 0 !important;
+  }
   .canvas-layout .title {
     margin-top: 10px;
   }

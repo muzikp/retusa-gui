@@ -718,7 +718,7 @@ $(document).on("submit", "#vector-filter", function(event) {
     var $f = $(this);
     var vector = source.item($f.attr("data-field"));
     if($(event.originalEvent.submitter).attr("data-action") == "confirm") {
-        if($f.find(`[name="fn"]`).val()) {
+        if($f.find(`[name="fn"]`).val().length > 0) {
             var filter = $f.find(`[name="fn"]`).val();
             $(tableSelector).find(`th[data-field='${vector.name()}']`).attr("data-filter", filter.toString()).attr("data-filter-type", "function");
         }

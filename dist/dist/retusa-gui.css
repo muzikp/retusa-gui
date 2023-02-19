@@ -65,6 +65,11 @@ td[_title]:after {
   border-radius: 7px;
 }
 
+.collapsed {
+  visibility: collapse !important;
+  height: 0 !important;
+}
+
 .canvas-layout .title {
   margin-top: 10px;
 }
