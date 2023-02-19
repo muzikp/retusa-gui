@@ -512,9 +512,12 @@ vectorContextMenuTree = [
             $($f).find('[name="name"]').val(vector.name());
             $f.find(".numeric-filters").attr("hidden", vector.type() > 1);
             $f.find(".selectable-filters").attr("hidden", vector.type() < 2);
-            //var filter = $f.find(`[data-filter-type = "select"]`).val();
             var vf = collectFiltersFromHeaders(vector.name());
-            if(vector.type() > 1) {
+            $f.find(`[name="fn"]`).val("")
+            if(vf.type == "function") {
+                $f.find(`[name="fn"]`).val(vf.filter);
+            }
+            else if(vector.type() > 1) {
                 var $s = $f.find(`[data-filter-type = "select"]`).empty();
                 for(var v of vector.distinct().asc()) {
                     var $o = $("<option>").text(v !== null ? v : "- prázdné -").attr("value", v !== null ? v : "");
@@ -522,11 +525,16 @@ vectorContextMenuTree = [
                     $s.append($o);
                 }
             } else {
-                if(typeof vf.filter == "object") {
-                    if(vf.greater) $f.find(`[name="greater"]`).val(vf.greater);
-                    if(vf.grequal) $f.find(`[name="greater"]`).val(vf.grequal);
-                    if(vf.less) $f.find(`[name="greater"]`).val(vf.less);
-                    if(vf.lessqual) $f.find(`[name="greater"]`).val(vf.lessqual);
+                if(typeof vf.filter == "object" && vf.filter) {
+                    if(vf.filter.minv) $f.find(`[name="minv"]`).val(isN(vf.filter.minv) ? Number(vf.filter.minv) : "");
+                    if(vf.filter.maxv) $f.find(`[name="maxv"]`).val(isN(vf.filter.maxv) ? Number(vf.filter.maxv) : "");
+                    $f.find(`[name="minop"]`).val(vf.filter.minop || 1);
+                    $f.find(`[name="maxop"]`).val(vf.filter.maxop || 3);
+                } else {
+                    $f.find(`[name="minv"]`).val(null);
+                    $f.find(`[name="maxv"]`).val(null);
+                    $f.find(`[name="minop"]`).val(1);
+                    $f.find(`[name="maxop"]`).val(3);
                 }
             }
             $(document).ready(function(){
@@ -692,7 +700,7 @@ $(document).on("submit", "#vector-config", function() {
             changes++;
         } catch(e) {
             msg.error("Proměnnou nešlo zkonvertovat", e.message, 60000);
-            $f.one("submit", vectorCustomFns.configure($f));
+            //$f.one("submit", vectorCustomFns.configure($f));
         }
     }
     if(newName != vector.name()) {
@@ -710,22 +718,21 @@ $(document).on("submit", "#vector-filter", function(event) {
     var $f = $(this);
     var vector = source.item($f.attr("data-field"));
     if($(event.originalEvent.submitter).attr("data-action") == "confirm") {
-        /* prepares select */
-        if(vector.type() > 1) {
+        if($f.find(`[name="fn"]`).val().length > 0) {
+            var filter = $f.find(`[name="fn"]`).val();
+            $(tableSelector).find(`th[data-field='${vector.name()}']`).attr("data-filter", filter.toString()).attr("data-filter-type", "function");
+        }
+        else if(vector.type() > 1) {
             var filter = $f.find(`[data-filter-type = "select"]`).val();
             $(tableSelector).find(`th[data-field='${vector.name()}']`).attr("data-filter",JSON.stringify(filter)).attr("data-filter-type", "array");
         } else {
             var filter = {
-                greater: $f.find(`[name="greater"]`).val(),
-                grequal: $f.find(`[name="grequal"]`).val(),
-                less: $f.find(`[name="less"]`).val(),
-                lessqual: $f.find(`[name="lessqual"]`).val(),
+                minv: $f.find(`[name="minv"]`).val(),
+                minop: Number($f.find(`[name="minop"]`).val()),
+                maxv: $f.find(`[name="maxv"]`).val(),
+                maxop: Number($f.find(`[name="maxop"]`).val())
             };
-            filter.greater == "" && filter.greater !== "0" ? delete filter.greater : filter.greater = Number(filter.greater);
-            filter.grequal == "" && filter.grequal !== "0" ? delete filter.grequal : filter.grequal = Number(filter.grequal);
-            filter.less == "" && filter.less !== "0" ? delete filter.less : filter.less = Number(filter.less);
-            filter.lessqual == "" && filter.lessqual !== "0" ? delete filter.lessqual : filter.lessqual = Number(filter.lessqual);
-            $(tableSelector).find(`th[data-field='${vector.name()}']`).attr("data-filter",JSON.stringify(filter)).attr("data-filter-type", "numeric");
+            $(tableSelector).find(`th[data-field='${vector.name()}']`).attr("data-filter",JSON.stringify(filter)).attr("data-filter-type", "numrange");
         }
         $(document).ready(function(){
             $(tableSelector).bootstrapTable('refresh');

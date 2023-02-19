@@ -4,7 +4,9 @@ const tableSelector = "#table";
 const log = [];
 const env = "development";
 const defTableName = "lastTable";
-var source, activeAnalysisModalForm;;
+let source;
+var activeAnalysisModalForm;
+var filterOn = true;
 
 /* IMPORTANT!! */
 $(function() {
@@ -51,9 +53,7 @@ function createVectorMenuNode(node, vector) {
   else if(node.type == "method") {
     var _m = vectorModels[node.value];
     if(!_m) console.error(node.value);
-    if ((_m.model.type || [1,2,3]).indexOf(vector.type() > -1)) {
-      return (`<li class="dropdown-item"><button data-field = "${vector.name()}" data-vector-analysis-trigger class="dropdown-item" type="button" data-model = "${node.value}" data-model-has-args = ${!!_m.model.args}>${_m.wiki.title}</button></li>`);
-    }    
+    return (`<li class="dropdown-item"><button ${(_m.model.type).indexOf(vector.type()) < 0 ? "disabled" : ""} data-field = "${vector.name()}" data-vector-analysis-trigger class="dropdown-item" type="button" data-model = "${node.value}" data-model-has-args = ${!!_m.model.args}>${_m.wiki.title}</button></li>`);
   }
   else if(node.type == "parent") {
     var e = `<li class="dropdown"><a class="dropdown-item dropdown-toggle" href="#" id="${node.id}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${node.value}</a><ul class="dropdown-menu" aria-labelledby="${node.id}">`;
@@ -73,13 +73,15 @@ function createVectorMenuNode(node, vector) {
   return "";
 }
 
-$(document).on("mouseover", ".submenu", function(){
-  console.log("Key");
-})
-
 // #region Retusa extensions
 
 function init() {
+  const applyVectorFilter = function() {
+    return source.applyFilters().item(this.name());
+  }
+  NumericVector.prototype.applyFilter = applyVectorFilter;
+  StringVector.prototype.applyFilter = applyVectorFilter;
+  BooleanVector.prototype.applyFilter = applyVectorFilter;
   Matrix.prototype.readConfig = function() {
     var t = {
       pagination: true,
@@ -145,14 +147,20 @@ function init() {
   Matrix.prototype.ajax = function(p) {    
     var data = [];
     /* try filter first */
-    var filters = collectFiltersFromHeaders();
-    if(filters.length > 0) {
-      try {
-        data = matrixToBSFormat(this.filter(...filters));
-      } catch(e){
-        console.error(e);
-      }      
-    } else {
+    if(filterOn) {
+      var filters = collectFiltersFromHeaders();
+      if(filters.length > 0) {
+        try {
+          data = matrixToBSFormat(this.filter(...filters));
+        } catch(e){
+          console.error(e);
+        }      
+      }
+      else {
+        data = matrixToBSFormat(this);
+      }
+    }
+    else {
       data = matrixToBSFormat(this);
     }
   
@@ -168,6 +176,13 @@ function init() {
       totalNotFiltered: data.length,
       rows: data
     };
+  }
+  Matrix.prototype.applyFilters = function() {
+    if(filterOn) {
+      var filters = collectFiltersFromHeaders();
+      if(filters.length > 0) return this.filter(...filters);
+      else return this;
+    } else return this;
   }
   // #region Cell editor
   function matrixToBSFormat(m) {
@@ -200,11 +215,11 @@ function init() {
   function onCellInputKeyDown($e, event) {
     if (event.key == "Escape") $(this).closest("td").empty().text($(this).attr("data-value"));
     /* renders the select control with distinct values */
-    else if (event.key == "Control" || event.key == "Alt") {
+    else if (event.key == "Control" || event.key == "Tab") {
       var index = Number($($e).attr("data-index"));
       var field = $($e).attr("data-field");
       var value = $($e).attr("data-value");
-      var values = $(tableSelector).bootstrapTable("getData").map(r => r[field]).distinct().sort((a, b) => a > b ? 1 : -1).filter(_ => (_ !== null && _ !== undefined));
+      var values = source.item(field).distinct().sort((a, b) => a > b ? 1 : -1).filter(_ => (_ !== null && _ !== undefined));
       var $s = `<select bootstrap-table-cell-select class="form-select" data-index = ${index} data-field="${field}" data-value = "${$($e).attr("data-value")}">`;
       for (var v of values) {
         $s += `<option ${v == value ? "selected" : ""}>${v}</option>`
@@ -275,28 +290,31 @@ function collectFiltersFromHeaders(dataField) {
     var th = $(tableSelector).find(`[data-field="${dataField}"]`);
     var type = th.attr("data-filter-type") || null;
     var filter = th.attr("data-filter") || null;
+    if(type != "function") filter = filter ? JSON.parse(filter) : null;
     return {
       type: type,
-      filter: filter ? JSON.parse(filter) : null
+      filter: filter
     }
   } else {
     var filters = [];
     $(tableSelector).find("[data-field]").each(function(){
       if($(this).attr("data-filter")) {
-        var filter = JSON.parse($(this).attr("data-filter"));
         filters.push($(this).attr("data-field"));
+        var filter = $(this).attr("data-filter");
         if($(this).attr("data-filter-type") == "array") {
+          filter = JSON.parse(filter);
           const filterContent = JSON.parse($(this).attr("data-filter"));
           filters.push(function(v,i,a) {return filterContent.indexOf(v) > -1 })
-        } else {
-          var min = isN(filter.grequal) ? Number(filter.grequal) : isN(filter.greater) ? Number(filter.greater) : -Number.MAX_SAFE_INTEGER;
-          var max = isN(filter.lessqual) ? Number(filter.lessqual) : isN(filter.less) ? Number(filter.less) : Number.MAX_SAFE_INTEGER;
-          var fn;
-          if(isN(filter.greater) && isN(filter.less)) fn = (v) => v > min && v < max;
-          else if(isN(filter.grequal) && isN(filter.less)) fn = (v) => v >= min && v < max;
-          else if(isN(filter.greater) && isN(filter.lessqual)) fn = (v) => v > min && v <= max;
-          else if(isN(filter.grequal) && isN(filter.lessqual)) fn = (v) => v >= min && v <= max;
+        } 
+        else if($(this).attr("data-filter-type") == "numrange") {
+          filter = JSON.parse(filter);
+          var min = isN(filter.minv) ? Number(filter.minv) : -Number.MAX_SAFE_INTEGER;
+          var max = isN(filter.maxv) ? Number(filter.maxv) : Number.MAX_SAFE_INTEGER;
+          var fn = (v,i,a) => (filter.minop == 1 ? v > min : filter.minop == 2 ? v >= min : false) && (filter.maxop == 3 ? v < max : filter.maxop == 4 ? v <= max : false);
           filters.push(fn);
+        }
+        else if($(this).attr("data-filter-type") == "function") {
+          filters.push(eval(filter));
         }
       }
     });
@@ -306,6 +324,7 @@ function collectFiltersFromHeaders(dataField) {
 
 // returns true if the value is number, incluing zero
 function isN(v) {
+  if(v === "" || v === undefined || v === null) return false;
   if(Number(v) > 0 || Number(v) < 0) return true;
   else if(v === "0" || v === 0) return true;
   else return false;
@@ -329,31 +348,39 @@ $(document).on("click", "[data-makro]", function() {
 // #region Table rendering
 
 function matrixAJAX(p) {
-  //if(!source) p.success({total: 0, totalNotFiltered: 0, rows: []});
-  if (!source) p.error();
-  var data = source.ajax(p);
-  p.success(data);
+  if (!source) return;
+  else {
+    var data = source.ajax(p);
+    p.success(data);
+  }
 }
 
 /* transfer the matrix to the Bootstrap Table */
-function loadMatrixToTable(matrix, callback) {
-  source = matrix;
+function loadMatrixToTable(data, callback) {
+  //toggleFilteringStatus(false);
+  data.isMatrix ? source = data : source = data.matrix;
   $(tableSelector).bootstrapTable('destroy');
   $(tableSelector).empty().bootstrapTable(source.readConfig());
-  //$(tableSelector).bootstrapTable("load", new Array(...matrix.readData()));
   $(tableSelector).bootstrapTable("refreshOptions", {
     locale: locale,
     smartDisplay: true
   });
   for (let c of source) {
-    $(tableSelector).find(`[data-field="${c.name()}"]`).attr("data-vector-type", c.type()).addClass(c.type() == 1 ? "th-numeric" : c.type() == 2 ? "th-string" : c.type == 3 ? "th-boolean" : "")
-    //$(tableSelector).find(`[data-field="${c.name()}"]`).append(createVectorMenu(c));
+    $(tableSelector).find(`[data-field="${c.name()}"]`).attr("data-vector-type", c.type()).addClass(c.type() == 1 ? "th-numeric" : c.type() == 2 ? "th-string" : c.type() == 3 ? "th-boolean" : "")
+    if(data.utils) {
+      (data?.utils?.filters || []).forEach(function(f) {
+        $(tableSelector).find(`[data-field="${f.field}"]`).attr("data-filter", f.type == "function" ? f.data : JSON.stringify(f.data)).attr("data-filter-type", f.type);
+      });
+      filterOn = !!data?.utils?.filterOn;
+      toggleFilteringStatus(data?.utils?.filterOn);
+    }
   }
   $("#table-name").val(source.name() || "");
   $(document).ready(function() {
+    toggleFilteringStatus(data?.utils?.filterOn, true);
     $(document).find(`[id="table-tab"]`).click();
     if (callback) callback($(tableSelector));
-  })
+  });
 
 }
 /*
@@ -375,20 +402,22 @@ function createResultCard(id = srnd()) {
         <div class="title" style="display: flex"></div>
         <span class="close-card"> 
             <span style="display: flex;flex-direction: row-reverse;">
-              <button title="Smazat kartu výsledku." class="btn close-card-btn" style="display: flex;flex-direction: row-reverse;">🗑️</button>
-              <button title="Vložit výsledek do clipboardu" class="btn copy-canvas-layout-btn" style="display: flex;flex-direction: row-reverse;">🖼️</button>
-              <button title="Zpět na data" class="btn back-to-data-btn" style="display: flex;flex-direction: row-reverse;">⏫</button>
+              <button title="Smazat kartu výsledku." class="btn close-card-btn" style="display: flex;flex-direction: row-reverse;"><i class="fa-solid fa-trash"></i></button>
+              <button title="Vložit výsledek do clipboardu" class="btn copy-canvas-layout-btn" style="display: flex;flex-direction: row-reverse;"><i class="fa-solid fa-copy"></i></button>
+              <button title="Minimalizovat/expandovat kartu výsledku" class="btn collapse-result-card" style="display: flex;flex-direction: row-reverse;"><i class="fa-solid fa-eye"></i></button>
             </span>
           </span>
       </div>
-      <div class="duration"></div>
-      <div class="canvas-layout">
-        <div class="row">
-            <div class="col-6"><div class="sample"></div><br></div>
-            <div class="col-6"><div class="parameters"></div><br></div>
+      <div class="result-content">
+        <div class="duration"></div>
+        <div class="canvas-layout">
+          <div class="row">
+              <div class="col-6"><div class="sample"></div><br></div>
+              <div class="col-6"><div class="parameters"></div><br></div>
+          </div>
+          <div class="content"></div>
+          <div class="result-addons"></div>
         </div>
-        <div class="content"></div>
-        <div class="result-addons"></div>
       </div>
     </div>
   </div>`
@@ -526,7 +555,7 @@ $(document).on("click", "[data-vector-analysis-trigger]", function() {
     renderVectorFormSchema(vectorModels[method].schema.form, vector, method);
   } else {
     try {
-      var analysis = vector.analyze(method).run();
+      var analysis = vector.applyFilter().analyze(method).run();
       renderAnalysisResult(analysis);
     } catch (e) {
       msg.error("Chyba", env === "development" ? e.toString() : "", 15000);
@@ -555,7 +584,7 @@ $(document).on("submit", "[data-vector-form]", function() {
   args = args.map(a => a.value);
   var vector = source.item($(this).closest("[data-field]").attr("data-field"));
   try {
-    var bundle = vector.analyze($(this).attr("data-method")).run(...args);
+    var bundle = vector.applyFilter().analyze($(this).attr("data-method")).run(...args);
     renderAnalysisResult(bundle)
     $("#modal_vector_analysis_form, #modal_matrix_analysis_form").modal("hide");
   } catch (e) {
@@ -574,8 +603,13 @@ $(document).on("click", ".close-card-btn", function() {
 });
 
 /* expand the data collapsible and scroll up */
-$(document).on("click", ".back-to-data-btn", function() {
-  $(document).scrollTop(0);
+$(document).on("click", ".collapse-result-card", function() {
+  var $c = $(this).closest(".result-card").find(".result-content");
+  var isCollapsed = $c.hasClass("collapsed") ;
+  $(this).closest(".result-card").find(".result-content").toggleClass("collapsed");
+  if(!isCollapsed) {
+    $(this).html(`<i class="fa-solid fa-eye-slash"></i>`);
+  } else $(this).html(`<i class="fa-solid fa-eye"></i>`);
 })
 
 $(document).on("click", ".bt-header-config", function() {
@@ -728,7 +762,7 @@ $(document).on("submit", "[data-matrix-form]", function() {
     }
   });
   var method = $(this).attr("data-method");
-  var analysis = source.analyze(method);
+  var analysis = source.applyFilters().analyze(method);
   calculateMatrixAnalysis(analysis, args, $(this));
 });
 
@@ -851,6 +885,8 @@ function N(v, options) {
 
 function nullFormatter(v) {
   if (v === null || v === undefined) return `<i style="color: gray" title="prázdná buňka">-</i>`;
+  //else if(v === true) return "✅";
+  //else if(v === false) return "❌";
   else return v;
 }
 
@@ -886,3 +922,25 @@ const msg = {
 }
 
 // #endregion
+
+$(document).on("click","#toggle-table-filter", function(){
+  toggleFilteringStatus();
+})
+
+function toggleFilteringStatus(status = undefined, skipRefresh = false) {
+  if(status === undefined) {
+    filterOn = !filterOn;
+    status = filterOn;
+  } else {
+    filterOn = !!status;
+  }
+  if(!status) {
+    //filterOn = false;
+    $("#toggle-table-filter").removeClass("on").addClass("off")//.text("vypnuto");
+    if(!skipRefresh) $(tableSelector).bootstrapTable("refresh");
+  } else {
+    //filterOn = true;
+    $("#toggle-table-filter").removeClass("off").addClass("on").attr("title", "Filtrování je zapnuté, ovlivní také vstupy do analýzy.")//.text("zapnuto");
+    if(!skipRefresh) $(tableSelector).bootstrapTable("refresh");
+  }
+}
