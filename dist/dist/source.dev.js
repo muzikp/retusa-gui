@@ -80,10 +80,10 @@ function openTableFromFile() {
   selectFile(".ret", function (file) {
     readFile(file, function (content) {
       try {
-        var o = JSON.parse(content).matrix;
-        var m = Matrix.deserialize(o);
-        loadMatrixToTable(m, function () {
-          msg.ok("Tabulka ".concat(m.name() ? m.name() + " " : "", "nahr\xE1na"), "Celkem řádků: " + m.maxRows());
+        var bundle = JSON.parse(content);
+        bundle.matrix = Matrix.deserialize(bundle.matrix);
+        loadMatrixToTable(bundle, function () {
+          msg.ok("Tabulka ".concat(source.name() ? source.name() + " " : "", "nahr\xE1na"), "Celkem řádků: " + source.maxRows());
         });
       } catch (e) {
         msg.error("Nepodařilo se nahrát data.", e.message);
@@ -93,11 +93,28 @@ function openTableFromFile() {
   });
 }
 
-function saveTableToFile() {
-  var blob = new Blob([JSON.stringify({
+function serializeWorkspace() {
+  var m = source.serialize();
+  var filters = [];
+  $("[data-filter]").each(function () {
+    filters.push({
+      field: $(this).attr("data-field"),
+      type: $(this).attr("data-filter-type"),
+      data: $(this).attr("data-filter-type") == "function" ? $(this).attr("data-filter") : JSON.parse($(this).attr("data-filter"))
+    });
+  });
+  return {
     version: version,
-    matrix: source.serialize()
-  })], {
+    matrix: m,
+    utils: {
+      filterOn: filterOn,
+      filters: filters
+    }
+  };
+}
+
+function saveTableToFile() {
+  var blob = new Blob([JSON.stringify(serializeWorkspace())], {
     type: 'plain/text'
   });
   var url = URL.createObjectURL(blob);

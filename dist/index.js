@@ -75,13 +75,15 @@ function createVectorMenuNode(node, vector) {
   return "";
 }
 
-$(document).on("mouseover", ".submenu", function(){
-  console.log("Key");
-})
-
 // #region Retusa extensions
 
 function init() {
+  const applyVectorFilter = function() {
+    return source.applyFilters().item(this.name());
+  }
+  NumericVector.prototype.applyFilter = applyVectorFilter;
+  StringVector.prototype.applyFilter = applyVectorFilter;
+  BooleanVector.prototype.applyFilter = applyVectorFilter;
   Matrix.prototype.readConfig = function() {
     var t = {
       pagination: true,
@@ -176,6 +178,13 @@ function init() {
       totalNotFiltered: data.length,
       rows: data
     };
+  }
+  Matrix.prototype.applyFilters = function() {
+    if(filterOn) {
+      var filters = collectFiltersFromHeaders();
+      if(filters.length > 0) return this.filter(...filters);
+      else return this;
+    } else return this;
   }
   // #region Cell editor
   function matrixToBSFormat(m) {
@@ -283,29 +292,31 @@ function collectFiltersFromHeaders(dataField) {
     var th = $(tableSelector).find(`[data-field="${dataField}"]`);
     var type = th.attr("data-filter-type") || null;
     var filter = th.attr("data-filter") || null;
+    if(type != "function") filter = filter ? JSON.parse(filter) : null;
     return {
       type: type,
-      filter: filter ? JSON.parse(filter) : null
+      filter: filter
     }
   } else {
     var filters = [];
     $(tableSelector).find("[data-field]").each(function(){
       if($(this).attr("data-filter")) {
-        var filter = JSON.parse($(this).attr("data-filter"));
         filters.push($(this).attr("data-field"));
+        var filter = $(this).attr("data-filter");
         if($(this).attr("data-filter-type") == "array") {
+          filter = JSON.parse(filter);
           const filterContent = JSON.parse($(this).attr("data-filter"));
           filters.push(function(v,i,a) {return filterContent.indexOf(v) > -1 })
-        } else {
-          var min = isN(filter.grequal) ? Number(filter.grequal) : isN(filter.greater) ? Number(filter.greater) : -Number.MAX_SAFE_INTEGER;
-          var max = isN(filter.lessqual) ? Number(filter.lessqual) : isN(filter.less) ? Number(filter.less) : Number.MAX_SAFE_INTEGER;
-          var fn;
-          /* je potřeba implementovat všechyn podmínky (včetně toho, když jedna ze stran je prázdná) */
-          if(isN(filter.greater) && isN(filter.less)) fn = (v) => v > min && v < max;
-          else if(isN(filter.grequal) && isN(filter.less)) fn = (v) => v >= min && v < max;
-          else if(isN(filter.greater) && isN(filter.lessqual)) fn = (v) => v > min && v <= max;
-          else if(isN(filter.grequal) && isN(filter.lessqual)) fn = (v) => v >= min && v <= max;
+        } 
+        else if($(this).attr("data-filter-type") == "numrange") {
+          filter = JSON.parse(filter);
+          var min = filter.minv !== undefined && filter.minv !== null ? Number(filter.minv) : -Number.MAX_SAFE_INTEGER;
+          var max = filter.maxv !== undefined && filter.maxv !== null ? Number(filter.maxv) : Number.MAX_SAFE_INTEGER;
+          var fn = (v,i,a) => (filter.minop == 1 ? v > min : filter.minop == 2 ? v >= min : false) && (filter.maxop == 3 ? v < max : filter.maxop == 4 ? v <= max : false);
           filters.push(fn);
+        }
+        else if($(this).attr("data-filter-type") == "function") {
+          filters.push(eval(filter));
         }
       }
     });
@@ -346,23 +357,28 @@ function matrixAJAX(p) {
 }
 
 /* transfer the matrix to the Bootstrap Table */
-function loadMatrixToTable(matrix, callback) {
-  toggleFilteringStatus(false);
-  source = matrix;
+function loadMatrixToTable(data, callback) {
+  //toggleFilteringStatus(false);
+  data.isMatrix ? source = data : source = data.matrix;
   $(tableSelector).bootstrapTable('destroy');
   $(tableSelector).empty().bootstrapTable(source.readConfig());
-  //$(tableSelector).bootstrapTable("load", new Array(...matrix.readData()));
   $(tableSelector).bootstrapTable("refreshOptions", {
     locale: locale,
     smartDisplay: true
   });
   for (let c of source) {
-    $(tableSelector).find(`[data-field="${c.name()}"]`).attr("data-vector-type", c.type()).addClass(c.type() == 1 ? "th-numeric" : c.type() == 2 ? "th-string" : c.type == 3 ? "th-boolean" : "")
-    //$(tableSelector).find(`[data-field="${c.name()}"]`).append(createVectorMenu(c));
+    $(tableSelector).find(`[data-field="${c.name()}"]`).attr("data-vector-type", c.type()).addClass(c.type() == 1 ? "th-numeric" : c.type() == 2 ? "th-string" : c.type() == 3 ? "th-boolean" : "")
+    if(data.utils) {
+      (data?.utils?.filters || []).forEach(function(f) {
+        $(tableSelector).find(`[data-field="${f.field}"]`).attr("data-filter", f.type == "function" ? f.data : JSON.stringify(f.data)).attr("data-filter-type", f.type);
+      });
+      filterOn = !!data?.utils?.filterOn;
+      toggleFilteringStatus(data?.utils?.filterOn);
+    }
   }
   $("#table-name").val(source.name() || "");
   $(document).ready(function() {
-    toggleFilteringStatus(undefined, true);
+    toggleFilteringStatus(data?.utils?.filterOn, true);
     $(document).find(`[id="table-tab"]`).click();
     if (callback) callback($(tableSelector));
   });
@@ -538,7 +554,7 @@ $(document).on("click", "[data-vector-analysis-trigger]", function() {
     renderVectorFormSchema(vectorModels[method].schema.form, vector, method);
   } else {
     try {
-      var analysis = vector.analyze(method).run();
+      var analysis = vector.applyFilter().analyze(method).run();
       renderAnalysisResult(analysis);
     } catch (e) {
       msg.error("Chyba", env === "development" ? e.toString() : "", 15000);
@@ -567,7 +583,7 @@ $(document).on("submit", "[data-vector-form]", function() {
   args = args.map(a => a.value);
   var vector = source.item($(this).closest("[data-field]").attr("data-field"));
   try {
-    var bundle = vector.analyze($(this).attr("data-method")).run(...args);
+    var bundle = vector.applyFilter().analyze($(this).attr("data-method")).run(...args);
     renderAnalysisResult(bundle)
     $("#modal_vector_analysis_form, #modal_matrix_analysis_form").modal("hide");
   } catch (e) {
@@ -740,7 +756,7 @@ $(document).on("submit", "[data-matrix-form]", function() {
     }
   });
   var method = $(this).attr("data-method");
-  var analysis = source.analyze(method);
+  var analysis = source.applyFilters().analyze(method);
   calculateMatrixAnalysis(analysis, args, $(this));
 });
 
@@ -905,15 +921,20 @@ $(document).on("click","#toggle-table-filter", function(){
   toggleFilteringStatus();
 })
 
-function toggleFilteringStatus(status = undefined, skipRefresh) {
-  if(status !== undefined) filterOn = !!!status;
-  if(filterOn) {
-    filterOn = false;
-    $("#toggle-table-filter").css("background-color", "lightgray").css("color", "black").attr("title", "Filtrování je vypnuté.").text("vypnuto");
+function toggleFilteringStatus(status = undefined, skipRefresh = false) {
+  if(status === undefined) {
+    filterOn = !filterOn;
+    status = filterOn;
+  } else {
+    filterOn = !!status;
+  }
+  if(!status) {
+    //filterOn = false;
+    $("#toggle-table-filter").removeClass("on").addClass("off")//.text("vypnuto");
     if(!skipRefresh) $(tableSelector).bootstrapTable("refresh");
   } else {
-    filterOn = true;
-    $("#toggle-table-filter").css("background-color", "red").css("color", "white").attr("title", "Filtrování je zapnuté, ovlivní také vstupy do analýzy.").text("zapnuto");
+    //filterOn = true;
+    $("#toggle-table-filter").removeClass("off").addClass("on").attr("title", "Filtrování je zapnuté, ovlivní také vstupy do analýzy.")//.text("zapnuto");
     if(!skipRefresh) $(tableSelector).bootstrapTable("refresh");
   }
 }

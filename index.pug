@@ -2,6 +2,7 @@ html
   head
     meta(name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no")
     title Retusa GUI (demo)
+    link(rel="icon" type="image/x-icon" href="./media/favicon.ico")
     //link(href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,300;0,600;1,300;1,600&display=swap" rel="stylesheet")
     link(rel="stylesheet" href="./retusa-gui.css")
     link(rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table.min.css")
@@ -48,16 +49,15 @@ html
       li.nav-item(role='presentation' tab-target="output")
         button#output-tab.nav-link(data-bs-toggle='tab' data-bs-target='#output-tab-pane' type='button' role='tab' aria-controls='output-tab-pane' aria-selected='false') Výsledky
       li.nav-item.logo-tab
+        a(href="https://www.muvs.cvut.cz/" target="_blank" style="margin-right: 20px;")
+          img(src='./media/muvs_logo.png' height='30' alt='MÚVS ČVUT')
         a(href="https://github.com/muzikp/retusa" target="_blank")
-          img(src='./media/retusa-logo-v1-main.png' height='30' alt='Retusa')
+          img(src='./media/retusa-logo-v1-main.png' height='30' alt='Retusa')        
     #tabContent.tab-content
       #source-tab-pane.tab-pane.fade.show.active(role='tabpanel' aria-labelledby='source-tab' tabindex='0')
         .source-container
-          .buttons
-            button.btn.btn-info(data-source-action="open") Otevřít
-            button.btn.btn-success(data-source-action="save") Uložit
-            button.btn.btn-warning(data-source-action="import") Importovat
-          hr
+          br
+          br
           h5 Testovací datasety
           .sample-sets
             button.btn.btn-info(data-test-dataset="genreg") Regrese
@@ -80,20 +80,32 @@ html
           .last-files
       #table-tab-pane.tab-pane.fade(role='tabpanel' aria-labelledby='table-tab' tabindex='0')
         #table-toolbar
-          .col-6
+          .group
+            button#toggle-table-filter.btn()
             input#table-name.form-control(type="text" maxLength = 64 placeholder = "název tabulky (nepovinné)" style="padding-right: 15px;")
-          .col-6
-            button#toggle-table-filter.btn.btn-info()
+          .group.right
+            button.btn.bg-dark-green(data-source-action="open" title="Otevřete soubor Retusa s příponou '*.ret'")
+              i.fa-solid.fa-folder-open.btn-icon-before
+              | otevřít
+            button.btn.bg-dark-blue(data-source-action="save" title = "Kliknutím uložíte soubor do složky 'Stažené soubory'")
+              i.fa-sharp.fa-solid.fa-download.btn-icon-before
+              | uložit
+            button.btn.bg-dark-orange(data-source-action="import" title = "Otevřete libovolný soubor podporovaný aplikací Excel.  ")
+              i.fa-solid.fa-file-excel.btn-icon-before
+              | import
         #table(data-show-export="true" data-toggle="table" data-formatter="nullFormatter" data-ajax="matrixAJAX" data-side-pagination="server")
       #analysis-tab-pane.tab-pane.fade(role='tabpanel' aria-labelledby='analysis-tab' tabindex='0')
         #matrix-method-tree.tf-tree.example
           ul
             li
               span.analytic-group
-                .analytics-header(style="background-color: salmon;") Zkoumání závislosti
+                .analytics-header.bg-light-green() Zkoumání závislosti
                 ul
                   li
-                    span.tf-nc(data-target = "genreg")
+                    span.tf-nc.tf-inter-node Regrese
+                    ul
+                      li
+                        span.tf-nc(data-target = "genreg")
                   li
                     span.tf-nc.tf-inter-node Korelace
                     ul
@@ -116,7 +128,7 @@ html
           ul
             li
               span.analytic-group
-                .analytics-header(style="background-color: cadetblue;") Zkoumání rozdílů
+                .analytics-header.bg-light-blue() Zkoumání rozdílů
                 ul
                   li
                     span.tf-nc.tf-inter-node Spojitá
@@ -139,10 +151,12 @@ html
           ul
             li
               span.analytic-group
-                .analytics-header(style="background-color: cadetblue;") Analýza nominálních dat
+                .analytics-header.bg-light-orange() Analýza nominálních dat
                 ul
                   li
                     span.tf-nc(data-target="contingency")
+                  li
+                          span.tf-nc.in-backlog() ...
       #output-tab-pane.tab-pane.fade(role='tabpanel' aria-labelledby='output-tab' tabindex='0')
         #output-container.accordion-body.col-12
     #modal_vector_analysis_form.modal(tabindex='-1')
@@ -165,8 +179,9 @@ html
             button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
           .modal-body
             .selector
+            br
             .form-check.form-switch
-              input.headers-in-first-row.form-check-input(type='checkbox' role='switch')
+              input.headers-in-first-row.form-check-input(type='checkbox' role='switch' checked="true")
               label.form-check-label() první sloupec tvoří záhlaví
           .modal-footer
             button.confirm.btn.btn-primary(type='button') Další
@@ -215,21 +230,26 @@ html
                 .mb-3
                   label.form-label() Vyberte hodnoty
                   select.form-select(name = "filter" multiple data-filter-type = "select")
-              .numeric-filters
-                .mb-3
-                  label.form-label(title="pokud je zároveň vyplněna hodnota 'větší než rovno', budere se jako přednostní ona") větší než
-                  input.form-control(name = "greater" type="number")
-                .mb-3
-                  label.form-label(title="pokud je zároveň vyplněna hodnota 'větší', nevadí, bude ignorována") větší než nebo rovno
-                  input.form-control(name = "grequal" type="number")
-                .mb-3
-                  hr
-                .mb-3
-                  label.form-label() menší než
-                  input.form-control(name = "less" type="number")
-                .mb-3
-                  label.form-label() menší než nebo rovno
-                  input.form-control(name = "lessqual" type="number")  
+              .numeric-filters.flex
+                .col-20p
+                  select.lean.form-select(name="minop" required)
+                    option(value = 1) >
+                     option(value = 2) ≥
+                .col-20p
+                  input.form-control(name="minv" step = 0.0000001 placeholder = "-∞" type="number")
+                .col-20p
+                  b a
+                .col-20p
+                  select.lean.form-select(name="maxop" required)
+                    option(value = 3) <
+                     option(value = 4) ≤
+                .col-20p
+                  input.form-control(name="maxv" step = 0.0000001 placeholder = "+∞" type="number")
+              .function-filters
+                hr
+                label(title = "Filtrování pomocí funkce. Parametr funguje stejně jako prototyp filtru u objektu typu array, kde jsou vstupními proměnnými value, index a mateřský array.")
+                  b Funkční filtr
+                textarea.form-control(name = "fn" spellcheck=false rows = 5 placeholder = "function(value, index, array)\n{\n\treturn (Math.pow(value,2) > 4);\n}")
           .modal-footer
             button.btn.btn-secondary(type='submit' data-action = "clear") Zrušit filtrování
             button.btn.btn-primary(type='submit' data-action="confirm") Potvrdit

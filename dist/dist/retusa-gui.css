@@ -1,12 +1,16 @@
 @charset "UTF-8";
+#workspace {
+  margin-top: 5px;
+}
+
 .form-control-required:before {
-  color: red;
+  color: #b01818;
   margin-right: 0.2rem;
   content: "*";
 }
 
 .form-control-tooltip:after {
-  color: blue;
+  color: #51b0df;
   content: "👁️‍🗨️";
   margin-left: 0.5rem;
 }
@@ -53,7 +57,7 @@ td[_title]:after {
 .box-header {
   color: black;
   margin: 5px 0;
-  background-color: lightskyblue;
+  background-color: #51b0df;
   font-weight: 600;
   padding: 5px 10px;
   text-align: center;
@@ -80,7 +84,7 @@ td[_title]:after {
   width: 100%;
   padding: 5px;
   text-align: center;
-  background-color: lightblue;
+  background-color: #51b0df;
   border-radius: 10px;
 }
 
@@ -123,7 +127,7 @@ td[_title]:after {
   font-size: 1.8rem;
   font-weight: 600;
   border-radius: 10px;
-  width: fit-content;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 2rem;
@@ -173,7 +177,7 @@ th {
 }
 
 [data-vector-analysis-trigger], .dropdown-item-button {
-  padding: 0px;
+  padding: 0px !important;
 }
 
 .dropdown:hover > .dropdown-menu {
@@ -200,6 +204,10 @@ ul li {
   display: inline-block;
 }
 
+.nav-link {
+  color: darkgray !important;
+}
+
 .ml-auto {
   display: inline-block !important;
 }
@@ -215,27 +223,57 @@ ul li {
 }
 
 .th-numeric {
-  background-color: #85d3f2 !important;
+  background-color: rgba(81, 176, 223, 0.5) !important;
+}
+.th-numeric [data-filter] {
+  color: #018ac7;
+}
+.th-numeric :first-child:before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 600;
+  content: "#";
+  color: #018ac7 !important;
+  margin-right: 10px;
 }
 
 .th-string {
-  background-color: #77bd81 !important;
+  background-color: rgba(101, 203, 154, 0.5) !important;
+}
+.th-string [data-filter] {
+  color: #2e9a71;
+}
+.th-string :first-child:before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 600;
+  content: "$";
+  color: #2e9a71 !important;
+  margin-right: 10px;
 }
 
 .th-boolean {
-  background-color: #bda677 !important;
+  background-color: rgba(244, 186, 108, 0.5) !important;
+}
+.th-boolean [data-filter] {
+  color: #ec8906;
+}
+.th-boolean :first-child:before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 600;
+  content: "";
+  color: #ec8906 !important;
+  margin-right: 10px;
 }
 
 [data-filter] .th-inner:after {
   font-family: "Font Awesome 5 Free";
   font-weight: 600;
   content: "";
-  color: white;
   margin-left: 10px;
 }
 
 .nav-item {
   font-size: 1.3rem;
+  color: gray;
 }
 
 .logo-tab {
@@ -245,27 +283,28 @@ ul li {
 }
 
 .nav-link.active {
-  color: blue !important;
+  color: #018ac7 !important;
+  background-color: rgba(81, 176, 223, 0.25) !important;
   font-weight: 600 !important;
 }
 
-.nav-link {
-  color: gray;
-}
-
 .nav-link .show {
-  color: blue !important;
+  color: #018ac7 !important;
 }
 
-#table-toolbar {
-  display: flex;
+.col-20p {
+  width: 20%;
+  padding: 5px;
+}
+
+.flex {
+  display: flex !important;
   width: 100%;
-  margin: 10px 0px;
 }
 
 #toggle-table-filter {
-  margin-left: 1rem;
-  border: none;
+  margin-right: 1rem !important;
+  border: none !important;
   height: 100%;
 }
 
@@ -274,4 +313,82 @@ ul li {
   font-weight: 600;
   content: "";
   margin-right: 0.5rem;
+}
+
+#toggle-table-filter.on {
+  background-color: #b01818 !important;
+  color: white;
+  font-style: normal;
+}
+
+#toggle-table-filter.off {
+  background-color: lightgray !important;
+  color: black;
+  font-style: italic;
+}
+
+.btn-icon-before {
+  margin-right: 10px;
+}
+
+.bg-light-green {
+  background-color: #65cb9a !important;
+  color: black !important;
+}
+
+.bg-dark-green {
+  background-color: #2e9a71 !important;
+  color: white !important;
+}
+
+.bg-light-blue {
+  background-color: #51b0df !important;
+  color: black !important;
+}
+
+.bg-dark-blue {
+  background-color: #018ac7 !important;
+  color: white !important;
+}
+
+.bg-light-orange {
+  background-color: #f4ba6c !important;
+  color: black !important;
+}
+
+.bg-dark-orange {
+  background-color: #ec8906 !important;
+  color: white !important;
+}
+
+#table-toolbar {
+  display: flex;
+  width: 100%;
+  margin: 10px 0px;
+}
+#table-toolbar .group {
+  display: flex;
+  width: 50%;
+}
+#table-toolbar .left {
+  justify-content: flex-start;
+}
+#table-toolbar .right {
+  justify-content: flex-end;
+}
+#table-toolbar :not(:first-child) {
+  padding-left: 20px;
+}
+#table-toolbar [data-source-action]:not(:last-child) {
+  margin-right: 10px;
+}
+
+.tf-tree .analytic-group {
+  width: 100%;
+}
+.tf-tree ul {
+  width: 100%;
+}
+.tf-tree li {
+  width: 100%;
 }

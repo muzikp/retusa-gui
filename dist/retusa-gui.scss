@@ -1,10 +1,22 @@
+$light-red: rgb(231,79,79);
+$dark-red: rgb(176,24,24);
+$light-green: rgb(101,203,154);
+$dark-green: rgb(46,154,113);
+$light-blue: rgb(81,176,223);
+$dark-blue: rgb(1,138,199);
+$light-orange: rgb(244,186,108);
+$dark-orange: rgb(236,137,6);
+
+#workspace {
+  margin-top: 5px;
+}
 .form-control-required:before {
-    color: red;
+    color: $dark-red;
     margin-right: 0.2rem;
     content: "*"
   }
   .form-control-tooltip:after {
-    color: blue;
+    color: $light-blue;
     content: "👁️‍🗨️";
     margin-left: 0.5rem;
   }
@@ -43,7 +55,7 @@
   .box-header {
     color: black;
     margin: 5px 0;
-    background-color: lightskyblue;
+    background-color: $light-blue;
     font-weight: 600;
     padding: 5px 10px;
     text-align: center;
@@ -66,7 +78,7 @@
       width: 100%;
       padding: 5px;
       text-align: center;
-      background-color: lightblue;
+      background-color: $light-blue;
       border-radius: 10px;
   }
   .method-title {
@@ -103,7 +115,8 @@
     font-size: 1.8rem;
     font-weight: 600;
     border-radius: 10px;
-    width: fit-content;
+    //width: fit-content;
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 2rem;
@@ -145,7 +158,7 @@
       transform: rotate(-90deg);
   } 
   [data-vector-analysis-trigger], .dropdown-item-button {
-    padding: 0px;
+    padding: 0px !important;
   }
   .dropdown:hover>.dropdown-menu {
     display: block;
@@ -166,6 +179,9 @@
   .navbar-nav .nav-link {
     display:inline-block;
   }
+  .nav-link {
+    color: darkgray !important;
+  }
   .ml-auto {
     display:inline-block!important;
     }
@@ -177,24 +193,57 @@
     padding-left: 10px;
     color: gray;
   }
-  .th-numeric {
-    background-color: #85d3f2 !important;
+  .th-numeric
+  { 
+    background-color: rgba($light-blue,0.5) !important;
+    [data-filter] {
+      color: $dark-blue;
+    };
+    :first-child:before {
+      font-family: "Font Awesome 5 Free"; 
+      font-weight: 600; 
+      content: "\23";
+      color: $dark-blue !important;
+      margin-right: 10px;
+    }
   }
-  .th-string {
-    background-color: #77bd81 !important;
+  .th-string
+  { 
+    background-color: rgba($light-green, 0.5) !important;
+    [data-filter] {
+      color: $dark-green;
+    };
+    :first-child:before {
+      font-family: "Font Awesome 5 Free"; 
+      font-weight: 600;
+      content: "\24";
+      color: $dark-green !important;
+      margin-right: 10px;
+    }
   }
-  .th-boolean {
-    background-color: #bda677 !important;
+  .th-boolean 
+  { 
+    background-color: rgba($light-orange, 0.5) !important;
+    [data-filter] {
+      color: $dark-orange;
+    };
+    :first-child:before {
+      font-family: "Font Awesome 5 Free"; 
+      font-weight: 600;
+      content: "\f14a";
+      color: $dark-orange !important;
+      margin-right: 10px;
+    }
   }
   [data-filter] .th-inner:after {
     font-family: "Font Awesome 5 Free"; 
     font-weight: 600; 
     content: "\f0b0";
-    color: white;
     margin-left: 10px;
   }
   .nav-item {
     font-size: 1.3rem;
+    color: gray;
   }
   .logo-tab {
     right: 10;
@@ -202,29 +251,98 @@
     top: 9px;
   }
   .nav-link.active {
-    color: blue !important;
+    color: $dark-blue !important;
+    background-color: rgba($light-blue, 0.25) !important;
     font-weight: 600 !important;
   }
-  .nav-link {
-    color: gray;
-  }
   .nav-link .show {
-    color: blue !important;
+    color: $dark-blue !important;
   }
-  #table-toolbar {
-    display: flex;
+  .col-20p {
+    width: 20%;
+    padding: 5px;
+  }
+  .flex {
+    display: flex !important;
     width: 100%;
-    margin: 10px 0px;
   }
   #toggle-table-filter {
-    margin-left: 1rem;
-    border: none;
+    margin-right: 1rem !important;
+    border: none !important;
     height: 100%;
   }
   #toggle-table-filter:before {
     font-family: "Font Awesome 5 Free"; 
     font-weight: 600; 
     content: "\f0b0";
-    //color: white;
     margin-right: 0.5rem;
+  }
+  #toggle-table-filter.on {
+    background-color: $dark-red !important;
+    color: white;
+    font-style: normal;
+  }
+  #toggle-table-filter.off {
+    background-color: lightgray !important;
+    color: black;
+    font-style: italic;
+  }
+  .btn-icon-before {
+    margin-right: 10px;
+  }
+  .bg-light-green {
+    background-color: $light-green !important;
+    color:black !important;
+  }
+  .bg-dark-green {
+    background-color: $dark-green !important;
+    color: white !important;
+  }
+  .bg-light-blue {
+    background-color: $light-blue !important;
+    color: black !important;
+  }
+  .bg-dark-blue {
+    background-color: $dark-blue !important;
+    color: white !important;
+  }
+  .bg-light-orange {
+    background-color: $light-orange !important;
+    color: black !important;
+  }
+  .bg-dark-orange {
+    background-color: $dark-orange !important;
+    color: white !important;
+  }
+  #table-toolbar {
+    display: flex;
+    width: 100%;
+    margin: 10px 0px;
+    .group {
+      display: flex;
+      width: 50%;
+    }
+    .left {
+      justify-content: flex-start;
+    }
+    .right {
+      justify-content: flex-end;
+    }
+    :not(:first-child) {
+      padding-left: 20px;
+    }
+    [data-source-action]:not(:last-child) {
+      margin-right: 10px;
+    }
+  }
+  .tf-tree {
+    .analytic-group {
+      width: 100%
+    }
+    ul {
+      width: 100%;
+    }
+    li {
+      width: 100%
+    }
   }
