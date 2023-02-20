@@ -13,7 +13,7 @@ $(function() {
   init();
   renderMatrixAnalysisMenu();
   initContextMenus();
-  source = testTables.anova1();
+  //source = testTables.anova1();
   if(source) loadMatrixToTable(source);
 });
 
