@@ -13,7 +13,7 @@ testTables = {
             new BooleanVector(0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1).name("binární proměnná")
             );
     },
-    contingency: function() {
+    contingency1: function() {
         var m = new Matrix();
         var n = 5000;
         var empty = 0;
@@ -28,6 +28,13 @@ testTables = {
         m.push(StringVector.generate({total: n, list: 50, nullprob: empty}).name("řádeček"));
         m.push(StringVector.generate({total: n, list: 20, nullprob: empty}).name("sloupeček"));
         return m;
+    },
+    muvscontingency: function() {
+        return new Matrix(
+            new StringVector("ZŠ","ZŠ","ZŠ","ZŠ","SŠ","SŠ","SŠ","SŠ","VŠ","VŠ","VŠ","VŠ").name("dosažené vzdělání"),
+            new StringVector("A","B","C","D","A","B","C","D","A","B","C","D").name("skupina"),
+            new NumericVector(39,25,25,27,17,30,40,29,12,41,62,53).name("četnost")
+        ).name("Kontingence (příklad MÚVS)")
     },
     genreg: function(){
         var m = new Matrix().name("Regrese: testovací sada dvou náhoně generovaných vektorů N = 5000");
@@ -93,7 +100,10 @@ const makro= {
         runMakro("correlKendall", testTables.anycorrel(), [0,1]);
         runMakro("correlPartial", testTables.anycorrel(), [0,2,1]);
         runMakro("correlBiserial", testTables.anycorrel(), [3,0]);
-    }
+    },
+    muvscontingency: function(){
+        runMakro("contingency", testTables.muvscontingency(),[0,1,2])
+    },
 };
 
 function runMakro(method, matrix, args) {

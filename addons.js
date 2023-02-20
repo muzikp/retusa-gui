@@ -276,6 +276,7 @@ const addonLibs = {
             data: function(analysis) {
                 var rowLabels = analysis.matrix.item(analysis.args[0]).distinct().asc();
                 var columnLabels = analysis.matrix.item(analysis.args[1]).distinct().asc();
+                var hasFrequency = !!analysis.matrix.item(analysis.args[2]);
                 var na = analysis.matrix.select(...analysis.args).toArray();
                 //if(rowLabels.length * columnLabels.length > 30) return "<p>pro zobrazení kontingenční tabulky je struktura tabulky příliš velká</p>";
                 var $t = `<div class="result-addon-table-container"><div class="table-title">Kontingenční tabulka (abs. četnosti)</div>
@@ -284,21 +285,27 @@ const addonLibs = {
                     $t += `<th>${cl}</th>`
                 };
                 $t += "<th>CELKEM</th></tr>";
+                var clSum = [];
                 for(let r of rowLabels) {
                     $t += `<tr><th>${r}</th>`;
                     var rowTotal = 0;
+                    var c = 0;
                     columnLabels.forEach(function(cl){
-                        var n = na.filter(o => o[0] == r && o[1] == cl).length;
+                        if(hasFrequency) {
+                            n = analysis.matrix.filter(0, (v) => v == r, 1, (v) => v == cl).item(2).sum();
+                        } else var n = na.filter(o => o[0] == r && o[1] == cl).length;
                         rowTotal += n;
-                        $t += `<td>${N(n)}</td>`
+                        clSum[c] = (clSum[c] || 0) + n;
+                        $t += `<td>${N(n)}</td>`;
+                        c++;
                     });            
                     $t += `<th>${N(rowTotal)}</th></tr>`;
                 }
                 /* bottom summary */            
                 $t += "<tr><th>CELKEM</th>";
-                columnLabels.forEach(function(cl){
-                    var n = na.filter(o => o[1] == cl).length;
-                    $t += `<th>${N(n)}</th>`
+                clSum.push(clSum.sum());
+                clSum.forEach(function(c){
+                    $t += `<th>${N(c)}</th>`
                 });  
                 $t += "</tr>";           
                 $t += "</tbody></table></div></div>";
