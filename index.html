@@ -39,10 +39,10 @@
   <body>
     <ul class="nav nav-tabs" id="workspace" role="tablist">
       <li class="nav-item" role="presentation" tab-target="source">
-        <button class="nav-link active" id="source-tab" data-bs-toggle="tab" data-bs-target="#source-tab-pane" type="button" role="tab" aria-controls="source-tab-pane" aria-selected="true">Zdroje</button>
+        <button class="nav-link active" id="source-tab" data-bs-toggle="tab" data-bs-target="#source-tab-pane" type="button" role="tab" aria-controls="source-tab-pane" aria-selected="true" wcode="aIu8">Zdroje</button>
       </li>
       <li class="nav-item" role="presentation" tab-target="table">
-        <button class="nav-link" id="table-tab" data-bs-toggle="tab" data-bs-target="#table-tab-pane" type="button" role="tab" aria-controls="table-tab-pane" aria-selected="false">Tabulka</button>
+        <button class="nav-link" id="table-tab" data-bs-toggle="tab" data-bs-target="#table-tab-pane" type="button" role="tab" aria-controls="table-tab-pane" aria-selected="false" wcode="rT7a">Tabulka</button>
       </li>
       <li class="nav-item" role="presentation" tab-target="analysis">
         <button class="nav-link" id="analysis-tab" data-bs-toggle="tab" data-bs-target="#analysis-tab-pane" type="button" role="tab" aria-controls="analysis-tab-pane" aria-selected="false">Analýza</button>
@@ -64,6 +64,8 @@
             <button class="btn btn-info" data-test-dataset="anova1">ANOVA s faktorem</button>
             <button class="btn btn-info" data-test-dataset="ttestind1">T-test nez. s faktorem</button>
             <button class="btn btn-info" data-test-dataset="ttestind2">T-test nez. bez faktoru</button>
+            <button class="btn btn-success" data-test-dataset="muvscontingency">Kontingence (MÚVS)</button>
+            <button class="btn btn-warning" data-test-dataset="contingency1">Kontingence bez četností</button>
           </div>
           <hr/>
           <h5>Makro</h5>
@@ -75,6 +77,7 @@
             <button class="btn btn-info" data-makro="anova1">ANOVA s faktorem</button>
             <button class="btn btn-info" data-makro="ttestind1">T-test nez. s faktorem</button>
             <button class="btn btn-info" data-makro="ttestind2">T-test nez. bez faktoru</button>
+            <button class="btn btn-warning" data-makro="muvscontingency">Kontingence (MÚVS)</button>
           </div>
           <div class="last-files"></div>
         </div>
@@ -287,10 +290,9 @@
             <div class="function-filters">
               <hr/>
               <label title="Filtrování pomocí funkce. Parametr funguje stejně jako prototyp filtru u objektu typu array, kde jsou vstupními proměnnými value, index a mateřský array."><b>Funkční filtr</b></label>
-              <textarea class="form-control" name="fn" rows="5" placeholder="function(value, index, array)
-{
-	return (Math.pow(value,2) &gt; 4);
-}"></textarea>
+              <textarea class="form-control" name="fn" rows="5" placeholder="zde můžete zadat filtrovací funkci,např.
+
+(value, index, vector) = &gt; value &gt; vector.median()"></textarea>
             </div>
           </div>
           <div class="modal-footer">

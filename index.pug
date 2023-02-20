@@ -37,9 +37,9 @@ html
   body
     ul#workspace.nav.nav-tabs(role='tablist')
       li.nav-item(role='presentation' tab-target="source")
-        button#source-tab.nav-link.active(data-bs-toggle='tab' data-bs-target='#source-tab-pane' type='button' role='tab' aria-controls='source-tab-pane' aria-selected='true') Zdroje
+        button#source-tab.nav-link.active(data-bs-toggle='tab' data-bs-target='#source-tab-pane' type='button' role='tab' aria-controls='source-tab-pane' aria-selected='true' wcode = "aIu8") Zdroje
       li.nav-item(role='presentation' tab-target="table")
-        button#table-tab.nav-link(data-bs-toggle='tab' data-bs-target='#table-tab-pane' type='button' role='tab' aria-controls='table-tab-pane' aria-selected='false') Tabulka
+        button#table-tab.nav-link(data-bs-toggle='tab' data-bs-target='#table-tab-pane' type='button' role='tab' aria-controls='table-tab-pane' aria-selected='false' wcode="rT7a") Tabulka
       li.nav-item(role='presentation' tab-target="analysis")
         button#analysis-tab.nav-link(data-bs-toggle='tab' data-bs-target='#analysis-tab-pane' type='button' role='tab' aria-controls='analysis-tab-pane' aria-selected='false') Analýza
       li.nav-item(role='presentation' tab-target="output")
@@ -65,6 +65,8 @@ html
             button.btn.btn-info(data-test-dataset="anova1") ANOVA s faktorem
             button.btn.btn-info(data-test-dataset="ttestind1") T-test nez. s faktorem
             button.btn.btn-info(data-test-dataset="ttestind2") T-test nez. bez faktoru
+            button.btn.btn-success(data-test-dataset="muvscontingency") Kontingence (MÚVS)
+            button.btn.btn-warning(data-test-dataset="contingency1") Kontingence bez četností
           hr
           h5 Makro
           .sample-sets
@@ -75,6 +77,7 @@ html
             button.btn.btn-info(data-makro="anova1") ANOVA s faktorem
             button.btn.btn-info(data-makro="ttestind1") T-test nez. s faktorem
             button.btn.btn-info(data-makro="ttestind2") T-test nez. bez faktoru
+            button.btn.btn-warning(data-makro="muvscontingency") Kontingence (MÚVS)
           .last-files
       #table-tab-pane.tab-pane.fade(role='tabpanel' aria-labelledby='table-tab' tabindex='0')
         #table-toolbar
@@ -247,7 +250,7 @@ html
                 hr
                 label(title = "Filtrování pomocí funkce. Parametr funguje stejně jako prototyp filtru u objektu typu array, kde jsou vstupními proměnnými value, index a mateřský array.")
                   b Funkční filtr
-                textarea.form-control(name = "fn" spellcheck=false rows = 5 placeholder = "function(value, index, array)\n{\n\treturn (Math.pow(value,2) > 4);\n}")
+                textarea.form-control(name = "fn" spellcheck=false rows = 5 placeholder = "zde můžete zadat filtrovací funkci,např.\n\n(value, index, vector) = > value > vector.median()")
           .modal-footer
             button.btn.btn-secondary(type='submit' data-action = "clear") Zrušit filtrování
             button.btn.btn-primary(type='submit' data-action="confirm") Potvrdit
