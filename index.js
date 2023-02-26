@@ -1,5 +1,5 @@
 const version = "1.0";
-const locale = "cs-CZ";
+const _locale = "en-GB";
 const tableSelector = "#table";
 const log = [];
 const env = "development";
@@ -10,6 +10,7 @@ var filterOn = true;
 
 /* IMPORTANT!! */
 $(function() {
+  locale.setDefault(_locale);
   init();
   renderMatrixAnalysisMenu();
   initContextMenus();
@@ -362,7 +363,7 @@ function loadMatrixToTable(data, callback) {
   $(tableSelector).bootstrapTable('destroy');
   $(tableSelector).empty().bootstrapTable(source.readConfig());
   $(tableSelector).bootstrapTable("refreshOptions", {
-    locale: locale,
+    locale: _locale,
     smartDisplay: true
   });
   for (let c of source) {
@@ -863,22 +864,22 @@ function F(v, p) {
     if (!v) return "❌";
     else return "✅"
   } else if (p.type == "integer") {
-    return Math.round(v).toLocaleString(locale, {
+    return Math.round(v).toLocaleString(_locale, {
       style: "decimal"
     });
   } else if (p.type == "percent") {
-    return v.toLocaleString(locale, {
+    return v.toLocaleString(_locale, {
       style: "percent"
     });
   } else if (p.type == "number") {
-    return v.toLocaleString(locale, {
+    return v.toLocaleString(_locale, {
       style: "decimal"
     })
   } else return v;
 }
 
 function N(v, options) {
-  return Number(v).toLocaleString(locale, {
+  return Number(v).toLocaleString(_locale, {
     style: options?.style || "decimal"
   })
 }
