@@ -489,15 +489,15 @@ chartColorsByMethod = {
     "default": {r:12,g:12,b:12}
 }
 
-vectorContextMenuTree = [
+function vectorContextMenuTree() { return [
     {
         type: "header",
-        value: "Nastavení"
+        value: locale.call("MYy2")
     },
     {
         type: "custom",
         id: "config",
-        value: "konfigurace",
+        value: locale.call("SxsF"),
         function: function(sender){
             var vector = source.item($(sender).attr("data-vector-name"));
             var $f = $("#vector-config");
@@ -511,7 +511,7 @@ vectorContextMenuTree = [
     {
         type: "custom",
         id: "filter",
-        value: "filtrování dat",
+        value: locale.call("77iY"),
         function: function(sender) {
             var vector = source.item($(sender).attr("data-vector-name"));
             var $f = $("#vector-filter");
@@ -527,7 +527,7 @@ vectorContextMenuTree = [
             else if(vector.type() > 1) {
                 var $s = $f.find(`[data-filter-type = "select"]`).empty();
                 for(var v of vector.distinct().asc()) {
-                    var $o = $("<option>").text(v !== null ? v : "- prázdné -").attr("value", v !== null ? v : "");
+                    var $o = $("<option>").text(v !== null ? v : `- ${locale.call("RICH")} -`).attr("value", v !== null ? v : "");
                     if((vf.filter || []).indexOf(v) > -1) $o.attr("selected", true);
                     $s.append($o);
                 }
@@ -554,7 +554,7 @@ vectorContextMenuTree = [
     },
     {
         type: "header",
-        value: "Analýza"
+        value: locale.call("RN28")
     },
     {
         type: "method",
@@ -566,7 +566,7 @@ vectorContextMenuTree = [
     },
     {
         type: "parent",
-        value: "poloha",
+        value: locale.call("KG9Q"),
         id: "location",
         children: [
             {
@@ -615,7 +615,7 @@ vectorContextMenuTree = [
     },
     {
         type: "parent",
-        value: "rozložení",
+        value: locale.call("4DdX"),
         id: "structure",
         children: [
             {
@@ -642,7 +642,7 @@ vectorContextMenuTree = [
     },
     {
         type: "parent",
-        value: "frekvence",
+        value: locale.call("h93e"),
         id: "freq",
         children: [
             {
@@ -657,7 +657,7 @@ vectorContextMenuTree = [
     },
     {
         type: "parent",
-        value: "testy",
+        value: locale.call("2Goq"),
         id: "tests",
         children: [
             {
@@ -676,7 +676,7 @@ vectorContextMenuTree = [
     },
     {
         type: "parent",
-        value: "chybové testy",
+        value: locale.call("Kh3a"),
         id: "errors",
         children: [
             {
@@ -693,7 +693,7 @@ vectorContextMenuTree = [
             }
         ]        
     }
-]
+]};
 
 $(document).on("submit", "#vector-config", function() {
     var $f = $(this);

@@ -4,7 +4,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
     <title>Retusa GUI (demo)</title>
     <link rel="icon" type="image/x-icon" href="./media/favicon.ico"/>
-    <!--link(href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,300;0,600;1,300;1,600&display=swap" rel="stylesheet")-->
     <link rel="stylesheet" href="./retusa-gui.css"/>
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table.min.css"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous"/>
@@ -12,18 +11,13 @@
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/filter-control/bootstrap-table-filter-control.css"/>
     <link href="https://cdn.jsdelivr.net/npm/treeflex@2.0.1/dist/css/treeflex.min.css" rel="stylesheet"/>
     <link href="https://unpkg.com/multiple-select@1.5.2/dist/themes/bootstrap.min.css" rel="stylesheet"/>
-    <!--link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.css")-->
     <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-    <!--script(type="text/javascript" src="c:/Users/Pavel/github/retusa/dist/bundle.min.js" charset="UTF-8")-->
-    <script src="https://cdn.statically.io/gh/muzikp/retusa/github.io-v1.0/dist/bundle.min.js"></script>
+    <script type="text/javascript" src="c:/Users/Pavel/github/retusa/dist/bundle.min.js" charset="UTF-8"></script>
+    <!--script(src="https://cdn.statically.io/gh/muzikp/retusa/github.io-v1.0/dist/bundle.min.js")-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js" integrity="sha512-Zq9o+E00xhhR/7vJ49mxFNJ0KQw1E1TMWkPTxrWcnpfEFDEXgUiwJHIKit93EW/XxE31HSI5GEOW06G6BF1AtA==" crossorigin="anonymous" referrerpolicy="no-referrer">   </script>
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table.min.js"></script>
-    <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/locale/bootstrap-table-cs-CZ.min.js"></script>
-    <!--script(src="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/export/bootstrap-table-export.min.js")-->
-    <!--script(src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin/tableExport.min.js")-->
-    <!--script(src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin/libs/jsPDF/jspdf.min.js")-->
-    <!--script(src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin/libs/jsPDF-AutoTable/jspdf.plugin.autotable.js")-->
+    <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table-locale-all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.0/dist/chart.umd.min.js"></script>
@@ -31,24 +25,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
     <script src="https://kit.fontawesome.com/53e6813db7.js" crossorigin="anonymous"></script>
+    <script src="./locales-bundle.js"></script>
+    <script src="./locale.js"></script>
     <script src="./addons.js"></script>
     <script src="./test-tables.js"></script>
     <script src="./source.js"></script>
     <script src="./index.js"></script>
   </head>
   <body>
+    <div id="splash"><img class="logo" src="./media/retusa-logo-v1-main.png" alt="Retusa loading"/></div>
     <ul class="nav nav-tabs" id="workspace" role="tablist">
       <li class="nav-item" role="presentation" tab-target="source">
-        <button class="nav-link active" id="source-tab" data-bs-toggle="tab" data-bs-target="#source-tab-pane" type="button" role="tab" aria-controls="source-tab-pane" aria-selected="true" wcode="aIu8">Zdroje</button>
+        <button class="nav-link active" id="source-tab" data-bs-toggle="tab" data-bs-target="#source-tab-pane" type="button" role="tab" aria-controls="source-tab-pane" aria-selected="true" __text="zvh3">Zdroje</button>
       </li>
       <li class="nav-item" role="presentation" tab-target="table">
-        <button class="nav-link" id="table-tab" data-bs-toggle="tab" data-bs-target="#table-tab-pane" type="button" role="tab" aria-controls="table-tab-pane" aria-selected="false" wcode="rT7a">Tabulka</button>
+        <button class="nav-link" id="table-tab" data-bs-toggle="tab" data-bs-target="#table-tab-pane" type="button" role="tab" aria-controls="table-tab-pane" aria-selected="false" __text="p9wW">Tabulka</button>
       </li>
       <li class="nav-item" role="presentation" tab-target="analysis">
-        <button class="nav-link" id="analysis-tab" data-bs-toggle="tab" data-bs-target="#analysis-tab-pane" type="button" role="tab" aria-controls="analysis-tab-pane" aria-selected="false">Analýza</button>
+        <button class="nav-link" id="analysis-tab" data-bs-toggle="tab" data-bs-target="#analysis-tab-pane" type="button" role="tab" aria-controls="analysis-tab-pane" aria-selected="false" __text="jHc3">Analýza</button>
       </li>
       <li class="nav-item" role="presentation" tab-target="output">
-        <button class="nav-link" id="output-tab" data-bs-toggle="tab" data-bs-target="#output-tab-pane" type="button" role="tab" aria-controls="output-tab-pane" aria-selected="false">Výsledky</button>
+        <button class="nav-link" id="output-tab" data-bs-toggle="tab" data-bs-target="#output-tab-pane" type="button" role="tab" aria-controls="output-tab-pane" aria-selected="false" __text="slEd">Výsledky</button>
+      </li>
+      <li class="nav-item dropdown">
+        <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#setting_canvas" aria-controls="setting_canvas" style="height: 100%; color: gray;"><i class="fa-solid fa-gear fa-xl"></i></button>
       </li>
       <li class="nav-item logo-tab"><span class="badge bg-light-blue" style="margin-right: 20px"> <small>verze: 1.0</small></span><a href="https://www.muvs.cvut.cz/" target="_blank" style="margin-right: 20px;"><img src="./media/muvs_logo.png" height="30" alt="MÚVS ČVUT"/></a><a href="https://github.com/muzikp/retusa" target="_blank"><img src="./media/retusa-logo-v1-main.png" height="30" alt="Retusa"/></a></li>
     </ul>
@@ -86,12 +86,18 @@
         <div id="table-toolbar">
           <div class="group">
             <button class="btn" id="toggle-table-filter"></button>
-            <input class="form-control" id="table-name" type="text" maxLength="64" placeholder="název tabulky (nepovinné)" style="padding-right: 15px;"/>
+            <input class="form-control" id="table-name" type="text" maxLength="64" placeholder="název tabulky (nepovinné)" style="padding-right: 15px;" __placeholder="olVb"/>
           </div>
           <div class="group right">
-            <button class="btn bg-dark-green" data-source-action="open" title="Otevřete soubor Retusa s příponou '*.ret'"><i class="fa-solid fa-folder-open btn-icon-before"></i>otevřít</button>
-            <button class="btn bg-dark-blue" data-source-action="save" title="Kliknutím uložíte soubor do složky 'Stažené soubory'"><i class="fa-sharp fa-solid fa-download btn-icon-before"></i>uložit</button>
-            <button class="btn bg-dark-orange" data-source-action="import" title="Otevřete libovolný soubor podporovaný aplikací Excel.  "><i class="fa-solid fa-file-excel btn-icon-before"></i>import</button>
+            <button class="btn bg-dark-green" data-source-action="open" __title="NJtB"><i class="fa-solid fa-folder-open btn-icon-before"></i>
+              <div __text="IGp6">otevřít</div>
+            </button>
+            <button class="btn bg-dark-blue" data-source-action="save" __title="VIKJ"><i class="fa-sharp fa-solid fa-download btn-icon-before"></i>
+              <div __text="pp1D">uložit</div>
+            </button>
+            <button class="btn bg-dark-orange" data-source-action="import" __title="14Pp"><i class="fa-solid fa-file-excel btn-icon-before"></i>
+              <div __text="9XCa">importovat</div>
+            </button>
           </div>
         </div>
         <div id="table" data-show-export="true" data-toggle="table" data-formatter="nullFormatter" data-ajax="matrixAJAX" data-side-pagination="server"></div>
@@ -100,43 +106,47 @@
         <div class="tf-tree example" id="matrix-method-tree">
           <ul>
             <li><span class="analytic-group">
-                <div class="analytics-header bg-light-green">Zkoumání závislosti</div>
+                <div class="analytics-header bg-light-green" __text="jWUh">Zkoumání závislosti</div>
                 <ul>
-                  <li><span class="tf-nc tf-inter-node">Regrese</span>
+                  <li><span class="tf-nc tf-inter-node" __text="FwrQ">Regrese</span>
                     <ul>
                       <li><span class="tf-nc" data-target="genreg"></span></li>
                     </ul>
                   </li>
-                  <li><span class="tf-nc tf-inter-node">Korelace</span>
+                  <li><span class="tf-nc tf-inter-node" __text="nLWw">Korelace</span>
                     <ul>
-                      <li><span class="tf-nc tf-inter-node">Spojitá</span>
+                      <li><span class="tf-nc tf-inter-node" __text="zvOH">Spojitá</span>
                         <ul>
                           <li><span class="tf-nc" data-target="correlPearson">                           </span></li>
                           <li><span class="tf-nc" data-target="correlPartial"></span></li>
                         </ul>
                       </li>
-                      <li><span class="tf-nc tf-inter-node">Pořadová</span>
+                      <li><span class="tf-nc tf-inter-node" __text="GbVb">Pořadová</span>
                         <ul>
                           <li><span class="tf-nc" data-target="correlSpearman">                           </span></li>
                           <li><span class="tf-nc" data-target="correlKendall"></span></li>
                         </ul>
                       </li>
-                      <li><span class="tf-nc" data-target="correlBiserial"></span></li>
+                      <li><span class="tf-nc tf-inter-node" __text="xwb8">Smíšená</span>
+                        <ul>
+                          <li><span class="tf-nc" data-target="correlBiserial"></span></li>
+                        </ul>
+                      </li>
                     </ul>
                   </li>
                 </ul></span></li>
           </ul>
           <ul>
             <li><span class="analytic-group">
-                <div class="analytics-header bg-light-blue">Zkoumání rozdílů</div>
+                <div class="analytics-header bg-light-blue" __text="efo6">Zkoumání rozdílů</div>
                 <ul>
-                  <li><span class="tf-nc tf-inter-node">Spojitá</span>
+                  <li><span class="tf-nc tf-inter-node" __text="zvOH">Spojitá</span>
                     <ul>
                       <li><span class="tf-nc" data-target="anovaow"></span></li>
                       <li><span class="tf-nc" data-target="ttestind"></span></li>
                       <li><span class="tf-nc" data-target="ttestpair"></span></li>
                     </ul>
-                    <li><span class="tf-nc tf-inter-node">Pořadová</span>
+                    <li><span class="tf-nc tf-inter-node" __text="GbVb">Pořadová</span>
                       <ul>
                         <li><span class="tf-nc" data-target="mwu"></span></li>
                         <li><span class="tf-nc in-backlog">Kruskall-Wallisova ANOVA</span></li>
@@ -148,7 +158,7 @@
           </ul>
           <ul>
             <li><span class="analytic-group">
-                <div class="analytics-header bg-light-orange">Analýza nominálních dat</div>
+                <div class="analytics-header bg-light-orange" __text="5LFN">Analýza nominálních dat</div>
                 <ul>
                   <li><span class="tf-nc" data-target="contingency"></span></li>
                   <li><span class="tf-nc in-backlog">...</span></li>
@@ -300,6 +310,22 @@
             <button class="btn btn-primary" type="submit" data-action="confirm">Potvrdit</button>
           </div>
         </form>
+      </div>
+    </div>
+    <div class="offcanvas offcanvas-start" id="setting_canvas" tabindex="-1" aria-labelledby="setting_canvasLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="setting_canvasLabel" __text="EP1G">Nastavení</h5>
+        <button class="btn-close" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div class="card">
+          <div class="row">
+            <div class="col-6">
+              <button class="btn" data-language="cs-CZ" title="Kliknutím změníte jazyk na češtinu"><img src="https://flagcdn.com/w40/cz.png" height="17.5" alt="čeština"/></button>
+              <button class="btn" data-language="en-GB" title="Click to switch for English"><img src="https://flagcdn.com/w40/gb.png" width="35" alt="English"/></button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </body>

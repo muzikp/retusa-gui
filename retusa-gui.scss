@@ -350,3 +350,32 @@ $dark-orange: rgb(236,137,6);
       width: 100%
     }
   }
+  #splash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: white !important;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .logo {
+      width: 35vw;
+    }
+  }
+  [data-source-action] {
+    display: flex !important;
+    align-items: center;
+    div {
+      padding: 0 !important;
+    }
+  }
+  table.implicit {
+    width: auto !important;
+    font-size: 0.9rem;
+    td, th {
+      padding: 0.1rem 0.5rem;
+    }
+  }
