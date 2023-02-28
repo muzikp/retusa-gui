@@ -429,3 +429,10 @@ table.implicit {
 table.implicit td, table.implicit th {
   padding: 0.1rem 0.5rem;
 }
+
+.singular-output {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  font-size: 2rem;
+}

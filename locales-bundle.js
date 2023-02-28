@@ -45,7 +45,14 @@ window.dictionary = {
 		"FJ0J": "počet případů (původní)",
 		"gTvq": "vyřazené případy",
 		"YLCH": "filtr metody",
-		"2KsX": "Vzorek"
+		"2KsX": "Vzorek",
+		"VzKZ": "Chyba",
+		"W3m6": "Parametry metody",
+		"Aayt": "Filtrování je vypnuté.",
+		"j3L7": "Filtrování je zapnuté, ovlivní také vstupy do analýzy.",
+		"WoV2": "ukazatel",
+		"XSjx": "hodnota",
+		"DGvS": "verze"
 	},
 	"en-GB": {
 		"p9wW": "Table",
@@ -93,6 +100,13 @@ window.dictionary = {
 		"FJ0J": "raw total of cases",
 		"gTvq": "rejected cases",
 		"YLCH": "method filter",
-		"2KsX": "Sample"
+		"2KsX": "Sample",
+		"VzKZ": "Error",
+		"W3m6": "Method parameters",
+		"Aayt": "Global filtering is off.",
+		"j3L7": "Global filtering is on, analytical methods will be affected by the defined vector filters.",
+		"WoV2": "indicator",
+		"XSjx": "value",
+		"DGvS": "version"
 	}
 }

@@ -46,8 +46,6 @@ html
         button.btn(type='button' data-bs-toggle='offcanvas' data-bs-target='#setting_canvas' aria-controls='setting_canvas' style="height: 100%; color: gray;")
           i.fa-solid.fa-gear.fa-xl
       li.nav-item.logo-tab
-        span.badge.bg-light-blue(style="margin-right: 20px") 
-          small verze: 1.0
         a(href="https://www.muvs.cvut.cz/" target="_blank" style="margin-right: 20px;")
           img(src='./media/muvs_logo.png' height='30' alt='MÚVS ČVUT')
         a(href="https://github.com/muzikp/retusa" target="_blank")
@@ -263,6 +261,14 @@ html
         h5#setting_canvasLabel.offcanvas-title(__text="EP1G") Nastavení
         button.btn-close(type='button' data-bs-dismiss='offcanvas' aria-label='Close')
       .offcanvas-body
+        .card
+          table.table.implicit.table-borderless
+            tbody 
+              tr
+                td(__text="DGvS") verze
+                td
+                  span.badge.bg-light-blue() 
+                    small 1.0
         .card
           .row
             .col-6

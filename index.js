@@ -449,31 +449,35 @@ $(document).on("click", ".copy-canvas-layout-btn", function() {
 
 /* renders the parameter overview for both vector and matrix methods */
 function renderAnalysisParameters(bundle) {
-  var $t = `<div class="parameter-info"><div class="box-header">Parametry</div>`;
+  var $t = `<div class="parameter-info"><div class="box-header" __text="W3m6">${locale.call("W3m6")}</div>`;
   var schema = bundle.schema.form;
   var args = bundle.args;
   if (!args || args?.length == 0) return null;
+  if(schema.length > 0) $t += `<table class="table implicit table-borderless"><tbody>`;
   for (var i = 0; i < schema.length; i++) {
+    $t += "<tr>"
     value = args[i];
     if (value?.isVector) {
-      value = `<code>${value.name() || locale.call("o1YS")}</code>`
-    } else if (value?.isMatrix || Array.isArray(value) ? value.hasOnlyVectorChildren() : false) {
+      value = `<code ${!value?.name() ? "__text = 'o1YS'" : ""}>${value?.name() || locale.call("o1YS")}</code>`
+    } 
+    else if (value?.isMatrix || Array.isArray(value) ? value.hasOnlyVectorChildren() : false) {
       var _value = "";
       for (let v = 0; v < value.length; v++) {
-        _value += `<code>${value[v]?.name() || locale.call("o1YS")}</code>${v < value.length -1 ? ", " : ""}`
+        _value += `<code ${!value[v]?.name() ? "__text = 'o1YS'" : ""}>${value[v]?.name() || locale.call("o1YS")}</code>${v < value.length -1 ? ", " : ""}`
       }
       value = _value;
     }
-    if (schema[i].enums) {
-      value = schema[i].enums.find(e => e.id == value)?.title;
+    else if (schema[i].enums) {
+      value = `<b __text="${bundle.model.args[i].enums.values.find(e => e.key == value).title}">${schema[i].enums.find(e => e.id == value)?.title}</div>`;
     } else if (value === true) value = "✅";
     else if (value === false) value = "❌";
     else if (value !== 0 && value !== false && !value) {
-      value = locale.call("UFbX")
+      value = `<i __text="UFbX">${locale.call("UFbX")}</i>`
     }
-    $t += `<div class="parameter-info-item">${schema[i].title}: <b>${value ? value : "-"}</b></div>`;
+    var paramCode = (Array.isArray(bundle.model.args) ? bundle.model.args[i] : bundle.model.args[Object.keys(bundle.model.args)[i]]).wiki.title;
+    $t += `<td class="parameter-info-item" __text="${paramCode}">${locale.call(paramCode)}</td><td>${value ? value : ""}</td></tr>`;
   };
-  $t += "</div>"
+  $t += "</tbody></table>"
   return $t;
 }
 
@@ -484,11 +488,11 @@ function renderSampleSize(bundle) {
   var rejected_abs = original && net ? original - net : null;
   var rejected_rel = rejected_abs ? 1 - net / original : null;
   var filterText = bundle.wiki.filter || null;
-  var $t = `<div class="sample-info"><div class="box-header" __text="2KsX">${locale.call("2KsX")}</div>`;
-  if (net) $t += `<table class="table implicit table-borderless"><tbody><tr><td __text="NA7d">${locale.call("NA7d")}</td><th>${N(net,{d:0})}</th></tr>`;
+  var $t = `<div class="sample-info"><div class="box-header" __text="2KsX">${locale.call("2KsX")}</div><table class="table implicit table-borderless"><tbody>`;
+  if (net) $t += `<tr><td __text="NA7d">${locale.call("NA7d")}</td><th>${N(net,{d:0})}</th></tr>`;
   if (original >= 0) $t += `<tr><td __text="FJ0J">${locale.call("FJ0J")}</td><th>${N(original,{d:0})}</th></tr>`;
   if (rejected_abs >= 0) $t += `<tr><td __text="gTvq">${locale.call("gTvq")}</td><th>${N(rejected_abs)}</b> (${N(rejected_rel,{style: "percent"})})</th></tr>`;
-  if (filterText) $t += `<tr><td __text="YLCH">${locale.call("YLCH")}</td><th __text="${bundle.model?.filter?.text}">${filterText}</th></tr>`
+  if (filterText) $t += `<tr><td __text="YLCH">${locale.call("YLCH")}</td><td><i __text="${bundle.model?.filter?.text}">${filterText}</i></td></tr>`
   $t += `</tbody></table>`;
   return $t;
 }
@@ -500,7 +504,6 @@ function activateTab(name, scrollBottom = false, callback) {
     $("#output-container").animate({
       scrollTop: $(document).height()
     }, 1000);
-    //$("#myTabContent").load(location.href + " #myTabContent");
     callback();
   });
 }
@@ -634,18 +637,20 @@ function argsToTextPreview(bundle) {
 }
 
 function createAnalysisResultHtml(bundle) {
-  if (bundle.schema.output.isSimple) return `<code>${F(bundle.result, bundle.schema.output)}</code>`;
-  else if (bundle.schema.output.isObject) {
-    var $t = `<table class = "table"><tbody><tr><th>ukazatel</th><th>hodnota</th><tr>`;
+  if (bundle.schema.output.isSimple) return `<code class="singular-output">${F(bundle.result, bundle.schema.output)}</code>`;
+  else if (bundle.schema.output.isObject) 
+  {
+    var $t = `<table class = "table"><tbody><tr><th __text="WoV2">${locale.call("WoV2")}</th><th __text="XSjx">${locale.call("XSjx")}</th><tr>`;
     for (let p of bundle.schema.output.properties) {
-      if(!p.isAddon) $t += `<tr><td>${p.title}</td><td>${F(bundle.result[p.id],p)}</td></tr>`;      
+      if(!p.isAddon) $t += `<tr><td __text="${p._title}">${p.title}</td><td>${F(bundle.result[p.id],p)}</td></tr>`;      
     }
     $t += "</tbody></table>";
     return $t;
-  } else if (bundle.schema.output.isArray) {
+  } 
+  else if (bundle.schema.output.isArray) {
     var $t = `<table class = "table"><tbody><tr><th>#</th>`;
     for (let h of bundle.schema.output.items) {
-      $t += `<th data-field = "${h.id}">${h.title}</th>`;
+      $t += `<th data-field = "${h.id}" __text="${h._title}">${h.title}</th>`;
     }
     $t += "</tr>";
     var i = 0;
@@ -769,7 +774,7 @@ function calculateMatrixAnalysis(analysis, args, sender) {
         renderAnalysisResult(analysis);
       });      
     } catch (e) {
-      msg.error("Chyba", e.message, 15000);
+      msg.error(locale.call("VzKZ"), e.message, 15000);
       if(env === "development") console.error(e);
       toggleCalculationFormState("on");
       return;
@@ -929,11 +934,11 @@ function toggleFilteringStatus(status = undefined, skipRefresh = false) {
   }
   if(!status) {
     //filterOn = false;
-    $("#toggle-table-filter").removeClass("on").addClass("off")//.text("vypnuto");
+    $("#toggle-table-filter").removeClass("on").addClass("off").attr("title", locale.call("Aayt")).attr("__title", "Aayt");
     if(!skipRefresh) $(tableSelector).bootstrapTable("refresh");
   } else {
     //filterOn = true;
-    $("#toggle-table-filter").removeClass("off").addClass("on").attr("title", "Filtrování je zapnuté, ovlivní také vstupy do analýzy.")//.text("zapnuto");
+    $("#toggle-table-filter").removeClass("off").addClass("on").attr("title", locale.call("j3L7")).attr("__title", "j3L7");
     if(!skipRefresh) $(tableSelector).bootstrapTable("refresh");
   }
 }
