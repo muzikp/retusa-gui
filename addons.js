@@ -35,16 +35,16 @@ const addonLibs = {
                     data: {
                         datasets: [{
                             type: 'bar',
-                            label: 'četnost',
+                            label: locale.call("XKtF"),
                             yAxisID: 'pri',
                             data: r.map(_ => _.frequency)
                         }, {
                             type: 'line',
-                            label: 'kumulativní četnost v %',
+                            label: locale.call("Yntn"),
                             yAxisID: 'sec',
                             data: getCumulation(r.map(_ => _.frequency), true),
                         }],
-                        labels: r.map(_ => _.value == null ? "-- prázdné --" : _.value)
+                        labels: r.map(_ => _.value == null ? `-- ${locale.call("RICH")} --` : _.value)
                     },
                     options: {
                         plugins: {
@@ -58,7 +58,7 @@ const addonLibs = {
                               beginAtZero: true,
                               title: {
                                 display: true,
-                                text: "četnost"
+                                text: locale.call("XKtF")
                               }
                             },
                             sec: {
@@ -72,21 +72,7 @@ const addonLibs = {
                               ticks: percentTicks,
                               title: {
                                 display: true,
-                                text: "kumulativní četnost v %"
-                              }
-                            },
-                            sec: {
-                              type: 'linear',
-                              display: true,
-                              position: 'right',
-                              grid: {
-                                drawOnChartArea: false
-                              },
-                              beginAtZero: true,
-                              ticks: percentTicks,
-                              title: {
-                                display: true,
-                                text: "kumulativní četnost v %"
+                                text: locale.call("Yntn")
                               }
                             }
                         }
@@ -115,20 +101,20 @@ const addonLibs = {
                         datasets: [{
                             type: 'bar',
                             yAxisID: "pri",
-                            label: 'četnost',
+                            label: locale.call("XKtF"),
                             data: r.map(_ => _.n),
                             barPercentage: 1
                         }, {
                             type: 'line',
                             yAxisID: "sec",
-                            label: 'normální rozdělení',
+                            label: locale.call("HL1z"),
                             data: curve,
                             tension: 0.25
                         },
                         {
                             type: 'line',
                             yAxisID: "tri",
-                            label: 'kumulativní četnost v %',
+                            label: locale.call("Yntn"),
                             data: r.map(_ => _.pc),
                             tension: 0.5
                         }],
@@ -145,7 +131,7 @@ const addonLibs = {
                               //ticks: percentTicks,
                               title: {
                                 display: true,
-                                text: "četnost"
+                                text: locale.call("XKtF")
                               }
                             },
                             sec: {
@@ -172,7 +158,7 @@ const addonLibs = {
                                 ticks: percentTicks,
                                 title: {
                                   display: true,
-                                  text: "kumulativní četnost v %"
+                                  text: locale.call("Yntn")
                                 }
                               }
                         },
@@ -222,7 +208,7 @@ const addonLibs = {
                     );
                 var xmin = cdata.map(_ => _.x).min();
                 var xmax = cdata.map(_ => _.x).max();
-                var subtitle = analysis.matrix.maxRows() > maxPointsToDisplay ? `zobrazen náhodný výběr ${maxPointsToDisplay} ${_data.length > 2 ? "bodů" : "bodu"}` : null;
+                var subtitle = analysis.matrix.maxRows() > maxPointsToDisplay ? `${locale.call("GsfY")} ${maxPointsToDisplay} ${_data.length > 2 ? locale.call("rbXL") : locale.call("xwc7")}` : null;
                 var cvals = [];
                 var clabel = [];
                 for(var c = xmin; c <= xmax; c += (xmax-xmin)/_data.length) {
@@ -249,7 +235,7 @@ const addonLibs = {
                             {
                                 type: "scatter",
                                 xAxisID: "x",
-                                label: `pozorované případy${subtitle ? " (výběr)" : ""}`,
+                                label: `${locale.call("xGrE")}${subtitle ? " ("+ locale.call("eCly") + ")" : ""}`,
                                 data: _data
                             }
                         ],
@@ -279,12 +265,12 @@ const addonLibs = {
                 var hasFrequency = !!analysis.matrix.item(analysis.args[2]);
                 var na = analysis.matrix.select(...analysis.args).toArray();
                 //if(rowLabels.length * columnLabels.length > 30) return "<p>pro zobrazení kontingenční tabulky je struktura tabulky příliš velká</p>";
-                var $t = `<div class="result-addon-table-container"><div class="table-title">Kontingenční tabulka (abs. četnosti)</div>
+                var $t = `<div class="result-addon-table-container"><div class="table-title" __text="TnI4">${locale.call("TnI4")}</div>
                     <div class="table-responsive"><table class="table table-bordered"><tbody><tr><th></th>`;
                 for(let cl of columnLabels) {
                     $t += `<th>${cl}</th>`
                 };
-                $t += "<th>CELKEM</th></tr>";
+                $t += `<th __text="j7ZA">${locale.call("j7ZA")}</th></tr>`;
                 var clSum = [];
                 for(let r of rowLabels) {
                     $t += `<tr><th>${r}</th>`;
@@ -302,7 +288,7 @@ const addonLibs = {
                     $t += `<th>${N(rowTotal)}</th></tr>`;
                 }
                 /* bottom summary */            
-                $t += "<tr><th>CELKEM</th>";
+                $t += `<tr><th __text="j7ZA">${locale.call("j7ZA")}</th>`;
                 clSum.push(clSum.sum());
                 clSum.forEach(function(c){
                     $t += `<th>${N(c)}</th>`
@@ -434,7 +420,7 @@ function getBoxPlot(analysis, labels, data) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Pořadové statistiky',
+                label: locale.call("zRDj"),
                 ...pluginColors(analysis),
                 borderWidth: 1,
                 padding: 10,
@@ -706,8 +692,7 @@ $(document).on("submit", "#vector-config", function() {
             source[source.indexOf(vector)] = vector.convert(newType, (v,i,a) => v === "null" ? null : v);
             changes++;
         } catch(e) {
-            msg.error("Proměnnou nešlo zkonvertovat", e.message, 60000);
-            //$f.one("submit", vectorCustomFns.configure($f));
+            msg.error(locale.call("KHSp"), e.message, 60000);
         }
     }
     if(newName != vector.name()) {

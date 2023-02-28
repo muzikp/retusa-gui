@@ -6,7 +6,7 @@ $(function(){
 
 function updateLocale() {
     $(".modal").modal("hide");
-    $(document).find("[__text], [__title], [__placeholder]").each(function(){
+    $(document).find("[__text], [__title], [__placeholder], [__href]").each(function(){
         var tags = new Array(...this.attributes).filter(a => a.name.substring(0,2) === "__");
         for(var t of tags) {
             var tn = t.name.replace("__","");

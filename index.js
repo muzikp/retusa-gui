@@ -69,7 +69,7 @@ function createVectorMenuNode(node, vector) {
     return `<li><hr class="dropdown-divider"></li>`;
   }
   else if(node.type == "custom") {
-    return (`<li class="dropdown-item"><button data-custom-id = "${node.id}" data-vector-name = "${vector.name()}" class="dropdown-item dropdown-item-button" type="button" onclick='vectorContextMenuTree.find(m => m.id == "${node.id}").function(this)'>${node.value}</button></li>`);
+    return (`<li class="dropdown-item"><button data-custom-id = "${node.id}" data-vector-name = "${vector.name()}" class="dropdown-item dropdown-item-button" type="button" onclick='vectorContextMenuTree().find(m => m.id == "${node.id}").function(this)'>${node.value}</button></li>`);
   }
   return "";
 }
@@ -538,7 +538,7 @@ function renderVectorFormSchema(schema, vector, methodName) {
     }
     $f += `</td></tr>`
   }
-  $f += `</tbody></table><br><br><button data-vector-form-args-submit type="submit" class="btn btn-primary">Spočítat</button></form>`;
+  $f += `</tbody></table><br><br><button data-vector-form-args-submit type="submit" class="btn btn-primary" __text="np1p">${locale.call("np1p")}</button></form>`;
   $("#modal_vector_analysis_form").find(".modal-body").empty().append($($f));
   $("#modal_vector_analysis_form").modal("show");
 }
@@ -554,7 +554,7 @@ $(document).on("click", "[data-vector-analysis-trigger]", function() {
       var analysis = vector.applyFilter().analyze(method).run();
       renderAnalysisResult(analysis);
     } catch (e) {
-      msg.error("Chyba", env === "development" ? e.toString() : "", 15000);
+      msg.error(locale.call("VzKZ"), env === "development" ? e.toString() : "", 15000);
       if (env === "development") console.error(e);
       return;
     }
@@ -584,7 +584,7 @@ $(document).on("submit", "[data-vector-form]", function() {
     renderAnalysisResult(bundle)
     $("#modal_vector_analysis_form, #modal_matrix_analysis_form").modal("hide");
   } catch (e) {
-    msg.error("Chyba", env === "development" ? e.toString() : "", null, 15000);
+    msg.error(locale.call("VzKZ"), env === "development" ? e.toString() : "", null, 15000);
     if (env === "development") console.error(e);
     return;
   } finally {
@@ -616,25 +616,6 @@ $(document).on("click", ".bt-header-config", function() {
 });
 
 // #endregion
-
-function argsToTextPreview(bundle) {
-  var schema = bundle.schema.output;
-  var args = bundle.args;
-  if (!args || args?.length == 0) return null;
-  var t = "<small><u>Parametry</u><ul>"
-  for (var i = 0; i < schema.length; i++) {
-    value = args.find(a => a.key == schema[i].id)?.value || null;
-    if (schema[i].enums) {
-      value = schema[i].enums.find(e => e.id == value)?.title;
-    } else if (value === true) value = "✅";
-    else if (value === false) value = "❌";
-    else if (value !== 0 && !value) {
-      value = "dle interního nastavení"
-    }
-    t += `<li>${schema[i].title}: ${value ? value : "-"}</li>`
-  };
-  return t + "</ul></small>";
-}
 
 function createAnalysisResultHtml(bundle) {
   if (bundle.schema.output.isSimple) return `<code class="singular-output">${F(bundle.result, bundle.schema.output)}</code>`;
@@ -802,7 +783,6 @@ function renderAnalysisResult(analysis) {
   var $c = $(createResultCard(id));
   var content = createAnalysisResultHtml(analysis);
   var d = analysis.duration();
-  //$c.find(".title").html(`<h5>${analysis.wiki.title}</h5>`)
   $c.find(".title").html(createResultCardTitle(analysis));
   $c.find(".parameters").html(renderAnalysisParameters(analysis));
   $c.find(".sample").html(renderSampleSize(analysis));
@@ -856,7 +836,7 @@ function collectVectorConfigsForMatrixForm() {
  */
 function F(v, p) {
   if (v === undefined) return "❔";
-  else if (v === null) return "<i>prázdné</i>";
+  else if (v === null) return `<i __text="RICH">${locale.call("RICH")}</i>`;
   if (p.type == "boolean") {
     if (!v) return "❌";
     else return "✅"
@@ -882,7 +862,7 @@ function N(v, options) {
 }
 
 function nullFormatter(v) {
-  if (v === null || v === undefined) return `<i style="color: gray" title="prázdná buňka">-</i>`;
+  if (v === null || v === undefined) return `<i style="color: gray" __title="RICH" title="${locale.call("RICH")}">-</i>`;
   //else if(v === true) return "✅";
   //else if(v === false) return "❌";
   else return v;

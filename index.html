@@ -13,8 +13,8 @@
     <link href="https://unpkg.com/multiple-select@1.5.2/dist/themes/bootstrap.min.css" rel="stylesheet"/>
     <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="c:/Users/Pavel/github/retusa/dist/bundle.min.js" charset="UTF-8"></script>
-    <!--script(src="https://cdn.statically.io/gh/muzikp/retusa/github.io-v1.0/dist/bundle.min.js")-->
+    <!--script(type="text/javascript" src="c:/Users/Pavel/github/retusa/dist/bundle.min.js" charset="UTF-8")-->
+    <script src="https://cdn.statically.io/gh/muzikp/retusa/cdn/dist/bundle.min.js" charset="UTF-8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js" integrity="sha512-Zq9o+E00xhhR/7vJ49mxFNJ0KQw1E1TMWkPTxrWcnpfEFDEXgUiwJHIKit93EW/XxE31HSI5GEOW06G6BF1AtA==" crossorigin="anonymous" referrerpolicy="no-referrer">   </script>
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table-locale-all.min.js"></script>
@@ -149,8 +149,6 @@
                     <li><span class="tf-nc tf-inter-node" __text="GbVb">Pořadová</span>
                       <ul>
                         <li><span class="tf-nc" data-target="mwu"></span></li>
-                        <li><span class="tf-nc in-backlog">Kruskall-Wallisova ANOVA</span></li>
-                        <li><span class="tf-nc in-backlog">Friedmanova ANOVA</span></li>
                       </ul>
                     </li>
                   </li>
@@ -194,18 +192,18 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Vyberte list</h5>
+            <h5 class="modal-title" __text="lvVp"></h5>
             <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <div class="selector"></div><br/>
             <div class="form-check form-switch">
               <input class="headers-in-first-row form-check-input" type="checkbox" role="switch" checked="true"/>
-              <label class="form-check-label">první sloupec tvoří záhlaví</label>
+              <label class="form-check-label" __text="WVtB"></label>
             </div>
           </div>
           <div class="modal-footer">
-            <button class="confirm btn btn-primary" type="button">Další</button>
+            <button class="confirm btn btn-primary" type="button" __text="LoPp"></button>
           </div>
         </div>
       </div>
@@ -229,33 +227,33 @@
       <div class="modal-dialog">
         <form class="modal-content" id="vector-config" action="javascript:void(0)">
           <div class="modal-header">
-            <h5 class="modal-title">Konfigurace proměnné</h5>
+            <h5 class="modal-title" __text="LIgE">Konfigurace proměnné</h5>
             <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label">Název proměnné</label>
-              <input class="form-control" type="text" name="name" required="required" placeholder="unikátní název"/>
+              <label class="form-label" __text="dEUA">Název proměnné</label>
+              <input class="form-control" type="text" name="name" required="required" __placeholder="7Snv"/>
             </div>
             <hr/>
             <div class="mb-3">
-              <label class="form-label">Převést na</label>
+              <label class="form-label" __text="Hpvt">Převést na</label>
               <div class="form-check">
                 <input class="form-check-input" type="radio" data-type="1" name="type"/>
-                <label class="form-check-label">numerickou proměnnou</label>
+                <label class="form-check-label" __text="uSNK">numerickou proměnnou</label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" data-type="2" name="type"/>
-                <label class="form-check-label">textovou proměnnou</label>
+                <label class="form-check-label" __text="2Gws">textovou proměnnou</label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" data-type="3" name="type"/>
-                <label class="form-check-label">binární proměnnou</label>
+                <label class="form-check-label" __text="zzCx">binární proměnnou</label>
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <button class="confirm btn btn-primary" type="submit">Potvrdit</button>
+            <button class="confirm btn btn-primary" type="submit" __text="T5kQ">Potvrdit</button>
           </div>
         </form>
       </div>
@@ -264,17 +262,20 @@
       <div class="modal-dialog">
         <form class="modal-content" id="vector-filter" action="javascript:void(0)">
           <div class="modal-header">
-            <h5 class="modal-title">Filtr proměnné</h5>
+            <h5 class="modal-title" __text="wUpp">Filtr proměnné</h5>
             <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <div class="selectable-filters">
               <div class="mb-3">
-                <label class="form-label">Vyberte hodnoty</label>
+                <label class="form-label" __text="qhDX">Vyberte hodnoty</label>
                 <select class="form-select" name="filter" multiple="multiple" data-filter-type="select"></select>
               </div>
             </div>
             <div class="numeric-filters flex">
+              <div class="col-20p">
+                <input class="form-control" name="minv" step="1e-10" placeholder="-∞" type="number"/>
+              </div>
               <div class="col-20p">
                 <select class="lean form-select" name="minop" required="required">
                   <option value="1">>
@@ -282,10 +283,7 @@
                   </option>
                 </select>
               </div>
-              <div class="col-20p">
-                <input class="form-control" name="minv" step="1e-7" placeholder="-∞" type="number"/>
-              </div>
-              <div class="col-20p"><b>a</b></div>
+              <div class="col-20p" __text="aIXW" style="text-align:center; font-size: 1.3rem;"></div>
               <div class="col-20p">
                 <select class="lean form-select" name="maxop" required="required">
                   <option value="3"><
@@ -294,20 +292,18 @@
                 </select>
               </div>
               <div class="col-20p">
-                <input class="form-control" name="maxv" step="1e-7" placeholder="+∞" type="number"/>
+                <input class="form-control" name="maxv" step="1e-11" placeholder="+∞" type="number"/>
               </div>
             </div>
             <div class="function-filters">
               <hr/>
-              <label title="Filtrování pomocí funkce. Parametr funguje stejně jako prototyp filtru u objektu typu array, kde jsou vstupními proměnnými value, index a mateřský array."><b>Funkční filtr</b></label>
-              <textarea class="form-control" name="fn" rows="5" placeholder="zde můžete zadat filtrovací funkci,např.
-
-(value, index, vector) = &gt; value &gt; vector.median()"></textarea>
+              <label __title="rUU0" __text="Vrsl"></label>
+              <textarea class="form-control" name="fn" rows="5" __placeholder="n0Z5"></textarea>
             </div>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-secondary" type="submit" data-action="clear">Zrušit filtrování</button>
-            <button class="btn btn-primary" type="submit" data-action="confirm">Potvrdit</button>
+            <button class="btn btn-secondary" type="submit" data-action="clear" __text="EToU" __title="x2HR"></button>
+            <button class="btn btn-primary" type="submit" data-action="confirm" __text="T5kQ"></button>
           </div>
         </form>
       </div>
@@ -319,22 +315,32 @@
       </div>
       <div class="offcanvas-body">
         <div class="card">
-          <table class="table implicit table-borderless">
-            <tbody> 
-              <tr>
-                <td __text="DGvS">verze</td>
-                <td><span class="badge bg-light-blue"> <small>1.0</small></span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="card">
           <div class="row">
             <div class="col-6">
               <button class="btn" data-language="cs-CZ" title="Kliknutím změníte jazyk na češtinu"><img src="https://flagcdn.com/w40/cz.png" height="17.5" alt="čeština"/></button>
               <button class="btn" data-language="en-GB" title="Click to switch for English"><img src="https://flagcdn.com/w40/gb.png" width="35" alt="English"/></button>
             </div>
           </div>
+        </div>
+        <div class="card">
+          <table class="table implicit table-borderless">
+            <tbody> 
+              <tr>
+                <td __text="DGvS">verze</td>
+                <td>1.1.0</td>
+              </tr>
+              <tr>
+                <td>email                  </td>
+                <td><a href="mailto:muzikp@gmail.com">muzikp@gmail.com</a></td>
+              </tr>
+              <tr>
+                <td><a __href="2aMA" __text="3nNX" __target="_blank"></a></td>
+              </tr>
+              <tr>
+                <td><a __href="D9JV" __text="PmZ8" __target="_blank"></a></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
