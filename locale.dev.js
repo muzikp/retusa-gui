@@ -69,6 +69,7 @@ $(document).on("click", "button[data-language]", function () {
 });
 
 function resetLanguage() {
+  if (locale.listLanguages().indexOf(_locale) < 0) _locale = "cs-CZ";
   locale.setDefault(_locale).setData(_locale, window.dictionary[_locale], false);
   updateLocale();
 }

@@ -8,12 +8,13 @@
             "type": "shell",
             "command": "node C:/Users/Pavel/github/retusa-docs/index.js retusa-gui json",
             "group": {
-				"kind": "build",
-				"isDefault": true
-			},
-            "options": {
-                "cwd": "${workspaceFolder}",
+                "kind": "build",
+                "isDefault": true
             },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
         }
     ]
 }
