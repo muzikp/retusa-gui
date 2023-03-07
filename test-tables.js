@@ -5,6 +5,15 @@ testTables = {
             new NumericVector(75,82,100,80,75,60,75,71,77,63,46,81,70).name("proměnná y")
             );
     },
+    muvsanova1: function(){
+        return new Matrix(
+            new NumericVector(27,27,27,19,30,31).name("A"),
+            new NumericVector(30,30,30,30,30,23).name("B"),
+            new NumericVector(19,27,28,25,26,30).name("C"),
+            new NumericVector(11,25,28,25,28,28).name("D"),
+            new NumericVector(36,32,34,29,25,27).name("E")
+        )
+    },
     anycorrel: function() {
         return new Matrix(
             new NumericVector(1,2,3,4,4,5,6,7,7,8,9,10,11,11,12,13,14,15,16,16).name("proměnná x"),

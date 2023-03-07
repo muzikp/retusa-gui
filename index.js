@@ -16,6 +16,13 @@ $(function() {
   initContextMenus();
   //source = testTables.anova1();
   if(source) loadMatrixToTable(source);
+  /*
+  var M = testTables.muvsanova1();
+  var analysis = M.analyze("anovaow").run([0,1,2,3,4]);
+  //var analysis = M[0].analyze("frequency").run();
+  var x = Output.html(analysis);
+  console.log(x);
+  */
 });
 
 function initContextMenus() {
@@ -448,10 +455,9 @@ $(document).on("click", ".copy-canvas-layout-btn", function() {
 })
 
 /* renders the parameter overview for both vector and matrix methods */
-function renderAnalysisParameters(bundle) {
+function renderAnalysisParameters(analysis) {
   var $t = `<div class="parameter-info"><div class="box-header" __text="W3m6">${locale.call("W3m6")}</div>`;
-  var schema = bundle.schema.form;
-  var args = bundle.args;
+  var args = analysis.args;
   if (!args || args?.length == 0) return null;
   if(schema.length > 0) $t += `<table class="table implicit table-borderless"><tbody>`;
   for (var i = 0; i < schema.length; i++) {
@@ -468,13 +474,13 @@ function renderAnalysisParameters(bundle) {
       value = _value;
     }
     else if (schema[i].enums) {
-      value = `<b __text="${bundle.model.args[i].enums.values.find(e => e.key == value).title}">${schema[i].enums.find(e => e.id == value)?.title}</div>`;
+      value = `<b __text="${analysis.model.args[i].enums.values.find(e => e.key == value).title}">${schema[i].enums.find(e => e.id == value)?.title}</div>`;
     } else if (value === true) value = "✅";
     else if (value === false) value = "❌";
     else if (value !== 0 && value !== false && !value) {
       value = `<i __text="UFbX">${locale.call("UFbX")}</i>`
     }
-    var paramCode = (Array.isArray(bundle.model.args) ? bundle.model.args[i] : bundle.model.args[Object.keys(bundle.model.args)[i]]).wiki.title;
+    var paramCode = (Array.isArray(analysis.model.args) ? analysis.model.args[i] : analysis.model.args[Object.keys(analysis.model.args)[i]]).wiki.title;
     $t += `<td class="parameter-info-item" __text="${paramCode}">${locale.call(paramCode)}</td><td>${value ? value : ""}</td></tr>`;
   };
   $t += "</tbody></table>"
@@ -617,7 +623,9 @@ $(document).on("click", ".bt-header-config", function() {
 
 // #endregion
 
-function createAnalysisResultHtml(bundle) {
+function createAnalysisResultHtml(analysis) {
+  return Output.html(analysis);
+  
   if (bundle.schema.output.isSimple) return `<code class="singular-output">${F(bundle.result, bundle.schema.output)}</code>`;
   else if (bundle.schema.output.isObject) 
   {
@@ -647,6 +655,7 @@ function createAnalysisResultHtml(bundle) {
     $t += "</tbody></table>";
     return $t;
   }
+  
 }
 // #endregion
 
@@ -655,7 +664,7 @@ function createAnalysisResultHtml(bundle) {
 function renderMatrixAnalysisMenu() {
   $("#matrix-method-tree").find("[data-target]").each(function() {
     var method = new MatrixAnalysis($(this).attr("data-target"));
-    $(this).attr("data-method", method).append(`<button __text = "${method.model.wiki.title}" __title = "${method.model.wiki.description}" data-matrix-analysis-form-trigger class="btn" title = "${method.wiki.description}"><b>${method.wiki.title}</b></button>`);
+    $(this).attr("data-method", method).append(`<button __text = "${method.title.key}" __title = "${method.description.key}" data-matrix-analysis-form-trigger class="btn" title = "${method.description.value}"><b>${method.title.value}</b></button>`);
   })
 }
 
@@ -666,48 +675,19 @@ $(document).on("click", "[data-matrix-analysis-form-trigger]", function() {
 
 function renderMatrixAnalysisForm(method) {
   var analysis = new MatrixAnalysis(method);
-  var mconfig = collectVectorConfigsForMatrixForm();
-  var $f = `<div><h5>${analysis.wiki.title}`
-  if(analysis.wiki?.description) $f += `<button __title = "FfIl" title="${locale.call("FfIl")}" data-btn-method-title = "${analysis.wiki?.title || ""}" data-btn-method-description = "${analysis.wiki.description || ""}" class="btn">📓</button>`;
+  var $f = `<div><h5 __test="${analysis.title.key}">${analysis.title.value}`
+  if(analysis.description.value) $f += `<button __title = "FfIl" title="${locale.call("FfIl")}" data-btn-method-title = "${analysis.title.key || ""}" data-btn-method-description = "${analysis.description.value || ""}" class="btn">📓</button>`;
   $f += "</h5></div>";
   $f += `<form data-matrix-form action = "javascript:void(0)" data-method = "${method}"><table class="table"><tbody>`;
   var i = 0;
-  for (let a of analysis.model.args) {
-    var schema = analysis.wiki.arguments.find(_ => _.name == a.name);
-    $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description ? "form-control-tooltip" : ""}" ${a.description ? "title=" + a.description : ""}">${schema.title}</td>`;
-    $f += `<td title="${schema.description || ""}">`;
-    // argument is vector or matrix
-    if (a.class == 1 || a.class == 2) {
-      var opts = mconfig.filter(v => (a.type || [1, 2, 3]).indexOf(v.type) > -1);
-      $f += `<select data-arg = ${JSON.stringify(a)} name = "${a.name}" ${a.class == 2 ? "multiple" : ""} ${Number(a.max) > 0 ? "size=" + Number(a.max) : ""} class="form-select" ${a.required ? "required" : ""} ${a.multiple ? "multiple" : ""}>`;
-      /* prompts select */
-      if (!a.required || a.required) $f += `<option value="" disabled selected="true">-- ${locale.call("xnii")} --</option>`;
-      for (let o of opts) {
-        $f += `<option value = "${o.name}">${o.name}</option>`;
-      }
-      $f += "</select>";
-    }
-    // argument is something else
-    else {
-      if (a.type == "enum") {
-        $f += `<select name = "${a.name}" data-arg = ${JSON.stringify(a)} data-control-type="${a.type}" class = "form-select" ${a.required ? "required" : ""}>`
-        for (let e of a.enums.values) {
-          $f += `<option value = ${e.key} ${e.id == a.default ? "selected" : ""}>${analysis.schema.form[i].enums.find(_ => _.id == e.key).title}</option>`
-        }
-        $f += "</select>";
-      } else if (a.type == "boolean") {
-        $f += `<div class="form-check form-switch"><input data-control-type="${a.type}" checked = ${a.default} ${a.required ? "required" : ""} class="form-check-input" type="checkbox" role="switch" name="${a.id}"></div>`
-      } else {
-        var _type = (a.type == "number" || a.type == "integer" || a.type == "decimal") ? "number" : "text";
-        var _step = (a.type == "integer" ? 1 : a.type == "decimal" || a.type == "number" ? 0.001 : null);
-        $f += `<input type = "${_type}" data-control-type="${a.type}" ${_step > 0 ? "step=" + _step : null} class="form-control" name = "${a.id}" ${a.default ? "value = " + a.default : ""} ${a.required ? "required" : ""} placeholder = "${a.validatorText}"}>`;
-      }
-    }
-    $f += `</td></tr>`;
+  for (let a of analysis.parameters()) {
+    $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description.value ? "form-control-tooltip" : ""}" ${a.description.value ? "title=" + a.description.value : ""}">${a.title?.value}</td>`;
+    $f += `<td title="${a.description.value || ""}">`;
+    $f += a.html() + `</td></tr>`;
     i++;
   }
   $f += `</tbody></table><br><br><button data-matrix-form-args-submit type="submit" class="btn btn-primary">${locale.call("np1p")}</button></form>`;
-  $("#modal_matrix_analysis_form").find(".title").text(analysis.wiki.title);
+  $("#modal_matrix_analysis_form").find(".title").text(analysis.title.value);
   $("#modal_matrix_analysis_form").find(".modal-body").empty().append($($f));
   $("#modal_matrix_analysis_form").modal("show");
 }
@@ -719,37 +699,28 @@ $(document).on("click","[data-btn-method-description]", function(){
 /* collects the form data, calculates and renders the matrix analysis method/output */
 $(document).on("submit", "[data-matrix-form]", function() {
   activeAnalysisModalForm = $(this);
-  var args = [];
-  $(this).find("[data-arg]").each(function() {
-    var arg = JSON.parse($(this).attr("data-arg"));
-    var value = $(this).val();
-    if (arg.class == 1) {
-      if (!arg.required && !value) value = null;
-      else if (value) value = source.item(value);
-      else {
-        msg.error("Povinné");
-        return;
-      }
-      if (value) {
-        args.push(value.name());
-      } else args.push(null);
-    } else if (arg.class == 2) {
-      args.push(source.select(...value));
-    } else if (arg.class == 3) {
-      if (arg.type == "enum") args.push(Number(value));
-      else args.push(value);
-    }
+  var args = {};
+  $(this).find("[name]").each(function(){
+    args[$(this).attr("name")] = $(this).val();
   });
-  var method = $(this).attr("data-method");
-  var analysis = source.applyFilters().analyze(method);
-  calculateMatrixAnalysis(analysis, args, $(this));
+  try {
+    var analysis = source.applyFilters().analyze($(this).attr("data-method"));
+    calculateMatrixAnalysis(analysis, args, $(this));
+  } 
+  catch(e) 
+  {
+    msg.error(locale.call("VzKZ"), e.message, 15000);
+    if(env === "development") console.error(e);
+    toggleCalculationFormState("on");
+    return;
+  }
 });
 
 function calculateMatrixAnalysis(analysis, args, sender) {
   activeAnalysisModalForm = sender;
   toggleCalculationFormState("off", function(){
     try {
-      analysis.run(...args);
+      analysis.run(args);
       toggleCalculationFormState("on", function(){
         $("#modal_vector_analysis_form, #modal_matrix_analysis_form").modal("hide");
         renderAnalysisResult(analysis);
@@ -797,11 +768,12 @@ function renderAnalysisResult(analysis) {
 }
 
 function createResultCardTitle(analysis) {
-  var $t = `<div class="method-title" __text="${analysis.model.wiki.title}">${analysis.wiki.title}: </div>`;
+  var $t = `<div class="method-title" __text="${analysis.title.key}">${analysis.title.value}: </div>`;
   if (analysis.parent.isVector) {
     $t += `<div class="argument-badge-panel"><div class="argument-badge">${analysis.parent.name()}</div></div>`;
   } else {
     $t += `<div class="argument-badge-panel">`;
+    var output = Output.html(analysis, true);
     for (var a = 0; a < analysis.model.args.length; a++) {
       if (!analysis.args[a]) {
         break;

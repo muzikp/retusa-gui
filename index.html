@@ -1,16 +1,16 @@
-
+<!DOCTYPE html>
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Retusa GUI (demo)</title>
-    <link rel="icon" type="image/x-icon" href="./media/favicon.ico"/>
-    <link rel="stylesheet" href="./retusa-gui.css"/>
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table.min.css"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css" integrity="sha512-O03ntXoVqaGUTAeAmvQ2YSzkCvclZEcPQu1eqloPaHfJ5RuNGiS4l+3duaidD801P50J28EHyonCV06CUlTSag==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/filter-control/bootstrap-table-filter-control.css"/>
-    <link href="https://cdn.jsdelivr.net/npm/treeflex@2.0.1/dist/css/treeflex.min.css" rel="stylesheet"/>
-    <link href="https://unpkg.com/multiple-select@1.5.2/dist/themes/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="icon" type="image/x-icon" href="./media/favicon.ico">
+    <link rel="stylesheet" href="./retusa-gui.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css" integrity="sha512-O03ntXoVqaGUTAeAmvQ2YSzkCvclZEcPQu1eqloPaHfJ5RuNGiS4l+3duaidD801P50J28EHyonCV06CUlTSag==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.21.2/dist/extensions/filter-control/bootstrap-table-filter-control.css">
+    <link href="https://cdn.jsdelivr.net/npm/treeflex@2.0.1/dist/css/treeflex.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/multiple-select@1.5.2/dist/themes/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
     <script type="text/javascript" src="./retusa.min.js" charset="UTF-8"></script>
@@ -33,7 +33,7 @@
     <script src="./index.js"></script>
   </head>
   <body>
-    <div id="splash"><img class="logo" src="./media/retusa-logo-v1-main.png" alt="Retusa loading"/></div>
+    <div id="splash"><img class="logo" src="./media/retusa-logo-v1-main.png" alt="Retusa loading"></div>
     <ul class="nav nav-tabs" id="workspace" role="tablist">
       <li class="nav-item" role="presentation" tab-target="source">
         <button class="nav-link active" id="source-tab" data-bs-toggle="tab" data-bs-target="#source-tab-pane" type="button" role="tab" aria-controls="source-tab-pane" aria-selected="true" __text="zvh3">Zdroje</button>
@@ -50,11 +50,11 @@
       <li class="nav-item dropdown">
         <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#setting_canvas" aria-controls="setting_canvas" style="height: 100%; color: gray;"><i class="fa-solid fa-gear fa-xl"></i></button>
       </li>
-      <li class="nav-item logo-tab"><a href="https://www.muvs.cvut.cz/" target="_blank" style="margin-right: 20px;"><img src="./media/muvs_logo.png" height="30" alt="MÚVS ČVUT"/></a><a href="https://github.com/muzikp/retusa" target="_blank"><img src="./media/retusa-logo-v1-main.png" height="30" alt="Retusa"/></a></li>
+      <li class="nav-item logo-tab"><a href="https://www.muvs.cvut.cz/" target="_blank" style="margin-right: 20px;"><img src="./media/muvs_logo.png" height="30" alt="MÚVS ČVUT"></a><a href="https://github.com/muzikp/retusa" target="_blank"><img src="./media/retusa-logo-v1-main.png" height="30" alt="Retusa"></a></li>
     </ul>
     <div class="tab-content" id="tabContent">
       <div class="tab-pane fade show active" id="source-tab-pane" role="tabpanel" aria-labelledby="source-tab" tabindex="0">
-        <div class="source-container"><br/><br/>
+        <div class="source-container"><br><br>
           <h5>Testovací datasety</h5>
           <div class="sample-sets">
             <button class="btn btn-info" data-test-dataset="genreg">Regrese</button>
@@ -67,7 +67,7 @@
             <button class="btn btn-success" data-test-dataset="muvscontingency">Kontingence (MÚVS)</button>
             <button class="btn btn-warning" data-test-dataset="contingency1">Kontingence bez četností</button>
           </div>
-          <hr/>
+          <hr>
           <h5>Makro</h5>
           <div class="sample-sets">
             <button class="btn btn-info" data-makro="genreg">Regrese</button>
@@ -86,7 +86,7 @@
         <div id="table-toolbar">
           <div class="group">
             <button class="btn" id="toggle-table-filter"></button>
-            <input class="form-control" id="table-name" type="text" maxLength="64" placeholder="název tabulky (nepovinné)" style="padding-right: 15px;" __placeholder="olVb"/>
+            <input class="form-control" id="table-name" type="text" maxLength="64" placeholder="název tabulky (nepovinné)" style="padding-right: 15px;" __placeholder="olVb">
           </div>
           <div class="group right">
             <button class="btn bg-dark-green" data-source-action="open" __title="NJtB"><i class="fa-solid fa-folder-open btn-icon-before"></i>
@@ -110,7 +110,7 @@
                 <ul>
                   <li><span class="tf-nc tf-inter-node" __text="FwrQ">Regrese</span>
                     <ul>
-                      <li><span class="tf-nc" data-target="genreg"></span></li>
+                      <li><span class="tf-nc" data-target="linreg"></span></li>
                     </ul>
                   </li>
                   <li><span class="tf-nc tf-inter-node" __text="nLWw">Korelace</span>
@@ -196,9 +196,9 @@
             <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div class="selector"></div><br/>
+            <div class="selector"></div><br>
             <div class="form-check form-switch">
-              <input class="headers-in-first-row form-check-input" type="checkbox" role="switch" checked="true"/>
+              <input class="headers-in-first-row form-check-input" type="checkbox" role="switch" checked="true">
               <label class="form-check-label" __text="WVtB"></label>
             </div>
           </div>
@@ -233,21 +233,21 @@
           <div class="modal-body">
             <div class="mb-3">
               <label class="form-label" __text="dEUA">Název proměnné</label>
-              <input class="form-control" type="text" name="name" required="required" __placeholder="7Snv"/>
+              <input class="form-control" type="text" name="name" required __placeholder="7Snv">
             </div>
-            <hr/>
+            <hr>
             <div class="mb-3">
               <label class="form-label" __text="Hpvt">Převést na</label>
               <div class="form-check">
-                <input class="form-check-input" type="radio" data-type="1" name="type"/>
+                <input class="form-check-input" type="radio" data-type="1" name="type">
                 <label class="form-check-label" __text="uSNK">numerickou proměnnou</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="radio" data-type="2" name="type"/>
+                <input class="form-check-input" type="radio" data-type="2" name="type">
                 <label class="form-check-label" __text="2Gws">textovou proměnnou</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="radio" data-type="3" name="type"/>
+                <input class="form-check-input" type="radio" data-type="3" name="type">
                 <label class="form-check-label" __text="zzCx">binární proměnnou</label>
               </div>
             </div>
@@ -269,15 +269,15 @@
             <div class="selectable-filters">
               <div class="mb-3">
                 <label class="form-label" __text="qhDX">Vyberte hodnoty</label>
-                <select class="form-select" name="filter" multiple="multiple" data-filter-type="select"></select>
+                <select class="form-select" name="filter" multiple data-filter-type="select"></select>
               </div>
             </div>
             <div class="numeric-filters flex">
               <div class="col-20p">
-                <input class="form-control" name="minv" step="1e-10" placeholder="-∞" type="number"/>
+                <input class="form-control" name="minv" step="1e-10" placeholder="-∞" type="number">
               </div>
               <div class="col-20p">
-                <select class="lean form-select" name="minop" required="required">
+                <select class="lean form-select" name="minop" required>
                   <option value="1">>
                     <option value="2">≥</option>
                   </option>
@@ -285,18 +285,18 @@
               </div>
               <div class="col-20p" __text="aIXW" style="text-align:center; font-size: 1.3rem;"></div>
               <div class="col-20p">
-                <select class="lean form-select" name="maxop" required="required">
+                <select class="lean form-select" name="maxop" required>
                   <option value="3"><
                     <option value="4">≤</option>
                   </option>
                 </select>
               </div>
               <div class="col-20p">
-                <input class="form-control" name="maxv" step="1e-11" placeholder="+∞" type="number"/>
+                <input class="form-control" name="maxv" step="1e-11" placeholder="+∞" type="number">
               </div>
             </div>
             <div class="function-filters">
-              <hr/>
+              <hr>
               <label __title="rUU0" __text="Vrsl"></label>
               <textarea class="form-control" name="fn" rows="5" __placeholder="n0Z5"></textarea>
             </div>
@@ -317,8 +317,8 @@
         <div class="card">
           <div class="row">
             <div class="col-6">
-              <button class="btn" data-language="cs-CZ" title="Kliknutím změníte jazyk na češtinu"><img src="https://flagcdn.com/w40/cz.png" height="17.5" alt="čeština"/></button>
-              <button class="btn" data-language="en-GB" title="Click to switch for English"><img src="https://flagcdn.com/w40/gb.png" width="35" alt="English"/></button>
+              <button class="btn" data-language="cs-CZ" title="Kliknutím změníte jazyk na češtinu"><img src="https://flagcdn.com/w40/cz.png" height="17.5" alt="čeština"></button>
+              <button class="btn" data-language="en-GB" title="Click to switch for English"><img src="https://flagcdn.com/w40/gb.png" width="35" alt="English"></button>
             </div>
           </div>
         </div>

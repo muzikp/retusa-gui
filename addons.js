@@ -1,6 +1,97 @@
 $(function(){
+    Argument.prototype.html = function(asHtml = true){
+        var T = this.tag;
+        var $h;
+        if(T.control == "select") {
+            $h = $(`<select class="form-select" name="${this.name}"></select>"`);
+            if(this.required) $h.attr("required", true);
+            if(T.multiple) $h.attr("multiple", true);
+            if(this.isVector) {
+                $h.append($(`<option value="" disabled selected>-- ${locale.call("xnii")} --</option>`));
+                var i = 0;
+                for(let v of collectVectorConfigsForMatrixForm().filter(v => (T.type || [1, 2, 3]).indexOf(v.type) > -1))
+                {
+                    $h.append(`<option value=${v.name ? "\"" + v.name + "\"" : i}>${v.name || "#" + i}</option>`);
+                    i++;
+                }                
+            } 
+            else if(this.isEnum) {
+                for(let e of this.enums) {
+                    $h.append(`<option value=${e.value} ${this.default === e.value ? "selected" : ""}>${e.title}</option>`);
+                }
+            }
+        } 
+        else if(T.control == "input") 
+        {
+            $h + $(`<input class="form-control" type="${T.type}">`);
+            if(T.required) $h.attr("required", true);
+            if(T.type == "number") {
+                if(T.min !== undefined && T.min >= -Number.MAX_SAFE_INTEGER) $h.attr("min", T.min);
+                if(T.max !== undefined && T.min <= Number.MAX_SAFE_INTEGER) $h.attr("max", T.max);
+                if(T.step !== undefined) $h.attr("step", T.max);
+            }
+        } 
+        else if(T.control == "boolean") {
+            $h = `<div class="form-check form-switch"></div>`;
+            var $i = $(`<input name = "${this.name}" class="form-check-input" type="checkbox" role="switch">`);
+            if(this.required) $i.attr("required", true);
+            $h.append($i);
+        } else {
+            throw new Error("Unrecognized control type: " + T.control);
+        }
+        if(asHtml) return $("<div></div>").append($h).html();
+        else return $h;
+    }
+    MatrixAnalysis.prototype.paramOutputHtml = outputArgsOverviewHtml;
+    VectorAnalysis.prototype.paramOutputHtml = outputArgsOverviewHtml;
+    Output.fromAnalysis = function(analysis) {
+        return props(new Output(analysis.model.output), analysis.result);
+        function props(node, result) {
+            if(node.type == "object")
+            {
+                for(let k of Object.keys(node.properties)) {
+                    props(node.properties[k], result[k]);
+                }
+            }
+            else node.value = result;
+            return node;
+        }
+    }
+    Output.html = function(analysis) {
+        var $h = `<table class="table table-borderless table-sm"><tbody>` + props(Output.fromAnalysis(analysis)) + `</tbody></table>`;
+        return $h;
+        function props(node) {
+            if(node.type == "object")
+            {
+                var m = `<tr><td __text="${node.title.key}">${node.title.value}</td>`
+                m += `<td><table class="table table-borderless table-sm"><tbody>`;
+                for(let k of Object.keys(node.properties)) {
+                    m += props(node.properties[k]);
+                }
+                m += `</tbody></table></td>`;
+            } 
+            else if(node.type == "array") {
+                var m = `<tr>`;
+                m += Object.entries(node.properties).map(e => e[1]).map(e => `<th __text="${e.title.key}">${e.title.value}</th>`) + "</tr>";
+                node.value.forEach(function(row) {
+                    m += `<tr>` + Object.entries(row).map(v => `<td __value=${v[1]}>${v[1]}</td>`).join("") + "</tr>"
+                })
+                m += `</tbody></table>`;
 
+            }
+            else 
+            {
+                var m = `<tr><td __text="${node.title.key}">${node.title.value}</td>`;
+                m += `<td __value=${node.value} data-value-type="${node.type}">${node.value}</td>`
+            }
+            return m + `</tr>`;
+        }
+    }
+    function outputArgsOverviewHtml() {
+        
+    }
 })
+
 
 const resultAddons = function(analysis, $card, callback) {
     if(!addonLibs[analysis.name]) {
@@ -170,7 +261,7 @@ const addonLibs = {
             }
         }
     ],
-    "genreg": [
+    "linreg": [
         {
             type: "calculator",
             render: function(analysis) {
