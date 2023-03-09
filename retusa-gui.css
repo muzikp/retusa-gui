@@ -1,6 +1,9 @@
 @charset "UTF-8";
 #workspace {
-  margin-top: 5px;
+  position: sticky;
+  top: 0px;
+  z-index: 100;
+  background-color: white;
 }
 
 .form-control-required:before {
@@ -304,7 +307,6 @@ ul li {
 
 .flex {
   display: flex !important;
-  width: 100%;
 }
 
 #toggle-table-filter {
@@ -435,4 +437,41 @@ table.implicit td, table.implicit th {
   display: flex;
   justify-content: center;
   font-size: 2rem;
+}
+
+.node-name {
+  font-weight: 600;
+  font-family: var(--bs-font-monospace) !important;
+  color: #b01818;
+}
+
+.node-title {
+  font-style: italic;
+  margin-left: 0.3rem;
+  color: gray;
+}
+
+.modal.show {
+  display: flex !important;
+}
+
+.single-value-result {
+  width: 100%;
+  text-align: center;
+  font-size: 2rem;
+}
+
+.inline-function {
+  display: flex;
+  min-width: 50%;
+  margin: 10px auto;
+}
+.inline-function .input-group.mb-3:not(:last-child) {
+  margin-right: 2rem;
+}
+
+.inline-function-header {
+  font-size: 1.3rem;
+  font-weight: 600;
+  font-family: var(--bs-font-monospace) !important;
 }

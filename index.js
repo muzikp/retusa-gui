@@ -7,6 +7,9 @@ const defTableName = "lastTable";
 let source;
 var activeAnalysisModalForm;
 var filterOn = true;
+var userConfig = {
+  showOutputNodeTitle: window.localStorage.getItem("showOutputNodeTitle")
+};
 
 /* IMPORTANT!! */
 $(function() {
@@ -14,15 +17,6 @@ $(function() {
   init();
   renderMatrixAnalysisMenu();
   initContextMenus();
-  //source = testTables.anova1();
-  if(source) loadMatrixToTable(source);
-  /*
-  var M = testTables.muvsanova1();
-  var analysis = M.analyze("anovaow").run([0,1,2,3,4]);
-  //var analysis = M[0].analyze("frequency").run();
-  var x = Output.html(analysis);
-  console.log(x);
-  */
 });
 
 function initContextMenus() {
@@ -59,9 +53,8 @@ function createVectorMenuNode(node, vector) {
     return `<li><div class="context-menu-header">${node.value}</div></li>`;
   } 
   else if(node.type == "method") {
-    var _m = vectorModels[node.value];
-    if(!_m) console.error(node.value);
-    return (`<li class="dropdown-item"><button ${(_m.model.type).indexOf(vector.type()) < 0 ? "disabled" : ""} data-field = "${vector.name()}" data-vector-analysis-trigger class="dropdown-item" type="button" data-model = "${node.value}" data-model-has-args = ${!!_m.model.args}>${_m.wiki.title}</button></li>`);
+    var _m = new VectorAnalysis(node.value);
+    return (`<li class="dropdown-item"><button ${(_m.model.type).indexOf(vector.type()) < 0 ? "disabled" : ""} data-field = "${vector.name()}" data-vector-analysis-trigger class="dropdown-item" type="button" data-model = "${node.value}" data-model-has-args = ${!!_m.model.args}>${_m.title.value}</button></li>`);
   }
   else if(node.type == "parent") {
     var e = `<li class="dropdown"><a class="dropdown-item dropdown-toggle" href="#" id="${node.id}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${node.value}</a><ul class="dropdown-menu" aria-labelledby="${node.id}">`;
@@ -84,6 +77,7 @@ function createVectorMenuNode(node, vector) {
 // #region Retusa extensions
 
 function init() {
+  readUserConfigFromStorage();
   const applyVectorFilter = function() {
     return source.applyFilters().item(this.name());
   }
@@ -93,7 +87,6 @@ function init() {
   Matrix.prototype.readConfig = function() {
     var t = {
       pagination: true,
-      //search: true,
       columns: []
     };
     for (let c of this) {
@@ -101,7 +94,7 @@ function init() {
         field: c.name(),
         title: c.name(),
         sortable: true,
-        filterControl: "select-multiple", //|| c.type() == 1? "input" : "select",
+        filterControl: "select-multiple",
         formatter: nullFormatter
       })
     }
@@ -342,13 +335,18 @@ function isN(v) {
 
 // #region test datasets & makro
 
-$(document).on("click", "[data-test-dataset]", function() {
-  var dataset = testTables[$(this).attr("data-test-dataset")]();
+$(document).on("click", "#test-dataset", function() {
+  var dataset = testTables[$("#test-dataset-selector").val()].data;
   loadMatrixToTable(dataset);
+  $(".offcanvas").offcanvas("hide");
 });
 
-$(document).on("click", "[data-makro]", function() {
-  makro[$(this).attr("data-makro")]();
+$(document).on("click", "#test-makro", function() {
+  var dataset = testTables[$("#test-dataset-selector").val()];
+  loadMatrixToTable(dataset.data);
+  var analysis = source.analyze(dataset.method);
+  renderAnalysis(analysis, dataset.args);
+  $(".offcanvas").offcanvas("hide");
 });
 
 // #endregion
@@ -456,51 +454,12 @@ $(document).on("click", ".copy-canvas-layout-btn", function() {
 
 /* renders the parameter overview for both vector and matrix methods */
 function renderAnalysisParameters(analysis) {
-  var $t = `<div class="parameter-info"><div class="box-header" __text="W3m6">${locale.call("W3m6")}</div>`;
-  var args = analysis.args;
-  if (!args || args?.length == 0) return null;
-  if(schema.length > 0) $t += `<table class="table implicit table-borderless"><tbody>`;
-  for (var i = 0; i < schema.length; i++) {
-    $t += "<tr>"
-    value = args[i];
-    if (value?.isVector) {
-      value = `<code ${!value?.name() ? "__text = 'o1YS'" : ""}>${value?.name() || locale.call("o1YS")}</code>`
-    } 
-    else if (value?.isMatrix || Array.isArray(value) ? value.hasOnlyVectorChildren() : false) {
-      var _value = "";
-      for (let v = 0; v < value.length; v++) {
-        _value += `<code ${!value[v]?.name() ? "__text = 'o1YS'" : ""}>${value[v]?.name() || locale.call("o1YS")}</code>${v < value.length -1 ? ", " : ""}`
-      }
-      value = _value;
-    }
-    else if (schema[i].enums) {
-      value = `<b __text="${analysis.model.args[i].enums.values.find(e => e.key == value).title}">${schema[i].enums.find(e => e.id == value)?.title}</div>`;
-    } else if (value === true) value = "✅";
-    else if (value === false) value = "❌";
-    else if (value !== 0 && value !== false && !value) {
-      value = `<i __text="UFbX">${locale.call("UFbX")}</i>`
-    }
-    var paramCode = (Array.isArray(analysis.model.args) ? analysis.model.args[i] : analysis.model.args[Object.keys(analysis.model.args)[i]]).wiki.title;
-    $t += `<td class="parameter-info-item" __text="${paramCode}">${locale.call(paramCode)}</td><td>${value ? value : ""}</td></tr>`;
-  };
-  $t += "</tbody></table>"
-  return $t;
+  return `<div class="parameter-info"><div class="box-header" __text="W3m6">${locale.call("W3m6")}</div>${analysis.paramOutputHtml()}`;
 }
 
 /* renders the sample statistics for both vector and matrix methods */
-function renderSampleSize(bundle) {
-  var original = bundle?.parent?.isMatrix ? bundle?.parent?.maxRows() : bundle?.parent?.length;
-  var net = bundle?.matrix?.isMatrix ? bundle?.matrix?.maxRows() : bundle?.vector?.length;
-  var rejected_abs = original && net ? original - net : null;
-  var rejected_rel = rejected_abs ? 1 - net / original : null;
-  var filterText = bundle.wiki.filter || null;
-  var $t = `<div class="sample-info"><div class="box-header" __text="2KsX">${locale.call("2KsX")}</div><table class="table implicit table-borderless"><tbody>`;
-  if (net) $t += `<tr><td __text="NA7d">${locale.call("NA7d")}</td><th>${N(net,{d:0})}</th></tr>`;
-  if (original >= 0) $t += `<tr><td __text="FJ0J">${locale.call("FJ0J")}</td><th>${N(original,{d:0})}</th></tr>`;
-  if (rejected_abs >= 0) $t += `<tr><td __text="gTvq">${locale.call("gTvq")}</td><th>${N(rejected_abs)}</b> (${N(rejected_rel,{style: "percent"})})</th></tr>`;
-  if (filterText) $t += `<tr><td __text="YLCH">${locale.call("YLCH")}</td><td><i __text="${bundle.model?.filter?.text}">${filterText}</i></td></tr>`
-  $t += `</tbody></table>`;
-  return $t;
+function renderSampleSize(analysis) {
+  return `<div class="sample-info"><div class="box-header" __text="2KsX">${locale.call("2KsX")}</div>${analysis.sampleOutputHtml()}`;
 }
 
 // #endregion
@@ -523,38 +482,50 @@ $(document).on('shown.bs.collapse', "#wsCollapseOutput", function() {
   $(document).scrollTop($(document).height());
 });
 
-// renders Vector form for methods with arguments
-function renderVectorFormSchema(schema, vector, methodName) {
-  var $f = `<form data-vector-form action = "javascript:void(0)" data-vector-type = "${vector.type()}" data-field = "${vector.name()}" data-method = "${methodName}"><table class="table"><tbody>`;
-  for (let a of schema) {
-    $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description ? "form-control-tooltip" : ""}" ${a.description ? "title=" + a.description : ""}">${a.title}</td>`;
-    $f += `<td title="${a.description || ""}">`;
-    if (a.type == "enum") {
-      $f += `<select data-control-type="${a.type}" class = "form-select" name = "${a.id}" value = ${a.default ? a.default : ""} ${a.required ? "required" : ""}>`
-      for (let e of a.enums) {
-        $f += `<option value = ${e.id} ${e.id == a.default ? "selected" : ""}>${e.title}</option>`
-      }
-      $f += "</select>"
-    } else if (a.type == "boolean") {
-      $f += `<div class="form-check form-switch"><input data-control-type="${a.type}" checked = ${a.default} ${a.required ? "required" : ""} class="form-check-input" type="checkbox" role="switch" name="${a.id}"></div>`
-    } else {
-      var _type = (a.type == "number" || a.type == "integer" || a.type == "decimal") ? "number" : "text";
-      var _step = (a.type == "integer" ? 1 : a.type == "decimal" || a.type == "number" ? 0.001 : null);
-      $f += `<input type = "${_type}" data-control-type="${a.type}" ${_step > 0 ? "step=" + _step : null} class="form-control" name = "${a.id}" ${a.default ? "value = " + a.default : ""} ${a.required ? "required" : ""} placeholder = "${a.validatorText}"}>`;
-    }
-    $f += `</td></tr>`
+function renderVectorFormSchema(method, vector) {
+  var analysis = new VectorAnalysis(method);
+  var $f = `<div><h5 __test="${analysis.title.key}">${analysis.title.value}`
+  if(analysis.description.value) $f += `<button __title = "FfIl" title="${locale.call("FfIl")}" data-btn-method-title = "${analysis.title.key || ""}" data-btn-method-description = "${analysis.description.value || ""}" class="btn">📓</button>`;
+  $f += "</h5></div>";
+  $f += `<form data-vector-form action = "javascript:void(0)" data-vector-type = "${vector.type()}" data-field = "${vector.name()}" data-method = "${method}"><table class="table"><tbody>`;
+  var i = 0;
+  for (let a of analysis.parameters()) {
+    $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description.value ? "form-control-tooltip" : ""}" ${a.description.value ? "title=" + a.description.value : ""}">${a.title?.value}</td>`;
+    $f += `<td title="${a.description.value || ""}">`;
+    $f += a.html() + `</td></tr>`;
+    i++;
   }
-  $f += `</tbody></table><br><br><button data-vector-form-args-submit type="submit" class="btn btn-primary" __text="np1p">${locale.call("np1p")}</button></form>`;
+  $f += `</tbody></table><br><br><button data-vector-form-args-submit type="submit" class="btn btn-primary">${locale.call("np1p")}</button></form>`;
+  $("#modal_vector_analysis_form").find(".title").text(analysis.title.value);
   $("#modal_vector_analysis_form").find(".modal-body").empty().append($($f));
   $("#modal_vector_analysis_form").modal("show");
 }
 
-/** vector analysis single method trigger*/
+function renderMatrixAnalysisForm(method) {
+  var analysis = new MatrixAnalysis(method);
+  var $f = `<div><h5 __test="${analysis.title.key}">${analysis.title.value}`
+  if(analysis.description.value) $f += `<button __title = "FfIl" title="${locale.call("FfIl")}" data-btn-method-title = "${analysis.title.key || ""}" data-btn-method-description = "${analysis.description.value || ""}" class="btn">📓</button>`;
+  $f += "</h5></div>";
+  $f += `<form data-matrix-form action = "javascript:void(0)" data-method = "${method}"><table class="table"><tbody>`;
+  var i = 0;
+  for (let a of analysis.parameters()) {
+    $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description.value ? "form-control-tooltip" : ""}" ${a.description.value ? "title=" + a.description.value : ""}">${a.title?.value}</td>`;
+    $f += `<td title="${a.description.value || ""}">`;
+    $f += a.html() + `</td></tr>`;
+    i++;
+  }
+  $f += `</tbody></table><br><br><button data-matrix-form-args-submit type="submit" class="btn btn-primary">${locale.call("np1p")}</button></form>`;
+  $("#modal_matrix_analysis_form").find(".title").text(analysis.title.value);
+  $("#modal_matrix_analysis_form").find(".modal-body").empty().append($($f));
+  $("#modal_matrix_analysis_form").modal("show");
+}
+
+/* calculate the vector method (in no argument set or otherwise render the vector method form */
 $(document).on("click", "[data-vector-analysis-trigger]", function() {
   var method = $(this).attr("data-model");
   var vector = source.item($(this).attr("data-field"));
   if ($(this).attr("data-model-has-args") == "true") {
-    renderVectorFormSchema(vectorModels[method].schema.form, vector, method);
+    renderVectorFormSchema(method, vector);
   } else {
     try {
       var analysis = vector.applyFilter().analyze(method).run();
@@ -567,36 +538,35 @@ $(document).on("click", "[data-vector-analysis-trigger]", function() {
   }
 })
 
+function serializeForm(form){
+  var args = {};
+  $(form).find("[name]").each(function(){
+    var name = $(this).attr("name");
+    var value = $(this).val();
+    var _type = $(this).attr("data-type") || "any";
+    if(value === "") args[name] = undefined;
+    else if(_type == "number") args[name] = Number(value);
+    else if(_type == "boolean") args[name] = !!$(this).prop("checked")
+    else args[name] = value;
+  });
+  return args;
+} 
+
 /** calculates a vector method after form is submitted */
 $(document).on("submit", "[data-vector-form]", function() {
-  var args = $(this).serialize().split(/\&/g).map(function(e) {
-    return {
-      key: e.split(/\=/g)[0],
-      value: e.split(/\=/g)[1]
-    }
-  });
-  for (let a of args) {
-    var type = $(this).find(`[name="${a.key}"]`).attr("data-control-type");
-    if (type == "boolean") a.value = a.value == "on" ? true : false;
-    else if (type == "number") {
-      if (a.value !== 0 && !a.value) a.value = null;
-      else a.value = Number(a.value)
-    }
-  }
-  args = args.map(a => a.value);
-  var vector = source.item($(this).closest("[data-field]").attr("data-field"));
+  activeAnalysisModalForm = $(this);
+  var args = serializeForm(this);
   try {
-    var bundle = vector.applyFilter().analyze($(this).attr("data-method")).run(...args);
-    renderAnalysisResult(bundle)
-    $("#modal_vector_analysis_form, #modal_matrix_analysis_form").modal("hide");
-  } catch (e) {
-    msg.error(locale.call("VzKZ"), env === "development" ? e.toString() : "", null, 15000);
-    if (env === "development") console.error(e);
+    var analysis = source.applyFilters().item($(this).attr("data-field")).analyze($(this).attr("data-method"), );
+    renderAnalysis(analysis, args, $(this));
+  } 
+  catch(e) 
+  {
+    msg.error(locale.call("VzKZ"), e.message, 15000);
+    if(env === "development") console.error(e);
+    toggleCalculationFormState("on");
     return;
-  } finally {
-    $("#modal_vector_analysis_form, #modal_matrix_analysis_form").modal("hide");
   }
-
 });
 
 /* removes the result card */
@@ -624,38 +594,7 @@ $(document).on("click", ".bt-header-config", function() {
 // #endregion
 
 function createAnalysisResultHtml(analysis) {
-  return Output.html(analysis);
-  
-  if (bundle.schema.output.isSimple) return `<code class="singular-output">${F(bundle.result, bundle.schema.output)}</code>`;
-  else if (bundle.schema.output.isObject) 
-  {
-    var $t = `<table class = "table"><tbody><tr><th __text="WoV2">${locale.call("WoV2")}</th><th __text="XSjx">${locale.call("XSjx")}</th><tr>`;
-    for (let p of bundle.schema.output.properties) {
-      if(!p.isAddon) $t += `<tr><td __text="${p._title}">${p.title}</td><td>${F(bundle.result[p.id],p)}</td></tr>`;      
-    }
-    $t += "</tbody></table>";
-    return $t;
-  } 
-  else if (bundle.schema.output.isArray) {
-    var $t = `<table class = "table"><tbody><tr><th>#</th>`;
-    for (let h of bundle.schema.output.items) {
-      $t += `<th data-field = "${h.id}" __text="${h._title}">${h.title}</th>`;
-    }
-    $t += "</tr>";
-    var i = 0;
-    for (let r of bundle.result) {
-      $t += `<tr><td><small><i>${i+1}</i></small></td>`;
-      for (let h of bundle.schema.output.items) {
-        var val = F(r[h.id], h);
-        $t += `<td>${val}</td>`;
-      }
-      $t += "</tr>";
-      i++;
-    }
-    $t += "</tbody></table>";
-    return $t;
-  }
-  
+  return Output.html(analysis);  
 }
 // #endregion
 
@@ -673,25 +612,6 @@ $(document).on("click", "[data-matrix-analysis-form-trigger]", function() {
   renderMatrixAnalysisForm($(this).parent().attr("data-target"))
 })
 
-function renderMatrixAnalysisForm(method) {
-  var analysis = new MatrixAnalysis(method);
-  var $f = `<div><h5 __test="${analysis.title.key}">${analysis.title.value}`
-  if(analysis.description.value) $f += `<button __title = "FfIl" title="${locale.call("FfIl")}" data-btn-method-title = "${analysis.title.key || ""}" data-btn-method-description = "${analysis.description.value || ""}" class="btn">📓</button>`;
-  $f += "</h5></div>";
-  $f += `<form data-matrix-form action = "javascript:void(0)" data-method = "${method}"><table class="table"><tbody>`;
-  var i = 0;
-  for (let a of analysis.parameters()) {
-    $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description.value ? "form-control-tooltip" : ""}" ${a.description.value ? "title=" + a.description.value : ""}">${a.title?.value}</td>`;
-    $f += `<td title="${a.description.value || ""}">`;
-    $f += a.html() + `</td></tr>`;
-    i++;
-  }
-  $f += `</tbody></table><br><br><button data-matrix-form-args-submit type="submit" class="btn btn-primary">${locale.call("np1p")}</button></form>`;
-  $("#modal_matrix_analysis_form").find(".title").text(analysis.title.value);
-  $("#modal_matrix_analysis_form").find(".modal-body").empty().append($($f));
-  $("#modal_matrix_analysis_form").modal("show");
-}
-
 $(document).on("click","[data-btn-method-description]", function(){
     msg.info($(this).attr("data-btn-method-title"), $(this).attr("data-btn-method-description"), 60000);
 })
@@ -705,7 +625,7 @@ $(document).on("submit", "[data-matrix-form]", function() {
   });
   try {
     var analysis = source.applyFilters().analyze($(this).attr("data-method"));
-    calculateMatrixAnalysis(analysis, args, $(this));
+    renderAnalysis(analysis, args, $(this));
   } 
   catch(e) 
   {
@@ -716,11 +636,12 @@ $(document).on("submit", "[data-matrix-form]", function() {
   }
 });
 
-function calculateMatrixAnalysis(analysis, args, sender) {
+function renderAnalysis(analysis, args, sender) {
   activeAnalysisModalForm = sender;
   toggleCalculationFormState("off", function(){
     try {
-      analysis.run(args);
+      if(typeof args == "object" && Object.keys(args).length > 0) analysis.run(args);
+      else analysis.run();
       toggleCalculationFormState("on", function(){
         $("#modal_vector_analysis_form, #modal_matrix_analysis_form").modal("hide");
         renderAnalysisResult(analysis);
@@ -753,12 +674,14 @@ function renderAnalysisResult(analysis) {
   var id = srnd();
   var $c = $(createResultCard(id));
   var content = createAnalysisResultHtml(analysis);
-  var d = analysis.duration();
   $c.find(".title").html(createResultCardTitle(analysis));
-  $c.find(".parameters").html(renderAnalysisParameters(analysis));
-  $c.find(".sample").html(renderSampleSize(analysis));
+  if(userConfig.showOutputParamsInfo && Object.entries(analysis.args || {}).filter(a => a[1] !== undefined).length > 0) $c.find(".parameters").html(renderAnalysisParameters(analysis));
+  else $c.find(".parameters").closest(".col-6").remove();
+  if(userConfig.showOutputSampleInfo) $c.find(".sample").html(renderSampleSize(analysis));
+  else $c.find(".sample").closest(".col-6").remove();
   $c.find(".content").append($(content));
-  $c.find(".duration").text(`doba výpočtu: ${d < 1000 ? (d) + " ms" : d < 60000 ? N(d/1000) + " sekund" : N(d/60000) + " minut" }`)
+  if(userConfig.showOutputDuration) $c.find(".duration").append(`<div __text="wWol">${locale.call("wWol")}</div><div>: </div><div __value = ${analysis.duration()}>${N(analysis.duration())}</div><div> ms</div>`);
+  else $c.find(".duration").closest(".row").remove();
   $("#output-container").append($c).ready(function() {
     var $card = $("#output-container").find(`.result-card[id="${id}"]`);
     resultAddons(analysis, $card, function() {
@@ -894,3 +817,20 @@ function toggleFilteringStatus(status = undefined, skipRefresh = false) {
     if(!skipRefresh) $(tableSelector).bootstrapTable("refresh");
   }
 }
+
+//#region Setting panel events
+
+function readUserConfigFromStorage(){
+  ["showOutputNodeTitle", "showOutputSampleInfo", "showOutputParamsInfo", "showOutputDuration"].forEach(function(s){
+    userConfig[s] = window.localStorage.getItem(s) == "true" ? true : window.localStorage.getItem(s) == "false" ? false : undefined;
+    if(userConfig[s]) $(`[data-settings-output-switch="${s}"]`).prop("checked", true);
+  });
+}
+
+$(document).on("change", "[data-settings-output-switch]", function(){
+  var target = $(this).attr("data-settings-output-switch");
+  userConfig[target] = $(this).prop("checked");
+  window.localStorage.setItem(target, userConfig[target]);
+})
+
+// #endregion

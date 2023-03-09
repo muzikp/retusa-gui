@@ -22,7 +22,7 @@ $(function () {
 
 function updateLocale() {
   $(".modal").modal("hide");
-  $(document).find("[__text], [__title], [__placeholder], [__href]").each(function () {
+  $(document).find("[__text], [__title], [__placeholder], [__href], [__value]").each(function () {
     var tags = _construct(Array, _toConsumableArray(this.attributes)).filter(function (a) {
       return a.name.substring(0, 2) === "__";
     });
@@ -36,7 +36,13 @@ function updateLocale() {
         var t = _step.value;
         var tn = t.name.replace("__", "");
         var tv = t.value;
-        if (tn == "text") $(this).text(locale.call(tv));else $(this).attr(tn, locale.call(tv));
+        if (tn == "text") $(this).text(locale.call(tv));else if (tn == "value") {
+          var v = $(this).attr("__value");
+          var type = $(this).attr("data-value-type");
+          if (type == "number" || type == "zeroToOneInc" || type == "integer" || type == "uint") $(this).text(N(Number(v)));else if (type == "percent") $(this).text(N(Number(v), {
+            style: "percent"
+          }));else $(this).text(v);
+        } else $(this).attr(tn, locale.call(tv));
       }
     } catch (err) {
       _didIteratorError = true;

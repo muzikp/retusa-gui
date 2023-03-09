@@ -35,50 +35,21 @@ html
     #splash
       img.logo(src='./media/retusa-logo-v1-main.png' alt='Retusa loading')        
     ul#workspace.nav.nav-tabs(role='tablist')
-      li.nav-item(role='presentation' tab-target="source")
-        button#source-tab.nav-link.active(data-bs-toggle='tab' data-bs-target='#source-tab-pane' type='button' role='tab' aria-controls='source-tab-pane' aria-selected='true' __text="zvh3") Zdroje
+      li.nav-item.dropdown
+        button.btn(type='button' data-bs-toggle='offcanvas' data-bs-target='#setting_canvas' aria-controls='setting_canvas' style="height: 100%; color: gray;")
+          i.fa-solid.fa-gear.fa-xl
       li.nav-item(role='presentation' tab-target="table")
         button#table-tab.nav-link(data-bs-toggle='tab' data-bs-target='#table-tab-pane' type='button' role='tab' aria-controls='table-tab-pane' aria-selected='false' __text="p9wW") Tabulka
       li.nav-item(role='presentation' tab-target="analysis")
         button#analysis-tab.nav-link(data-bs-toggle='tab' data-bs-target='#analysis-tab-pane' type='button' role='tab' aria-controls='analysis-tab-pane' aria-selected='false' __text="jHc3") Analýza
       li.nav-item(role='presentation' tab-target="output")
         button#output-tab.nav-link(data-bs-toggle='tab' data-bs-target='#output-tab-pane' type='button' role='tab' aria-controls='output-tab-pane' aria-selected='false' __text="slEd") Výsledky
-      li.nav-item.dropdown
-        button.btn(type='button' data-bs-toggle='offcanvas' data-bs-target='#setting_canvas' aria-controls='setting_canvas' style="height: 100%; color: gray;")
-          i.fa-solid.fa-gear.fa-xl
       li.nav-item.logo-tab
         a(href="https://www.muvs.cvut.cz/" target="_blank" style="margin-right: 20px;")
           img(src='./media/muvs_logo.png' height='30' alt='MÚVS ČVUT')
         a(href="https://github.com/muzikp/retusa" target="_blank")
           img(src='./media/retusa-logo-v1-main.png' height='30' alt='Retusa')        
     #tabContent.tab-content
-      #source-tab-pane.tab-pane.fade.show.active(role='tabpanel' aria-labelledby='source-tab' tabindex='0')
-        .source-container
-          br
-          br
-          h5 Testovací datasety
-          .sample-sets
-            button.btn.btn-info(data-test-dataset="genreg") Regrese
-            button.btn.btn-success(data-test-dataset="muvslinreg") Regrese (MÚVS)
-            button.btn.btn-success(data-test-dataset="anycorrel") Korelace
-            button.btn.btn-info(data-test-dataset="anova2") ANOVA bez faktoru
-            button.btn.btn-info(data-test-dataset="anova1") ANOVA s faktorem
-            button.btn.btn-info(data-test-dataset="ttestind1") T-test nez. s faktorem
-            button.btn.btn-info(data-test-dataset="ttestind2") T-test nez. bez faktoru
-            button.btn.btn-success(data-test-dataset="muvscontingency") Kontingence (MÚVS)
-            button.btn.btn-warning(data-test-dataset="contingency1") Kontingence bez četností
-          hr
-          h5 Makro
-          .sample-sets
-            button.btn.btn-info(data-makro="genreg") Regrese
-            button.btn.btn-success(data-makro="muvslinreg") Regrese (MÚVS)
-            button.btn.btn-success(data-makro="anycorrel") Všechny korelace
-            button.btn.btn-info(data-makro="anova2") ANOVA bez faktoru
-            button.btn.btn-info(data-makro="anova1") ANOVA s faktorem
-            button.btn.btn-info(data-makro="ttestind1") T-test nez. s faktorem
-            button.btn.btn-info(data-makro="ttestind2") T-test nez. bez faktoru
-            button.btn.btn-success(data-makro="muvscontingency") Kontingence (MÚVS)
-          .last-files
       #table-tab-pane.tab-pane.fade(role='tabpanel' aria-labelledby='table-tab' tabindex='0')
         #table-toolbar
           .group
@@ -135,19 +106,23 @@ html
                 .analytics-header.bg-light-blue(__text="efo6") Zkoumání rozdílů
                 ul
                   li
-                    span.tf-nc.tf-inter-node(__text="zvOH") Spojitá
+                    span.tf-nc.tf-inter-node(__text="7hkv" __title="KJE6") Nezávislé vzorky
                     ul
                       li
                         span.tf-nc(data-target = "anovaow")
                       li
                         span.tf-nc(data-target = "ttestind")
                       li
+                        span.tf-nc(data-target = "mwu")
+                  li
+                    span.tf-nc.tf-inter-node(__text="l4D6" __title="XWJe") Závislé vzorky
+                    ul
+                      li
                         span.tf-nc(data-target = "ttestpair")
-                    li
-                      span.tf-nc.tf-inter-node(__text="GbVb") Pořadová
-                      ul
-                        li
-                          span.tf-nc(data-target = "mwu")
+                      li
+                        span.tf-nc(data-target = "wcxpaired")
+                      li
+                        span.tf-nc(data-target = "friedman")                    
           ul
             li
               span.analytic-group
@@ -264,19 +239,60 @@ html
               button.btn(data-language="en-GB" title="Click to switch for English")
                 img(src="https://flagcdn.com/w40/gb.png" width=35 alt='English')
         .card
-          table.table.implicit.table-borderless
-            tbody 
-              tr
-                td(__text="DGvS") verze
-                td 1.1.0
-              tr
-                td email                  
-                td
-                  a(href="mailto:muzikp@gmail.com") muzikp@gmail.com
-              tr
-                td
-                  a(__href="2aMA" __text="3nNX" __target="_blank")
-              tr
-                td
-                  a(__href="D9JV" __text="PmZ8" __target="_blank")
+          .card-header(__text="iMJ6") Nastavení výstupů
+          .card-body
+            table.table.implicit.table-borderless
+              tbody 
+                tr
+                  td(__text="KUzA") zobrazovat informace o vzorku
+                  td
+                    .form-check.form-switch
+                      input.form-check-input(data-settings-output-switch="showOutputSampleInfo" type='checkbox' role='switch')
+                tr
+                  td(__text="hYRC") zobrazovat informace o parametrech
+                  td
+                    .form-check.form-switch
+                      input.form-check-input(data-settings-output-switch="showOutputParamsInfo" type='checkbox' role='switch')
+                tr
+                  td(__text="JyNT") zobrazovat popisky ukazatelů
+                  td
+                    .form-check.form-switch
+                      input.form-check-input(data-settings-output-switch="showOutputNodeTitle" type='checkbox' role='switch')
+                tr
+                  td(__text="dy7u") zobrazovat dobu výpočtu
+                  td
+                    .form-check.form-switch
+                      input.form-check-input(data-settings-output-switch="showOutputDuration" type='checkbox' role='switch')
+        .card
+          .card-header(__text="LyfZ") Testovací datasety
+          .card-body
+            select#test-dataset-selector.form-select()
+              option(value="muvslinreg" __text="qHSu") 
+              option(value="muvsanova1" __text="NHpy") 
+              option(value="muvsanova2" __text="Lc2q")
+              option(value="muvscontingency1" __text="d7t0")
+            br
+            .row
+              .col-6
+                button#test-dataset.btn.btn-info(__text="iTkC") Pouze data
+              .col-6
+                button#test-makro.btn.btn-success(__text="yG2T") Data a výpočet
+        .card
+          .card-header(__text="89XK") O aplikaci
+          .card-body
+            table.table.implicit.table-borderless
+              tbody 
+                tr
+                  td(__text="DGvS") verze
+                  td 1.2.0
+                tr
+                  td(__text="CjJk") autor
+                  td
+                    a(href="mailto:muzikp@gmail.com") Pavel Mužík
+                tr
+                  td
+                    a(__href="2aMA" __text="3nNX" __target="_blank")
+                tr
+                  td
+                    a(__href="D9JV" __text="PmZ8" __target="_blank")
                 

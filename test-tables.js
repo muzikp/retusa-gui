@@ -1,18 +1,39 @@
 testTables = {
-    muvslinreg: function() {
-        return new Matrix(
+    muvslinreg: {
+        data: new Matrix(
             new NumericVector(180,197,240,210,180,160,179,185,183,150,110,190,170).name("proměnná x"),
             new NumericVector(75,82,100,80,75,60,75,71,77,63,46,81,70).name("proměnná y")
-            );
+            ),
+        args: {x: 0, y: 1, model: 1},
+        method: "linreg"
     },
-    muvsanova1: function(){
-        return new Matrix(
+    muvsanova1: {
+        data: new Matrix(
             new NumericVector(27,27,27,19,30,31).name("A"),
             new NumericVector(30,30,30,30,30,23).name("B"),
             new NumericVector(19,27,28,25,26,30).name("C"),
             new NumericVector(11,25,28,25,28,28).name("D"),
             new NumericVector(36,32,34,29,25,27).name("E")
-        )
+        ),
+        args: {vectors: [0,1,2,3,4]},
+        method: "anovaow"
+    },
+    muvsanova2: {
+        data: new Matrix(
+            new NumericVector(27,27,27,19,30,31,30,30,30,30,30,23,19,27,28,25,26,30,11,25,28,25,28,28,36,32,34,29,25,27).name("values"),
+            new StringVector("A","A","A","A","A","A","B","B","B","B","B","B","C","C","C","C","C","C","D","D","D","D","D","D","E","E","E","E","E","E").name("group")
+        ),
+        args: {vectors: [0], factor: 1},
+        method: "anovaow"
+    },
+    muvscontingency1: {
+        data: new Matrix(
+            new StringVector("ZŠ","ZŠ","ZŠ","ZŠ","SŠ","SŠ","SŠ","SŠ","VŠ","VŠ","VŠ","VŠ").name("dosažené vzdělání"),
+            new StringVector("A","B","C","D","A","B","C","D","A","B","C","D").name("skupina"),
+            new NumericVector(39,25,25,27,17,30,40,29,12,41,62,53).name("četnost")
+        ),
+        args: {rows: 0, columns: 1, n: 2},
+        method: "contingency"
     },
     anycorrel: function() {
         return new Matrix(
@@ -37,13 +58,6 @@ testTables = {
         m.push(StringVector.generate({total: n, list: 50, nullprob: empty}).name("řádeček"));
         m.push(StringVector.generate({total: n, list: 20, nullprob: empty}).name("sloupeček"));
         return m;
-    },
-    muvscontingency: function() {
-        return new Matrix(
-            new StringVector("ZŠ","ZŠ","ZŠ","ZŠ","SŠ","SŠ","SŠ","SŠ","VŠ","VŠ","VŠ","VŠ").name("dosažené vzdělání"),
-            new StringVector("A","B","C","D","A","B","C","D","A","B","C","D").name("skupina"),
-            new NumericVector(39,25,25,27,17,30,40,29,12,41,62,53).name("četnost")
-        ).name("Kontingence (příklad MÚVS)")
     },
     genreg: function(){
         var m = new Matrix().name("Regrese: testovací sada dvou náhoně generovaných vektorů N = 5000");
@@ -92,16 +106,16 @@ testTables = {
 
 const makro= {
     anova1: function(){
-        runMakro("anovaow", testTables.anova1(),[[0],1])
+        runMakro("anovaow", testTables.anova1(),{vectors: [0], factor: 1})
     },
     anova2: function(){
-        runMakro("anovaow", testTables.anova2(),[[0,1,2,3,4]])
+        runMakro("anovaow", testTables.anova2(),{vectors: [0,1,2,3,4]})
     },
     ttestind1: function(){
-        runMakro("ttestind", testTables.ttestind1(),[[1],0])
+        runMakro("ttestind", testTables.ttestind1(),{vectors: [1],factor: 0})
     },
     muvslinreg: function() {
-        runMakro("genreg", testTables.muvslinreg(), [0,1,1]);
+        runMakro("linreg", testTables.muvslinreg(), {x: 0, y: 1, model: 1});
     },
     anycorrel: function() {
         runMakro("correlPearson", testTables.anycorrel(), [0,1]);
@@ -111,12 +125,12 @@ const makro= {
         runMakro("correlBiserial", testTables.anycorrel(), [3,0]);
     },
     muvscontingency: function(){
-        runMakro("contingency", testTables.muvscontingency(),[0,1,2])
+        runMakro("contingency", testTables.muvscontingency(),{rows: 0, columns: 1, n: 2});
     },
 };
 
 function runMakro(method, matrix, args) {
     loadMatrixToTable(matrix);
     var analysis = source.analyze(method);
-    calculateMatrixAnalysis(analysis, args);
+    renderAnalysis(analysis, args);
 }

@@ -7,6 +7,7 @@ $(function(){
             if(this.required) $h.attr("required", true);
             if(T.multiple) $h.attr("multiple", true);
             if(this.isVector) {
+                $h.attr("arg-type", "vector");
                 $h.append($(`<option value="" disabled selected>-- ${locale.call("xnii")} --</option>`));
                 var i = 0;
                 for(let v of collectVectorConfigsForMatrixForm().filter(v => (T.type || [1, 2, 3]).indexOf(v.type) > -1))
@@ -16,6 +17,7 @@ $(function(){
                 }                
             } 
             else if(this.isEnum) {
+                $h.attr("arg-type", "enum");
                 for(let e of this.enums) {
                     $h.append(`<option value=${e.value} ${this.default === e.value ? "selected" : ""}>${e.title}</option>`);
                 }
@@ -23,16 +25,18 @@ $(function(){
         } 
         else if(T.control == "input") 
         {
-            $h + $(`<input class="form-control" type="${T.type}">`);
+            $h = $(`<input class="form-control" name = "${this.name}" type="${T.type}">`);
             if(T.required) $h.attr("required", true);
             if(T.type == "number") {
+                $h.attr("data-type", "number");
                 if(T.min !== undefined && T.min >= -Number.MAX_SAFE_INTEGER) $h.attr("min", T.min);
                 if(T.max !== undefined && T.min <= Number.MAX_SAFE_INTEGER) $h.attr("max", T.max);
-                if(T.step !== undefined) $h.attr("step", T.max);
+                if(T.step !== undefined) $h.attr("step", T.step || 1/Math.pow(10,10));
             }
         } 
         else if(T.control == "boolean") {
-            $h = `<div class="form-check form-switch"></div>`;
+            $h = $(`<div class="form-check form-switch"></div>`);
+            $h.attr("data-type", "boolen");
             var $i = $(`<input name = "${this.name}" class="form-check-input" type="checkbox" role="switch">`);
             if(this.required) $i.attr("required", true);
             $h.append($i);
@@ -44,54 +48,103 @@ $(function(){
     }
     MatrixAnalysis.prototype.paramOutputHtml = outputArgsOverviewHtml;
     VectorAnalysis.prototype.paramOutputHtml = outputArgsOverviewHtml;
-    Output.fromAnalysis = function(analysis) {
-        return props(new Output(analysis.model.output), analysis.result);
-        function props(node, result) {
-            if(node.type == "object")
-            {
-                for(let k of Object.keys(node.properties)) {
-                    props(node.properties[k], result[k]);
-                }
-            }
-            else node.value = result;
-            return node;
-        }
-    }
+    MatrixAnalysis.prototype.sampleOutputHtml = outputSampleOverviewHtml;
+    VectorAnalysis.prototype.sampleOutputHtml = outputSampleOverviewHtml;
     Output.html = function(analysis) {
-        var $h = `<table class="table table-borderless table-sm"><tbody>` + props(Output.fromAnalysis(analysis)) + `</tbody></table>`;
+        var $h = `<table class="table _table-borderless table-sm"><tbody>` + props(Output.fromAnalysis(analysis)) + `</tbody></table>`;
         return $h;
-        function props(node) {
+        function props(node, level = 0) {
+            var m = "";
             if(node.type == "object")
             {
-                var m = `<tr><td __text="${node.title.key}">${node.title.value}</td>`
-                m += `<td><table class="table table-borderless table-sm"><tbody>`;
+                if(level > 0) m += getOutputNodeLabels(node);
+                m += `<td><table class="table _table-borderless table-sm"><tbody>`;
+                level++;
                 for(let k of Object.keys(node.properties)) {
-                    m += props(node.properties[k]);
+                    m += props(node.properties[k], level);
                 }
                 m += `</tbody></table></td>`;
             } 
             else if(node.type == "array") {
-                var m = `<tr>`;
-                m += Object.entries(node.properties).map(e => e[1]).map(e => `<th __text="${e.title.key}">${e.title.value}</th>`) + "</tr>";
+                var types = {};
+                Object.keys(node.properties).forEach(p => types[p] = node.properties[p].type);
+                var m = "<tr>" + Object.entries(node.properties).map(e => e[1]).map(e => getOutputNodeLabels(e)).join("") + "</tr>";
                 node.value.forEach(function(row) {
-                    m += `<tr>` + Object.entries(row).map(v => `<td __value=${v[1]}>${v[1]}</td>`).join("") + "</tr>"
+                    m += `<tr>` + Object.entries(row).map(function(v) {
+                        return `<td data-value-type="${types[v[0]]}" __value=${v[1]}>${FV(v[1], types[v[0]])}</td>`}
+                    ).join("") + "</tr>"
                 })
                 m += `</tbody></table>`;
 
             }
             else 
             {
-                var m = `<tr><td __text="${node.title.key}">${node.title.value}</td>`;
-                m += `<td __value=${node.value} data-value-type="${node.type}">${node.value}</td>`
+                if(typeof analysis.result != "object" && level === 0) return `<div class="single-value-result" __value=${node.value} data-value-type="${node.type}">${FV(node.value, node.type)}</div>`;
+                else m += `<tr>${getOutputNodeLabels(node)}<td __value=${node.value} data-value-type="${node.type}">${FV(node.value, node.type)}</td>`
             }
             return m + `</tr>`;
         }
     }
     function outputArgsOverviewHtml() {
-        
+        var $p = $(`<div><table class="table implicit table-borderless table-sm"><tbody></tbody></table></div>`);
+        for(let a of this.parameters()) {
+            if(a.value === undefined) a.value === a.default;
+            if(a.value === undefined) break;
+            var l = `<td __text="${a.title.key}">${a.title.value}</td>`;
+            var v = "";
+            if(a.isVector) 
+            {
+                var vs = [];
+                if(!a.multiple) {
+                    vs = [a.value ? a.value.name() : null];
+                }
+                else {
+                    vs = a.value.smap(v => v.name());
+                }
+                v = vs.map(v => `<code ${!v ? "__text = 'o1YS'" : ""}>${v || locale.call("o1YS")}</code>`).join(", ");
+            } 
+            else if(a.isEnum) {
+                var en = a.enums.find(e => e.value == a.value);
+                v = `<div __text="${en.key}">${en.title}</div>`
+            }
+            else if(a.tag.control == "boolean") {
+                v = `<div>${a.value === true ? "✅" : a.value === false ? "❌" : "-"}</div>`
+            }
+            else if(a.tag.type == "number")
+            {
+                v = `<div __value=${a.value}>${N(a.value)}</div>`;
+            }
+            else 
+            {
+                v = `<div>${a.value}</div>`;
+            }
+            $p.find("tbody").append(`<tr>${l}<td>${v}</td></tr>`);
+            
+        }
+        return $p.html();
+    }
+    function outputSampleOverviewHtml() {
+        var $t = $(`<div><table class="table implicit table-borderless table-sm"><tbody></tbody></table></div>`);
+        if(this.sample.raw !== undefined) $t.find("tbody").append(`<tr><td __text="FJ0J">${locale.call("FJ0J")}</td><td __value=${this.sample.raw}>${N(this.sample.raw)}</td></tr>`);
+        if(this.sample.net !== undefined) $t.find("tbody").append(`<tr><td __text="NA7d">${locale.call("NA7d")}</td><td __value=${this.sample.net}>${N(this.sample.net)}</td></tr>`);
+        if(this.sample.net !== undefined && this.sample.raw !== undefined) $t.find("tbody").append(`<tr><td __text="gTvq">${locale.call("gTvq")}</td><td __value=${this.sample.raw - this.sample.net}>${N(this.sample.raw - this.sample.net)}</td></tr>`);
+        if(this.preprocessor?.key) $t.find("tbody").append(`<tr><td __text="jrdS">${locale.call("jrdS")}</td><td __text="${this.preprocessor.key}">${this.preprocessor.value}</td></tr>`);
+        return $t.html();
+    }
+    function FV(value, type) {
+        if(type == "number" || type == "zeroToOneInc") return N(value);
+        else if(type == "integer" || type == "uint") return N(value);
+        else if(type == "percent") return N(value, {style: "percent"});
+        else return value;
+    }
+    function getOutputNodeLabels(node){
+        if(userConfig.showOutputNodeTitle) {
+            return `<td><div class="flex"><div class="node-name">${node.name}</div><div class="node-title" __text="${node.title.key}">${node.title.value}</div></div></td>`;
+        } else {
+            return `<td><div class="node-name" title="${node.title.value}" __title="${node.title.key}">${node.name}</div></td>`;
+        }
     }
 })
-
 
 const resultAddons = function(analysis, $card, callback) {
     if(!addonLibs[analysis.name]) {
@@ -111,10 +164,28 @@ const resultAddons = function(analysis, $card, callback) {
                 var tdata = addon.data(analysis);
                 $($card).find(".result-addons").append(tdata);
                 $(document).ready(() => callback ? callback() : false);
+            } 
+            else if(addon.type == "calculator") {
+                createGeneralContainer($card, function(id){
+                    $(`#${id}`).append(addon.render(analysis));
+                });
             }
-        }
+         }
     }
 }
+
+/* linreg calculator x changed event */ 
+$(document).on("keyup change", ".linreg-x", function(){
+    if($(this).val() == "") {
+        $(this).closest(".inline-function").find(".linreg-y").val("");    
+        return;
+    }
+    var beta0 = Number($(this).attr("beta0"));
+    var beta1 = Number(Number($(this).attr("beta1")))
+    var v = Number($(this).val());
+    var est = beta0 + beta1*v;
+    $(this).closest(".inline-function").find(".linreg-y").val(N(est));
+})
 
 const addonLibs = {
     "frequency": [
@@ -128,14 +199,14 @@ const addonLibs = {
                             type: 'bar',
                             label: locale.call("XKtF"),
                             yAxisID: 'pri',
-                            data: r.map(_ => _.frequency)
+                            data: r.map(_ => _.n)
                         }, {
                             type: 'line',
                             label: locale.call("Yntn"),
                             yAxisID: 'sec',
-                            data: getCumulation(r.map(_ => _.frequency), true),
+                            data: getCumulation(r.map(_ => _.n), true),
                         }],
-                        labels: r.map(_ => _.value == null ? `-- ${locale.call("RICH")} --` : _.value)
+                        labels: r.map(_ => _.v == null ? `-- ${locale.call("RICH")} --` : _.v)
                     },
                     options: {
                         plugins: {
@@ -179,10 +250,10 @@ const addonLibs = {
                 var curve = [];
                 var r = analysis.result;
                 var step = r[0].to - r[0].from;
-                var avg = analysis.vector?.avg();
-                var stdev = analysis.vector?.stdev();
-                var min = analysis.vector?.min() // avg - 3*stdev;
-                var max = analysis.vector?.max() // avg + 3*stdev;
+                var avg = analysis.parent.avg();
+                var stdev = analysis.parent.stdev();
+                var min = analysis.parent.min() // avg - 3*stdev;
+                var max = analysis.parent.max() // avg + 3*stdev;
                 while (min <= max) {
                     curve.push(utils.distribution.normdist(min, avg, stdev));
                     min += step;
@@ -265,6 +336,15 @@ const addonLibs = {
         {
             type: "calculator",
             render: function(analysis) {
+                var $f = $(`
+                    <div class="col-12">
+                        <div class="inline-function-header" __text="ZhpG">${locale.call("ZhpG")}</div>
+                        <div class="inline-function">
+                        <div class="input-group mb-3"><span class="input-group-text">${analysis.args.x.name()}</span><input type="number" beta0 = ${analysis.result.beta0} beta1 = ${analysis.result.beta1} class="linreg-x form-control" __placeholder="81ll" placeholder="${locale.call("81ll")}"></div>
+                        <div class="input-group mb-3"><span class="input-group-text">${analysis.args.y.name()}</span><input disabled readonly type="text" class="linreg-y form-control" __placeholder="4VPU" placeholder="${locale.call("4VPU")}"></div></div>
+                `);
+                return $f;
+                
 
             }
 
@@ -273,13 +353,10 @@ const addonLibs = {
             type: "chart",
             data: function(analysis) {
                 var maxPointsToDisplay = 200;
-                var _data = (analysis.matrix.maxRows() > maxPointsToDisplay ? 
-                    analysis.matrix.select(analysis.args[0],analysis.args[1]).sample(maxPointsToDisplay) : 
-                    analysis.matrix.select(analysis.args[0],analysis.args[1])
-                    ).toArray();
+                var _data = (analysis.args.x.length > maxPointsToDisplay ? new Matrix(analysis.args.x,analysis.args.y).sample(maxPointsToDisplay) : new Matrix(analysis.args.x,analysis.args.y)).toArray();
                 var cdata = new Array(..._data);
                 _data.map(function(e){ 
-                    switch(analysis.args[2]) {
+                    switch(analysis.args.model) {
                         case 2:
                             e[0] = Math.log(e[0]);
                             break;
@@ -297,15 +374,15 @@ const addonLibs = {
                     
                     return {x: e[0], y: e[1]}}
                     );
-                var xmin = cdata.map(_ => _.x).min();
-                var xmax = cdata.map(_ => _.x).max();
-                var subtitle = analysis.matrix.maxRows() > maxPointsToDisplay ? `${locale.call("GsfY")} ${maxPointsToDisplay} ${_data.length > 2 ? locale.call("rbXL") : locale.call("xwc7")}` : null;
+                var xmin = cdata.map(_ => _[0]).min();
+                var xmax = cdata.map(_ => _[0]).max();
+                var subtitle = analysis.args.x.length > maxPointsToDisplay ? `${locale.call("GsfY")} ${maxPointsToDisplay} ${_data.length > 2 ? locale.call("rbXL") : locale.call("xwc7")}` : null;
                 var cvals = [];
                 var clabel = [];
                 for(var c = xmin; c <= xmax; c += (xmax-xmin)/_data.length) {
-                    cvals.push({x: c, y: (analysis.result.beta0 + analysis.result.beta1 * c)});
-                    //cvals.push({x: c, y: Math.log(c)})
+                    cvals.push([c, (analysis.result.beta0 + analysis.result.beta1 * c)]);
                 }
+                //debugger;
                 return {
                     type: 'scatter',
                     data: {
@@ -316,10 +393,10 @@ const addonLibs = {
                                 data: cvals,
                                 label: "y = f(x)",
                                 borderColor: null,
-                                borderWidth: 0,
+                                borderWidth: 1,
                                 pointRadius: 1,
                                 pointHoverRadius: 0,
-                                fill: false,
+                                sfill: false,
                                 tension: 0,
                                 showLine: true
                             },
@@ -339,7 +416,7 @@ const addonLibs = {
                         }
                       },
                       plugins: {
-                        ...ch_title(`${analysis.wiki.title} (${analysis.schema.form[2].enums.find(e => e.id == analysis.args[2]).title} model)`, subtitle)
+                        ...ch_title(`${analysis.title.value} (${analysis.parameters(true).model.enums.find(e => e.value == analysis.args.model).title} model)`, subtitle)
                       }
                     }
                 }
@@ -351,11 +428,9 @@ const addonLibs = {
         {
             type: "table",
             data: function(analysis) {
-                var rowLabels = analysis.matrix.item(analysis.args[0]).distinct().asc();
-                var columnLabels = analysis.matrix.item(analysis.args[1]).distinct().asc();
-                var hasFrequency = !!analysis.matrix.item(analysis.args[2]);
-                var na = analysis.matrix.select(...analysis.args).toArray();
-                //if(rowLabels.length * columnLabels.length > 30) return "<p>pro zobrazení kontingenční tabulky je struktura tabulky příliš velká</p>";
+                var rowLabels = analysis.args.rows.distinct().asc();
+                var columnLabels = analysis.args.columns.distinct().asc();
+                var matrix = new Matrix(analysis.args.rows, analysis.args.columns, analysis.args.n?.isVector ? analysis.args.n : NumericColumn.generate({total: analysis.args.length, min: 1, max: 1}))//.toArray();
                 var $t = `<div class="result-addon-table-container"><div class="table-title" __text="TnI4">${locale.call("TnI4")}</div>
                     <div class="table-responsive"><table class="table table-bordered"><tbody><tr><th></th>`;
                 for(let cl of columnLabels) {
@@ -368,21 +443,19 @@ const addonLibs = {
                     var rowTotal = 0;
                     var c = 0;
                     columnLabels.forEach(function(cl){
-                        if(hasFrequency) {
-                            n = analysis.matrix.filter(0, (v) => v == r, 1, (v) => v == cl).item(2).sum();
-                        } else var n = na.filter(o => o[0] == r && o[1] == cl).length;
+                        var n = Array.prototype.sum.call(matrix.filter(0, (v) => v == r, 1, (v) => v == cl)[2]);
                         rowTotal += n;
                         clSum[c] = (clSum[c] || 0) + n;
-                        $t += `<td>${N(n)}</td>`;
+                        $t += `<td data-value-type = "number" __value=${n}>${N(n)}</td>`;
                         c++;
                     });            
-                    $t += `<th>${N(rowTotal)}</th></tr>`;
+                    $t += `<th data-value-type = "number" __value=${rowTotal}>${N(rowTotal)}</th></tr>`;
                 }
                 /* bottom summary */            
                 $t += `<tr><th __text="j7ZA">${locale.call("j7ZA")}</th>`;
                 clSum.push(clSum.sum());
                 clSum.forEach(function(c){
-                    $t += `<th>${N(c)}</th>`
+                    $t += `<th data-value-type = "number" __value=${c}>${N(c)}</th>`
                 });  
                 $t += "</tr>";           
                 $t += "</tbody></table></div></div>";
@@ -394,7 +467,7 @@ const addonLibs = {
         {
             type: "chart",
             data: function(analysis) {
-                var arrays = analysis.args[1] ? new Array(...new Matrix(analysis.matrix.item(analysis.args[1]), analysis.matrix.item(analysis.args[0][0])).pivot(1,0)) : new Array(...analysis.matrix);
+                var arrays = [...analysis.args.vectors];
                 return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                
             }
         }
@@ -403,8 +476,8 @@ const addonLibs = {
         {
             type: "chart",
             data: function(analysis) {
-                var arrays = (analysis.args[1] ? new Array(...new Matrix(analysis.matrix.item(analysis.args[1]), analysis.matrix.item(analysis.args[0][0])).pivot(1,0)).slice(0,2) : new Array(...analysis.matrix).slice(0,2));
-                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                              
+                var arrays = [analysis.args.vectors[0],analysis.args.vectors[1]];
+                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                                   
             }
         }
     ],
@@ -412,7 +485,7 @@ const addonLibs = {
         {
             type: "chart",
             data: function(analysis) {
-                var arrays = new Array(...analysis.matrix);
+                var arrays = new Array(analysis.args.x, analysis.args.y);
                 return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                            
             }
         }
@@ -421,17 +494,42 @@ const addonLibs = {
         {
             type: "chart",
             data: function(analysis) {
-                var arrays = (analysis.args[1] ? new Array(...new Matrix(analysis.matrix.item(analysis.args[1]), analysis.matrix.item(analysis.args[0][0])).pivot(1,0)).slice(0,2) : new Array(...analysis.matrix).slice(0,2));
-                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                              
+                var arrays = [analysis.args.vectors[0],analysis.args.vectors[1]];
+                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                                          
+            }
+        }
+    ],
+    "wcxpaired": [
+        {
+            type: "chart",
+            data: function(analysis) {
+                var arrays = new Array(analysis.args.x, analysis.args.y);
+                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                            
+            }
+        }
+    ],
+    "friedman": [
+        {
+            type: "chart",
+            data: function(analysis) {
+                var arrays = [...analysis.args.vectors];
+                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                
             }
         }
     ],
 };
 
+function createGeneralContainer($card, callback) {
+    var id = srnd();
+    $($card).find(".result-addons").append(`<div id = "${id}"></div>`).ready(function(){
+        callback(id);
+    });
+}
+
 function createChartContainer($card, callback) {
     /* adds and returns a unique ID of the .chart-container element for hosting the ChartJS object */
     var chid = srnd();
-    $($card).find(".result-addons").append(`<canvas data-exportable id = "${chid}"></canvas>`).ready(function(){
+    $($card).find(".result-addons").append(`<canvas id = "${chid}"></canvas>`).ready(function(){
         callback(chid);
     });
 }
@@ -469,8 +567,8 @@ function ch_title(title, subtitle) {
 function getChartTitle(analysis) {
     return {
         subtitle: {
-            display: !!analysis.wiki.title,
-            text: analysis.wiki.title,
+            display: !!analysis.title.value,
+            text: analysis.title.value,
             font: {
                 size: 18
             }
@@ -525,11 +623,10 @@ function getBoxPlot(analysis, labels, data) {
         options: {
           responsive: true,
           plugins: {
-            ...ch_title(analysis.wiki.title, "min = 0,05p, max = 0,95p"),
+            ...ch_title(analysis.title.value, "min = 0,05p, max = 0,95p"),
             }
         }
     };
-    console.log(ch.data.datasets[0].backgroundColor);
     return ch;
 }
 
