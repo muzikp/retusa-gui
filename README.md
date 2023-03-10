@@ -12,3 +12,4 @@ Retusa is a Bootstrap-based interface for the Retusa core library.
 - modified preprocessing
 - calculator widget added to linear regression addons
 - test datasets moved to the setting panel
+- matrix analysis tree menu minor changes (some tooltips added + branch modification)

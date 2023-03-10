@@ -102,7 +102,7 @@ function saveTableToFile(){
     const blob = new Blob([JSON.stringify(serializeWorkspace())], {type: 'plain/text' });
     const url = URL.createObjectURL(blob);
     var fileName = ($("#table-name").val() ? $("#table-name").val().toLowerCase().replace(/[^a-z0-9+ěščřžýáíéůťňó]/gi, '_') : "retusa_" + new Date().toISOString()) + ".ret";
-    var dl = $("<a>", {
+    $("<a>", {
         href: url,
         download: fileName,
     }).appendTo("body").get(0).click();
