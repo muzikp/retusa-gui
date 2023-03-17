@@ -424,3 +424,26 @@ $dark-orange: rgb(236,137,6);
   font-weight: 600;
   font-family: var(--bs-font-monospace) !important;
 }
+
+.humanizer-container {
+  display: flex;
+  width: 100%;
+  color: $dark-green;
+}
+
+.humanizer-logo {
+  font-size: 2rem;
+  text-align: center;
+  margin-right: 1rem;
+}
+
+.unstable:before {
+  margin-right: 0.3rem;
+  content: "⚠️"
+}
+
+.modal-dialog {
+  width: 50%;
+  min-width: 500px !important;
+  margin: auto !important;
+}

@@ -1,8 +1,8 @@
 testTables = {
     muvslinreg: {
         data: new Matrix(
-            new NumericVector(180,197,240,210,180,160,179,185,183,150,110,190,170).name("proměnná x"),
-            new NumericVector(75,82,100,80,75,60,75,71,77,63,46,81,70).name("proměnná y")
+            new NumericVector(180,197,240,210,180,160,179,185,183,150,110,190,170).name("výška"),
+            new NumericVector(75,82,100,80,75,60,75,71,77,63,46,81,70).name("váha")
             ),
         args: {x: 0, y: 1, model: 1},
         method: "linreg"
@@ -34,6 +34,15 @@ testTables = {
         ),
         args: {rows: 0, columns: 1, n: 2},
         method: "contingency"
+    },
+    kwanova1: {
+        data: new Matrix(
+            new NumericVector(7,14,14,13,12,9,6,14,12,8).name("fertilizer 1"),
+            new NumericVector(15,17,13,15,15,13,9,12,10,8).name("fertilizer 2"),
+            new NumericVector(6,8,8,9,5,14,13,8,10,9).name("fertilizer 3")
+        ),
+        args: {vectors: [0,1,2]},
+        method: "kwanova"
     },
     anycorrel: function() {
         return new Matrix(

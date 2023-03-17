@@ -54,7 +54,7 @@ function createVectorMenuNode(node, vector) {
   } 
   else if(node.type == "method") {
     var _m = new VectorAnalysis(node.value);
-    return (`<li class="dropdown-item"><button ${(_m.model.type).indexOf(vector.type()) < 0 ? "disabled" : ""} data-field = "${vector.name()}" data-vector-analysis-trigger class="dropdown-item" type="button" data-model = "${node.value}" data-model-has-args = ${!!_m.model.args}>${_m.title.value}</button></li>`);
+    return (`<li class="dropdown-item"><button ${(_m.model.type).indexOf(vector.type()) < 0 ? "disabled" : ""} data-field = "${vector.name()}" data-vector-analysis-trigger class="dropdown-item ${_m.unstable ? "unstable" : ""}" type="button" data-model = "${node.value}" data-model-has-args = ${!!_m.model.args}>${_m.title.value}</button></li>`);
   }
   else if(node.type == "parent") {
     var e = `<li class="dropdown"><a class="dropdown-item dropdown-toggle" href="#" id="${node.id}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${node.value}</a><ul class="dropdown-menu" aria-labelledby="${node.id}">`;
@@ -603,7 +603,8 @@ function createAnalysisResultHtml(analysis) {
 function renderMatrixAnalysisMenu() {
   $("#matrix-method-tree").find("[data-target]").each(function() {
     var method = new MatrixAnalysis($(this).attr("data-target"));
-    $(this).attr("data-method", method).append(`<button __text = "${method.title.key}" __title = "${method.description.key}" data-matrix-analysis-form-trigger class="btn" title = "${method.description.value}"><b>${method.title.value}</b></button>`);
+    console.dir(method);
+    $(this).attr("data-method", method).append(`<button __text = "${method.title.key}" __title = "${method.description.key}" data-matrix-analysis-form-trigger class="btn ${method.unstable ? " unstable" : ""}" title = "${method.description.value}"><b>${method.title.value}</b></button>`);
   })
 }
 
@@ -613,7 +614,7 @@ $(document).on("click", "[data-matrix-analysis-form-trigger]", function() {
 })
 
 $(document).on("click","[data-btn-method-description]", function(){
-    msg.info($(this).attr("data-btn-method-title"), $(this).attr("data-btn-method-description"), 60000);
+    msg.info(locale.call($(this).attr("data-btn-method-title")), $(this).attr("data-btn-method-description"), 60000);
 })
 
 /* collects the form data, calculates and renders the matrix analysis method/output */
@@ -821,7 +822,7 @@ function toggleFilteringStatus(status = undefined, skipRefresh = false) {
 //#region Setting panel events
 
 function readUserConfigFromStorage(){
-  ["showOutputNodeTitle", "showOutputSampleInfo", "showOutputParamsInfo", "showOutputDuration"].forEach(function(s){
+  ["showOutputNodeTitle", "showOutputSampleInfo", "showOutputParamsInfo", "showOutputDuration", "showOutputPreprocessor"].forEach(function(s){
     userConfig[s] = window.localStorage.getItem(s) == "true" ? true : window.localStorage.getItem(s) == "false" ? false : undefined;
     if(userConfig[s]) $(`[data-settings-output-switch="${s}"]`).prop("checked", true);
   });

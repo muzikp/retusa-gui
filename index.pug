@@ -92,7 +92,9 @@ html
                         span.tf-nc.tf-inter-node(__text="GbVb") Pořadová
                         ul
                           li
-                            span.tf-nc(data-target = "correlSpearman")                            
+                            span.tf-nc(data-target = "correlSpearman")     
+                          li
+                            span.tf-nc(data-target = "correlGamma")                           
                           li
                             span.tf-nc(data-target = "correlKendall")
                       li
@@ -109,11 +111,13 @@ html
                     span.tf-nc.tf-inter-node(__text="7hkv" __title="KJE6") Nezávislé vzorky
                     ul
                       li
-                        span.tf-nc(data-target = "anovaow")
-                      li
                         span.tf-nc(data-target = "ttestind")
                       li
+                        span.tf-nc(data-target = "anovaow")
+                      li
                         span.tf-nc(data-target = "mwu")
+                      li
+                        span.tf-nc(data-target = "kwanova")
                   li
                     span.tf-nc.tf-inter-node(__text="l4D6" __title="XWJe") Závislé vzorky
                     ul
@@ -263,6 +267,11 @@ html
                   td
                     .form-check.form-switch
                       input.form-check-input(data-settings-output-switch="showOutputDuration" type='checkbox' role='switch')
+                tr
+                  td(__text="9kTW") zobrazovat předvýpočetní úpravu dat
+                  td
+                    .form-check.form-switch
+                      input.form-check-input(data-settings-output-switch="showOutputPreprocessor" type='checkbox' role='switch')
         .card
           .card-header(__text="LyfZ") Testovací datasety
           .card-body
@@ -271,6 +280,7 @@ html
               option(value="muvsanova1" __text="NHpy") 
               option(value="muvsanova2" __text="Lc2q")
               option(value="muvscontingency1" __text="d7t0")
+              option(value="kwanova1" __text="IWXW")
             br
             .row
               .col-6
@@ -284,7 +294,7 @@ html
               tbody 
                 tr
                   td(__text="DGvS") verze
-                  td 1.2.0
+                  td 1.0.3
                 tr
                   td(__text="CjJk") autor
                   td
@@ -292,7 +302,4 @@ html
                 tr
                   td
                     a(__href="2aMA" __text="3nNX" __target="_blank")
-                tr
-                  td
-                    a(__href="D9JV" __text="PmZ8" __target="_blank")
                 

@@ -128,7 +128,7 @@ $(function(){
         if(this.sample.raw !== undefined) $t.find("tbody").append(`<tr><td __text="FJ0J">${locale.call("FJ0J")}</td><td __value=${this.sample.raw}>${N(this.sample.raw)}</td></tr>`);
         if(this.sample.net !== undefined) $t.find("tbody").append(`<tr><td __text="NA7d">${locale.call("NA7d")}</td><td __value=${this.sample.net}>${N(this.sample.net)}</td></tr>`);
         if(this.sample.net !== undefined && this.sample.raw !== undefined) $t.find("tbody").append(`<tr><td __text="gTvq">${locale.call("gTvq")}</td><td __value=${this.sample.raw - this.sample.net}>${N(this.sample.raw - this.sample.net)}</td></tr>`);
-        if(this.preprocessor?.key) $t.find("tbody").append(`<tr><td __text="jrdS">${locale.call("jrdS")}</td><td __text="${this.preprocessor.key}">${this.preprocessor.value}</td></tr>`);
+        if(this.preprocessor?.key && userConfig.showOutputPreprocessor) $t.find("tbody").append(`<tr><td __text="jrdS">${locale.call("jrdS")}</td><td __text="${this.preprocessor.key}">${this.preprocessor.value}</td></tr>`);
         return $t.html();
     }
     function FV(value, type) {
@@ -170,7 +170,13 @@ const resultAddons = function(analysis, $card, callback) {
                     $(`#${id}`).append(addon.render(analysis));
                 });
             }
+            else if(addon.type == "humanizer") {
+                createGeneralContainer($card, function(id){
+                    $(`#${id}`).append(`<div class="humanizer-container"><div class="humanizer-logo"><i class="fa-solid fa-hat-wizard"></i></div><div class="humanizer-text">${addon.fn(analysis)}</div></div>`);
+                });
+            }
          }
+         $(document).ready(() => callback ? callback() : false);
     }
 }
 
@@ -334,6 +340,29 @@ const addonLibs = {
     ],
     "linreg": [
         {
+            type: "humanizer",
+            fn: function(analysis) {
+                var _ = analysis.result;
+                var h = [];
+                var _h = `Závislost proměnných <i>${analysis.args.x.name()}</i> a <i>${analysis.args.y.name()}</i> je `;
+                if(Math.abs(_.r) > 0.2) {                    
+                    if(Math.abs(_.r > 0.9)) _h += "<u><b>mimořádně silná</b></u>"
+                    else if(Math.abs(_.r > 0.75)) _h += "<b>silná</b>"
+                    else if(Math.abs(_.r > 0.5)) _h += "středně silná"
+                    else if(Math.abs(_.r > 0.25)) _h += "mírná"
+                    else _h += "velmi slabá";
+                    _h += ` a to tak, že čím vyšší je hodnota <i>${analysis.args.x.name()}</i>, `;
+                    if(_.r > 0) _h += `tím vyšší je hodnota`;
+                    else _h =+ `tím menší je hodnota`
+                    _h += ` <i>${analysis.args.y.name()}</i> a naopak.`
+                } else _h += ` tak malá, že v praktickém životě <u>nemá smysl ji věnovat pozornost</u>.`;
+                h.push(_h);
+                if(_.p < 0.05) h.push(`${_.r <= 0.2 ? "Nicméně," : "A navíc,"} tato závislost je <b>statisticky významná</b>, a to s jistotou blížící se ${N(1 - analysis.result.p, {style: "percent"})}.`);
+                else h.push(`${_.r <= 0.2 ? "A navíc, tato závilost není ani statisticky závislá." : "Nicméně, tato závilost není statisticky závislá."}. Příčiny mohou být dvě: buďto v reálném světě spolu tyto veličiny skutečně nesouvisí, nebo já váš vzorek příliš malý na to, aby mu bylo možné věřit.`)
+                return h.join(" ");
+            }
+        },
+        {
             type: "calculator",
             render: function(analysis) {
                 var $f = $(`
@@ -343,9 +372,7 @@ const addonLibs = {
                         <div class="input-group mb-3"><span class="input-group-text">${analysis.args.x.name()}</span><input type="number" beta0 = ${analysis.result.beta0} beta1 = ${analysis.result.beta1} class="linreg-x form-control" __placeholder="81ll" placeholder="${locale.call("81ll")}"></div>
                         <div class="input-group mb-3"><span class="input-group-text">${analysis.args.y.name()}</span><input disabled readonly type="text" class="linreg-y form-control" __placeholder="4VPU" placeholder="${locale.call("4VPU")}"></div></div>
                 `);
-                return $f;
-                
-
+                return $f;               
             }
 
         },
@@ -517,6 +544,31 @@ const addonLibs = {
             }
         }
     ],
+    "correlPearson": [
+        {
+            type: "humanizer",
+            fn: function(analysis) {
+                var _ = analysis.result;
+                var h = [];
+                var _h = `Závislost proměnných <i>${analysis.args.x.name()}</i> a <i>${analysis.args.y.name()}</i> je `;
+                if(Math.abs(_.r) > 0.2) {                    
+                    if(Math.abs(_.r > 0.9)) _h += "<u><b>mimořádně silná</b></u>"
+                    else if(Math.abs(_.r > 0.75)) _h += "<b>silná</b>"
+                    else if(Math.abs(_.r > 0.5)) _h += "středně silná"
+                    else if(Math.abs(_.r > 0.25)) _h += "mírná"
+                    else _h += "velmi slabá";
+                    _h += ` a to tak, že čím vyšší je hodnota <i>${analysis.args.x.name()}</i>, `;
+                    if(_.r > 0) _h += `tím vyšší je hodnota`;
+                    else _h =+ `tím menší je hodnota`
+                    _h += ` <i>${analysis.args.y.name()}</i> a naopak.`
+                } else _h += ` tak malá, že v praktickém životě <u>nemá smysl ji věnovat pozornost</u>.`;
+                h.push(_h);
+                if(_.p < 0.05) h.push(`${_.r <= 0.2 ? "Nicméně," : "A navíc,"} tato závislost je <b>statisticky významná</b>, a to s jistotou blížící se ${N(1 - analysis.result.p, {style: "percent"})}.`);
+                else h.push(`${_.r <= 0.2 ? "A navíc, tato závilost není ani statisticky závislá." : "Nicméně, tato závilost není statisticky závislá."}. Příčiny mohou být dvě: buďto v reálném světě spolu tyto veličiny skutečně nesouvisí, nebo já váš vzorek příliš malý na to, aby mu bylo možné věřit.`)
+                return h.join(" ");
+            }
+        }
+    ]
 };
 
 function createGeneralContainer($card, callback) {

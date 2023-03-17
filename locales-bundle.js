@@ -84,9 +84,9 @@ window.dictionary = {
 		"lvVp": "Vyberte list",
 		"WVtB": "první řádek tvoří záhlaví sloupců",
 		"LoPp": "Další",
-		"2aMA": "https://github.com/muzikp/retusa/blob/main/docs/cs/vector.md",
+		"2aMA": "https://github.com/muzikp/retusa/blob/main/docs/cs-CZ.md",
 		"D9JV": "https://github.com/muzikp/retusa/blob/main/docs/cs/matrix.md",
-		"3nNX": "dokumentace vektorových metod",
+		"3nNX": "dokumentace statistických metod",
 		"PmZ8": "dokumentace maticových metod",
 		"JyNT": "zobrazovat popisky ukazatelů",
 		"KUzA": "zobrazovat informace o vzorku",
@@ -109,7 +109,8 @@ window.dictionary = {
 		"d7t0": "Kontingence (ČVUT)",
 		"81ll": "zadejte hodnotu x pro odhad hodnoty y napravo",
 		"4VPU": "zde se objeví hodnota odhadu",
-		"ZhpG": "Regresní kalkulačka"
+		"ZhpG": "Regresní kalkulačka",
+		"9kTW": "zobrazovat předvýpočetní úpravu dat"
 	},
 	"en-GB": {
 		"p9wW": "Table",
@@ -196,9 +197,9 @@ window.dictionary = {
 		"lvVp": "Select list",
 		"WVtB": "the first row contains column headers",
 		"LoPp": "Next",
-		"2aMA": "https://github.com/muzikp/retusa/blob/main/docs/en/vector.md",
+		"2aMA": "https://github.com/muzikp/retusa/blob/main/docs/en-GB.md",
 		"D9JV": "https://github.com/muzikp/retusa/blob/main/docs/en/matrix.md",
-		"3nNX": "vector methods docs",
+		"3nNX": "statistical method documentation",
 		"PmZ8": "matrix methods docs",
 		"JyNT": "show output indicator full names",
 		"KUzA": "show sample size widget",
@@ -220,6 +221,7 @@ window.dictionary = {
 		"d7t0": "Contingency (CTU)",
 		"81ll": "enter the x value to estimate the y value on the right",
 		"4VPU": "the estimated value will appear here",
-		"ZhpG": "Regression calculator"
+		"ZhpG": "Regression calculator",
+		"9kTW": "show preprocessing description"
 	}
 }
