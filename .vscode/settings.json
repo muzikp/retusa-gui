@@ -3,5 +3,8 @@
     "disable-compile-files-on-did-save-code": false,
     "ignore": [".js"],
     "watch": null
-  }
+  },
+  "githubPullRequests.ignoredPullRequestBranches": [
+    "main"
+  ]
 }
