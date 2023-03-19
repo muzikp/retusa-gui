@@ -396,7 +396,7 @@ function createResultCard(id = srnd()) {
     <div id = "${id}" class="card result-card" style="padding-top: 1rem;">
     <div class="card-body">
       <div class="card-header">
-        <div class="title" style="display: flex"></div>
+        <div class="title v-center" style="display: flex"></div>
         <span class="close-card"> 
             <span style="display: flex;flex-direction: row-reverse;">
               <button title="${locale.call("F9Ey")}" __title = "F9Ey" class="btn close-card-btn" style="display: flex;flex-direction: row-reverse;"><i class="fa-solid fa-trash"></i></button>
@@ -484,38 +484,40 @@ $(document).on('shown.bs.collapse', "#wsCollapseOutput", function() {
 
 function renderVectorFormSchema(method, vector) {
   var analysis = new VectorAnalysis(method);
-  var $f = `<div><h5 __test="${analysis.title.key}">${analysis.title.value}`
-  if(analysis.description.value) $f += `<button __title = "FfIl" title="${locale.call("FfIl")}" data-btn-method-title = "${analysis.title.key || ""}" data-btn-method-description = "${analysis.description.value || ""}" class="btn">📓</button>`;
-  $f += "</h5></div>";
+  var $h = `<div><h5 __test="${analysis.title.key}">${analysis.title.value}`
+  if(analysis.description.value) $h += `<button __title = "FfIl" title="${locale.call("FfIl")}" data-btn-method-title = "${analysis.title.key || ""}" data-btn-method-description = "${analysis.description.value || ""}" class="btn"><i class="fa-solid fa-book" style="color: gray;"></i></button>`;
+  $h += "</h5></div>";
+  $("#modal_vector_analysis_form").find(".method-title").empty().append($($h));
+  var $f = "";
   $f += `<form data-vector-form action = "javascript:void(0)" data-vector-type = "${vector.type()}" data-field = "${vector.name()}" data-method = "${method}"><table class="table"><tbody>`;
   var i = 0;
   for (let a of analysis.parameters()) {
-    $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description.value ? "form-control-tooltip" : ""}" ${a.description.value ? "title=" + a.description.value : ""}">${a.title?.value}</td>`;
+    $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description.value ? "form-control-tooltip" : ""}" ${a.description.value ? "title=\"" + a.description.value : ""}">${a.title?.value}</td>`;
     $f += `<td title="${a.description.value || ""}">`;
     $f += a.html() + `</td></tr>`;
     i++;
   }
   $f += `</tbody></table><br><br><button data-vector-form-args-submit type="submit" class="btn btn-primary">${locale.call("np1p")}</button></form>`;
-  $("#modal_vector_analysis_form").find(".title").text(analysis.title.value);
+  //$("#modal_vector_analysis_form").find(".title").text(analysis.title.value);
   $("#modal_vector_analysis_form").find(".modal-body").empty().append($($f));
   $("#modal_vector_analysis_form").modal("show");
 }
 
 function renderMatrixAnalysisForm(method) {
   var analysis = new MatrixAnalysis(method);
-  var $f = `<div><h5 __test="${analysis.title.key}">${analysis.title.value}`
-  if(analysis.description.value) $f += `<button __title = "FfIl" title="${locale.call("FfIl")}" data-btn-method-title = "${analysis.title.key || ""}" data-btn-method-description = "${analysis.description.value || ""}" class="btn">📓</button>`;
-  $f += "</h5></div>";
-  $f += `<form data-matrix-form action = "javascript:void(0)" data-method = "${method}"><table class="table"><tbody>`;
+  var $h = `<div><h5 __test="${analysis.title.key}">${analysis.title.value}`
+  if(analysis.description.value) $h += `<button __title = "FfIl" title="${locale.call("FfIl")}" data-btn-method-title = "${analysis.title.key || ""}" data-btn-method-description = "${analysis.description.value || ""}" class="btn"><i class="fa-solid fa-book" style="color: gray;"></i></button>`;
+  $h += "</h5></div>";
+  $("#modal_matrix_analysis_form").find(".method-title").empty().append($($h));
+  var $f = `<form data-matrix-form action = "javascript:void(0)" data-method = "${method}"><table class="table"><tbody>`;
   var i = 0;
   for (let a of analysis.parameters()) {
-    $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description.value ? "form-control-tooltip" : ""}" ${a.description.value ? "title=" + a.description.value : ""}">${a.title?.value}</td>`;
+    $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description.value ? "form-control-tooltip" : ""}" ${a.description.value ? "title='" + a.description.value : "'"}">${a.title?.value}</td>`;
     $f += `<td title="${a.description.value || ""}">`;
     $f += a.html() + `</td></tr>`;
     i++;
   }
   $f += `</tbody></table><br><br><button data-matrix-form-args-submit type="submit" class="btn btn-primary">${locale.call("np1p")}</button></form>`;
-  $("#modal_matrix_analysis_form").find(".title").text(analysis.title.value);
   $("#modal_matrix_analysis_form").find(".modal-body").empty().append($($f));
   $("#modal_matrix_analysis_form").modal("show");
 }
@@ -603,8 +605,7 @@ function createAnalysisResultHtml(analysis) {
 function renderMatrixAnalysisMenu() {
   $("#matrix-method-tree").find("[data-target]").each(function() {
     var method = new MatrixAnalysis($(this).attr("data-target"));
-    console.dir(method);
-    $(this).attr("data-method", method).append(`<button __text = "${method.title.key}" __title = "${method.description.key}" data-matrix-analysis-form-trigger class="btn ${method.unstable ? " unstable" : ""}" title = "${method.description.value}"><b>${method.title.value}</b></button>`);
+    $(this).attr("data-method", method).append(`<button __text = "${method.title.key}" __title = "${method.description.key}" data-matrix-analysis-form-trigger class="btn ${method.unstable ? " unstable" : ""}" title = "${method.description.value}">${method.title.value}</button>`);
   })
 }
 
@@ -614,7 +615,7 @@ $(document).on("click", "[data-matrix-analysis-form-trigger]", function() {
 })
 
 $(document).on("click","[data-btn-method-description]", function(){
-    msg.info(locale.call($(this).attr("data-btn-method-title")), $(this).attr("data-btn-method-description"), 60000);
+    msg.info(locale.call($(this).attr("data-btn-method-title")).toUpperCase(), $(this).attr("data-btn-method-description"), 60000);
 })
 
 /* collects the form data, calculates and renders the matrix analysis method/output */
@@ -692,17 +693,29 @@ function renderAnalysisResult(analysis) {
 }
 
 function createResultCardTitle(analysis) {
-  var $t = `<div class="method-title" __text="${analysis.title.key}">${analysis.title.value}: </div>`;
+  var $t = `<div class="method-title" __text="${analysis.title.key}">${analysis.title.value}</div>`;
   if (analysis.parent.isVector) {
     $t += `<div class="argument-badge-panel"><div class="argument-badge">${analysis.parent.name()}</div></div>`;
   } else {
     $t += `<div class="argument-badge-panel">`;
     var output = Output.html(analysis, true);
-    for (var a = 0; a < analysis.model.args.length; a++) {
-      if (!analysis.args[a]) {
-        break;
-      };
-      var arg = analysis.args[a];
+    var ps = analysis.parameters();
+    console.dir(ps);
+    for (var a = 0; a < ps.length; a++) {
+      var arg = ps[a];
+      if(arg.isVector && arg.value) {
+        if(arg.multiple)
+        {
+          for(let v of arg.value) {
+            $t += `<div class="argument-badge">${v.name() || ""}</div>`;  
+          }
+        } else
+        {
+          $t += `<div class="argument-badge">${arg.value.name() || ""}</div>`;
+        }
+
+      }
+
       if (analysis.model.args[a]?.class == 1) {
         $t += `<div class="argument-badge ${arg?.type == 1 ? "text-bg-success" : arg?.type == 2 ? "text-bg-warning" : "text-bg-secondary"}">${analysis.parent.item(arg) ? analysis.parent.item(arg).name() : ""}</div>`;
       } else if (analysis.model.args[a]?.class == 2) {

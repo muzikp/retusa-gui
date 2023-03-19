@@ -85,9 +85,7 @@ window.dictionary = {
 		"WVtB": "první řádek tvoří záhlaví sloupců",
 		"LoPp": "Další",
 		"2aMA": "https://github.com/muzikp/retusa/blob/main/docs/cs-CZ.md",
-		"D9JV": "https://github.com/muzikp/retusa/blob/main/docs/cs/matrix.md",
 		"3nNX": "dokumentace statistických metod",
-		"PmZ8": "dokumentace maticových metod",
 		"JyNT": "zobrazovat popisky ukazatelů",
 		"KUzA": "zobrazovat informace o vzorku",
 		"hYRC": "zobrazovat informace o argumentech",
@@ -110,7 +108,9 @@ window.dictionary = {
 		"81ll": "zadejte hodnotu x pro odhad hodnoty y napravo",
 		"4VPU": "zde se objeví hodnota odhadu",
 		"ZhpG": "Regresní kalkulačka",
-		"9kTW": "zobrazovat předvýpočetní úpravu dat"
+		"9kTW": "zobrazovat předvýpočetní úpravu dat",
+		"bKzR": "parametrické",
+		"pTjq": "neparametrické"
 	},
 	"en-GB": {
 		"p9wW": "Table",
@@ -198,9 +198,7 @@ window.dictionary = {
 		"WVtB": "the first row contains column headers",
 		"LoPp": "Next",
 		"2aMA": "https://github.com/muzikp/retusa/blob/main/docs/en-GB.md",
-		"D9JV": "https://github.com/muzikp/retusa/blob/main/docs/en/matrix.md",
 		"3nNX": "statistical method documentation",
-		"PmZ8": "matrix methods docs",
 		"JyNT": "show output indicator full names",
 		"KUzA": "show sample size widget",
 		"hYRC": "show input overview widget",
@@ -222,6 +220,8 @@ window.dictionary = {
 		"81ll": "enter the x value to estimate the y value on the right",
 		"4VPU": "the estimated value will appear here",
 		"ZhpG": "Regression calculator",
-		"9kTW": "show preprocessing description"
+		"9kTW": "show preprocessing description",
+		"bKzR": "parametric",
+		"pTjq": "nonparametric"
 	}
 }

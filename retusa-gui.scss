@@ -19,8 +19,10 @@ $dark-orange: rgb(236,137,6);
     content: "*"
   }
   .form-control-tooltip:after {
-    color: $light-blue;
-    content: "👁️‍🗨️";
+    font-family: "Font Awesome 5 Free"; 
+    font-weight: 600;
+    content: "\f05a";
+    color: lightgray !important;
     margin-left: 0.5rem;
   }
   .close-card {
@@ -31,6 +33,7 @@ $dark-orange: rgb(236,137,6);
     display: flex;
     justify-content: space-between;
     align-content: center;
+    align-items: center;
   }
   .card {
     margin-top: 0.5rem;
@@ -98,12 +101,17 @@ $dark-orange: rgb(236,137,6);
   }
   .argument-badge {
     font-family: monospace;
-    background-color: lightsteelblue;
+    background-color: $light-orange;
     padding: 5px;
     border-radius: 5px;
     margin-left: 10px;
-    line-height: 2;
+    height: fit-content;
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
   }
+
+
   .duration {
     font-family: monospace;
     font-size: 0.8rem;
@@ -146,6 +154,9 @@ $dark-orange: rgb(236,137,6);
   }
   th {
     z-index: 100 !important;
+  }
+  [data-vector-form-args-submit] {
+    width: 100%;
   }
   [data-matrix-form-args-submit] {
     width: 100%;
@@ -446,4 +457,22 @@ $dark-orange: rgb(236,137,6);
   width: 50%;
   min-width: 500px !important;
   margin: auto !important;
+}
+
+[data-matrix-analysis-form-trigger] {
+  font-family: var(--bs-font-monospace) !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  color: $dark-blue;
+}
+
+.v-center {
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  align-items: center;
+}
+
+.result-addons > div {
+  margin-top: 20px;
 }

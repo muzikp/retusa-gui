@@ -13,8 +13,7 @@
     <link href="https://unpkg.com/multiple-select@1.5.2/dist/themes/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="./retusa.min.js" charset="UTF-8"></script>
-    <!--script(src="https://cdn.statically.io/gh/muzikp/retusa/cdn/dist/bundle.min.js" charset="UTF-8")-->
+    <script type="text/javascript" src="./bundle.min.js" charset="UTF-8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js" integrity="sha512-Zq9o+E00xhhR/7vJ49mxFNJ0KQw1E1TMWkPTxrWcnpfEFDEXgUiwJHIKit93EW/XxE31HSI5GEOW06G6BF1AtA==" crossorigin="anonymous" referrerpolicy="no-referrer">   </script>
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.21.2/dist/bootstrap-table-locale-all.min.js"></script>
@@ -111,17 +110,34 @@
                 <ul>
                   <li><span class="tf-nc tf-inter-node" __text="7hkv" __title="KJE6">Nezávislé vzorky</span>
                     <ul>
-                      <li><span class="tf-nc" data-target="ttestind"></span></li>
-                      <li><span class="tf-nc" data-target="anovaow"></span></li>
-                      <li><span class="tf-nc" data-target="mwu"></span></li>
-                      <li><span class="tf-nc" data-target="kwanova"></span></li>
+                      <li><span class="tf-nc tf-inter-node" __text="bKzR">parametrické</span>
+                        <ul>
+                          <li><span class="tf-nc" data-target="ttestind"></span></li>
+                          <li><span class="tf-nc" data-target="anovaow"></span></li>
+                        </ul>
+                      </li>
+                      <li><span class="tf-nc tf-inter-node" __text="pTjq">neparametrické</span>
+                        <ul>
+                          <li><span class="tf-nc" data-target="mwu"> </span></li>
+                          <li><span class="tf-nc" data-target="wcxind"></span></li>
+                          <li><span class="tf-nc" data-target="kwanova"></span></li>
+                        </ul>
+                      </li>
                     </ul>
                   </li>
                   <li><span class="tf-nc tf-inter-node" __text="l4D6" __title="XWJe">Závislé vzorky</span>
                     <ul>
-                      <li><span class="tf-nc" data-target="ttestpair"></span></li>
-                      <li><span class="tf-nc" data-target="wcxpaired"></span></li>
-                      <li><span class="tf-nc" data-target="friedman">                   </span></li>
+                      <li><span class="tf-nc tf-inter-node" __text="bKzR">parametrické</span>
+                        <ul>                     
+                          <li><span class="tf-nc" data-target="ttestpair"></span></li>
+                        </ul>
+                      </li>
+                      <li><span class="tf-nc tf-inter-node" __text="pTjq">neparametrické</span>
+                        <ul>
+                          <li><span class="tf-nc" data-target="wcxpair"></span></li>
+                          <li><span class="tf-nc" data-target="friedman">                   </span></li>
+                        </ul>
+                      </li>
                     </ul>
                   </li>
                 </ul></span></li>
@@ -144,6 +160,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
+            <div class="method-title"></div>
             <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body"></div>
@@ -154,6 +171,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
+            <div class="method-title"></div>
             <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body"></div>

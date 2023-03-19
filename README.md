@@ -4,6 +4,13 @@ Retusa is a Bootstrap-based application for statistical analysis in a browser en
 
 ## What's new
 
+### v1.0.4 (2023-03-19)
+
+- Wilcoxon test for independent samples added
+- Kruskal-Wallis ANOVA chart addded
+- Kendall Tau correlation precision corrected
+- matrix analysis tree menu minor changes
+
 ### v1.0.3 (2023-03-17)
 
 - added Kruskal-Wallis ANOVA to the Analysis menu

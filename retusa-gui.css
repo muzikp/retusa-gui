@@ -13,8 +13,10 @@
 }
 
 .form-control-tooltip:after {
-  color: #51b0df;
-  content: "👁️‍🗨️";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 600;
+  content: "";
+  color: lightgray !important;
   margin-left: 0.5rem;
 }
 
@@ -27,6 +29,7 @@
   display: flex;
   justify-content: space-between;
   align-content: center;
+  align-items: center;
 }
 
 .card {
@@ -108,11 +111,14 @@ td[_title]:after {
 
 .argument-badge {
   font-family: monospace;
-  background-color: lightsteelblue;
+  background-color: #f4ba6c;
   padding: 5px;
   border-radius: 5px;
   margin-left: 10px;
-  line-height: 2;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
 }
 
 .duration {
@@ -162,6 +168,10 @@ td[_title]:after {
 
 th {
   z-index: 100 !important;
+}
+
+[data-vector-form-args-submit] {
+  width: 100%;
 }
 
 [data-matrix-form-args-submit] {
@@ -497,4 +507,22 @@ table.implicit td, table.implicit th {
   width: 50%;
   min-width: 500px !important;
   margin: auto !important;
+}
+
+[data-matrix-analysis-form-trigger] {
+  font-family: var(--bs-font-monospace) !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  color: #018ac7;
+}
+
+.v-center {
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  align-items: center;
+}
+
+.result-addons > div {
+  margin-top: 20px;
 }

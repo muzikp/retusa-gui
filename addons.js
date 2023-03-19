@@ -346,19 +346,19 @@ const addonLibs = {
                 var h = [];
                 var _h = `Závislost proměnných <i>${analysis.args.x.name()}</i> a <i>${analysis.args.y.name()}</i> je `;
                 if(Math.abs(_.r) > 0.2) {                    
-                    if(Math.abs(_.r > 0.9)) _h += "<u><b>mimořádně silná</b></u>"
-                    else if(Math.abs(_.r > 0.75)) _h += "<b>silná</b>"
-                    else if(Math.abs(_.r > 0.5)) _h += "středně silná"
-                    else if(Math.abs(_.r > 0.25)) _h += "mírná"
+                    if(Math.abs(_.r) > 0.9) _h += "<b>mimořádně silná</b>"
+                    else if(Math.abs(_.r) > 0.75) _h += "<b>silná</b>"
+                    else if(Math.abs(_.r) > 0.5) _h += "středně silná"
+                    else if(Math.abs(_.r) > 0.25) _h += "mírná"
                     else _h += "velmi slabá";
                     _h += ` a to tak, že čím vyšší je hodnota <i>${analysis.args.x.name()}</i>, `;
                     if(_.r > 0) _h += `tím vyšší je hodnota`;
-                    else _h =+ `tím menší je hodnota`
-                    _h += ` <i>${analysis.args.y.name()}</i> a naopak.`
+                    else _h += `tím menší je hodnota`
+                    _h += ` <i>${analysis.args.y.name()}</i> a naopak; jinak řečeno, jejich závislost je <b>${_.r > 0 ? "přímo" : "nepřímo"} úměrná</b>.`;
                 } else _h += ` tak malá, že v praktickém životě <u>nemá smysl ji věnovat pozornost</u>.`;
                 h.push(_h);
-                if(_.p < 0.05) h.push(`${_.r <= 0.2 ? "Nicméně," : "A navíc,"} tato závislost je <b>statisticky významná</b>, a to s jistotou blížící se ${N(1 - analysis.result.p, {style: "percent"})}.`);
-                else h.push(`${_.r <= 0.2 ? "A navíc, tato závilost není ani statisticky závislá." : "Nicméně, tato závilost není statisticky závislá."}. Příčiny mohou být dvě: buďto v reálném světě spolu tyto veličiny skutečně nesouvisí, nebo já váš vzorek příliš malý na to, aby mu bylo možné věřit.`)
+                if(_.p < 0.05) h.push(`${Math.abs(_.r) <= 0.2 ? "Nicméně," : "A navíc,"} tato závislost je <b>statisticky významná</b>, a to s jistotou blížící se ${N(1 - analysis.result.p, {style: "percent"})}.`);
+                else h.push(`${Math.abs(_.r) <= 0.2 ? "A navíc, tato závilost není ani statisticky závislá." : "Nicméně, tato závilost není statisticky závislá."}. Příčiny mohou být dvě: buďto v reálném světě spolu tyto veličiny skutečně nesouvisí, nebo já váš vzorek příliš malý na to, aby mu bylo možné věřit.`)
                 return h.join(" ");
             }
         },
@@ -535,7 +535,25 @@ const addonLibs = {
             }
         }
     ],
+    "wcxind": [
+        {
+            type: "chart",
+            data: function(analysis) {
+                var arrays = [analysis.args.vectors[0],analysis.args.vectors[1]];
+                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                                   
+            }
+        }
+    ],
     "friedman": [
+        {
+            type: "chart",
+            data: function(analysis) {
+                var arrays = [...analysis.args.vectors];
+                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                
+            }
+        }
+    ],
+    "kwanova": [
         {
             type: "chart",
             data: function(analysis) {
