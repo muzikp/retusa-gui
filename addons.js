@@ -457,7 +457,7 @@ const addonLibs = {
             data: function(analysis) {
                 var rowLabels = analysis.args.rows.distinct().asc();
                 var columnLabels = analysis.args.columns.distinct().asc();
-                var matrix = new Matrix(analysis.args.rows, analysis.args.columns, analysis.args.n?.isVector ? analysis.args.n : NumericVector.generate({total: analysis.args.length, min: 1, max: 1}))//.toArray();
+                var matrix = new Matrix(analysis.args.rows, analysis.args.columns, analysis.args.n?.isVector ? analysis.args.n : NumericVector.generate({total: analysis.args.length, min: 1, max: 1}).name("n"))//.toArray();
                 var $t = `<div class="result-addon-table-container"><div class="table-title" __text="TnI4">${locale.call("TnI4")}</div>
                     <div class="table-responsive"><table class="table table-bordered"><tbody><tr><th></th>`;
                 for(let cl of columnLabels) {
