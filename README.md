@@ -4,6 +4,10 @@ Retusa is a Bootstrap-based application for statistical analysis in a browser en
 
 ## What's new
 
+### 1.0.5
+
+- minor mobile upgrades
+
 ### v1.0.4 (2023-03-19)
 
 - Wilcoxon test for independent samples added

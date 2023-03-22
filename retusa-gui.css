@@ -526,3 +526,9 @@ table.implicit td, table.implicit th {
 .result-addons > div {
   margin-top: 20px;
 }
+
+@media only screen and (max-width: 600px) {
+  .logo-tab {
+    visibility: hidden;
+  }
+}
