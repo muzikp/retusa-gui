@@ -362,7 +362,7 @@ function matrixAJAX(p) {
 }
 
 /* transfer the matrix to the Bootstrap Table */
-function loadMatrixToTable(data, callback) {
+function loadMatrixToTable(data, callback, config = {}) {
   //toggleFilteringStatus(false);
   data.isMatrix ? source = data : source = data.matrix;
   $(tableSelector).bootstrapTable('destroy');
@@ -385,7 +385,7 @@ function loadMatrixToTable(data, callback) {
   $(document).ready(function() {
     toggleFilteringStatus(data?.utils?.filterOn, true);
     $(document).find(`[id="table-tab"]`).click();
-    if (callback) callback($(tableSelector));
+    if(callback) callback($(tableSelector));
   });
 
 }

@@ -4,9 +4,10 @@ Retusa is a Bootstrap-based application for statistical analysis in a browser en
 
 ## What's new
 
-### 1.0.5
+### 1.0.5 (2023-05-02)
 
 - minor mobile upgrades
+- vector context menu highlighted
 
 ### v1.0.4 (2023-03-19)
 
