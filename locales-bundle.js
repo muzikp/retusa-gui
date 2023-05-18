@@ -93,7 +93,7 @@ window.dictionary = {
 		"89XK": "O aplikaci",
 		"CjJk": "autor",
 		"dy7u": "zobrazovat dobu výpočtu",
-		"wWol": "doba výpočetu",
+		"wWol": "doba výpočtu",
 		"7hkv": "nezávislé vzorky",
 		"KJE6": "Tyto metody jsou určeny pro nezávislé vzorky, tedy takové, mezi kterými neexistuje (nemusí existovat) vazba napříč řádky. Typicky můžete zkoumat, jak se od sebe liší průměrná (či střední) váha mezi muži a ženami či napříč různými skupinami. Vstupní proměnné nemusí mít stejný počet případů.",
 		"l4D6": "závislé vzorky",
@@ -110,7 +110,8 @@ window.dictionary = {
 		"ZhpG": "Regresní kalkulačka",
 		"9kTW": "zobrazovat předvýpočetní úpravu dat",
 		"bKzR": "parametrické",
-		"pTjq": "neparametrické"
+		"pTjq": "neparametrické",
+		"mnd3": "Korelační matice (N=12x4)"
 	},
 	"en-GB": {
 		"p9wW": "Table",
@@ -222,6 +223,7 @@ window.dictionary = {
 		"ZhpG": "Regression calculator",
 		"9kTW": "show preprocessing description",
 		"bKzR": "parametric",
-		"pTjq": "nonparametric"
+		"pTjq": "nonparametric",
+		"mnd3": "Correlation matrix (N=12*4)"
 	}
 }

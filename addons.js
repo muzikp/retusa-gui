@@ -67,11 +67,15 @@ $(function(){
             } 
             else if(node.type == "array") {
                 var types = {};
-                Object.keys(node.properties).forEach(p => types[p] = node.properties[p].type);
+                var formats = {};
+                Object.keys(node.properties).forEach(function(p) {
+                    types[p] = node.properties[p].type;
+                    formats[p] = node.properties[p].format;
+                });
                 var m = "<tr>" + Object.entries(node.properties).map(e => e[1]).map(e => getOutputNodeLabels(e)).join("") + "</tr>";
                 node.value.forEach(function(row) {
                     m += `<tr>` + Object.entries(row).map(function(v) {
-                        return `<td data-value-type="${types[v[0]]}" __value=${v[1]}>${FV(v[1], types[v[0]])}</td>`}
+                        return `<td class="${nodeClass(formats[v[0]], v[1])}" data-value-type="${types[v[0]]}" __value=${v[1]}>${FV(v[1], types[v[0]])}</td>`}
                     ).join("") + "</tr>"
                 })
                 m += `</tbody></table>`;
@@ -80,9 +84,17 @@ $(function(){
             else 
             {
                 if(typeof analysis.result != "object" && level === 0) return `<div class="single-value-result" __value=${node.value} data-value-type="${node.type}">${FV(node.value, node.type)}</div>`;
-                else m += `<tr>${getOutputNodeLabels(node)}<td __value=${node.value} data-value-type="${node.type}">${FV(node.value, node.type)}</td>`
+                else m += `<tr>${getOutputNodeLabels(node)}<td class="${nodeClass(node.format, node.value)}" __value=${node.value} data-value-type="${node.type}">${FV(node.value, node.type)}</td>`
             }
             return m + `</tr>`;
+        }
+        function nodeClass(format, value) {
+            if(format) {
+                if(format == "sig") return value <= 0.001 ? "td-format-sig-3" : value <= 0.01 ? "td-format-sig-2" : value <= 0.05 ? "td-format-sig-1" : "td-format-sig-0";
+                else if(format == "correl") return "td-format-correl-high"
+                else return "";
+            }   
+            else return "";
         }
     }
     function outputArgsOverviewHtml() {

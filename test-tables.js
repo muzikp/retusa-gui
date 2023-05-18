@@ -44,6 +44,16 @@ testTables = {
         args: {vectors: [0,1,2]},
         method: "kwanova"
     },
+    correlmatrix: {
+        data: new Matrix(
+            new NumericVector(11, 15, 9, 4, 34, 17, 18, 14, 12, 13, 26, 31).name("Czech"),
+            new NumericVector(10, 16, 9, 3, 38, 17, 16, 14, 13, 13, 26, 31).name("German"),
+            new NumericVector(11, 15, 9, 7, 34, 27, 8, 4, 19, 13, 26, 31).name("French"),
+            new NumericVector(-11, -15, -9, -9, -24, -27, -8, -14, -9, -18, -24, -32).name("English")
+        ),
+        args: {vectors: [0,1,2,3], method: 1},
+        method: "correlMatrix"
+    },
     anycorrel: function() {
         return new Matrix(
             new NumericVector(1,2,3,4,4,5,6,7,7,8,9,10,11,11,12,13,14,15,16,16).name("proměnná x"),
@@ -132,6 +142,9 @@ const makro= {
         runMakro("correlKendall", testTables.anycorrel(), [0,1]);
         runMakro("correlPartial", testTables.anycorrel(), [0,2,1]);
         runMakro("correlBiserial", testTables.anycorrel(), [3,0]);
+    },
+    correlmatrix: function() {
+        runMakro("correlmatrix", testTables.correlmatrix(), {vectors: [0,1,2,3], method: 1});
     },
     muvscontingency: function(){
         runMakro("contingency", testTables.muvscontingency(),{rows: 0, columns: 1, n: 2});

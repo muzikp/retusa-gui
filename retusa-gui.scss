@@ -6,6 +6,7 @@ $light-blue: rgb(81,176,223);
 $dark-blue: rgb(1,138,199);
 $light-orange: rgb(244,186,108);
 $dark-orange: rgb(236,137,6);
+$sig-star-size: 0.8rem;
 
 #workspace {
   position: sticky;
@@ -475,6 +476,35 @@ $dark-orange: rgb(236,137,6);
 
 .result-addons > div {
   margin-top: 20px;
+}
+
+.td-format-sig-3:after {
+  content: "***";
+  font-size: $sig-star-size;
+  color: $dark-red;
+  vertical-align: top;
+  margin-left: 2px;
+}
+
+.td-format-sig-2:after {
+  content: "**";
+  font-size: $sig-star-size;
+  color: $dark-red;
+  vertical-align: top;
+  margin-left: 2px;
+}
+
+.td-format-sig-1:after {
+  content: "*";
+  font-size: $sig-star-size;
+  color: $dark-red;
+  vertical-align: top;
+  margin-left: 2px;
+}
+
+.td-format-sig-0 {
+  font-style: italic;
+  color: gray !important;
 }
 
 @media only screen and (max-width: 600px) {

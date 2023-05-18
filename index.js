@@ -700,7 +700,6 @@ function createResultCardTitle(analysis) {
     $t += `<div class="argument-badge-panel">`;
     var output = Output.html(analysis, true);
     var ps = analysis.parameters();
-    console.dir(ps);
     for (var a = 0; a < ps.length; a++) {
       var arg = ps[a];
       if(arg.isVector && arg.value) {

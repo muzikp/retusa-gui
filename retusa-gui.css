@@ -527,6 +527,35 @@ table.implicit td, table.implicit th {
   margin-top: 20px;
 }
 
+.td-format-sig-3:after {
+  content: "***";
+  font-size: 0.8rem;
+  color: #b01818;
+  vertical-align: top;
+  margin-left: 2px;
+}
+
+.td-format-sig-2:after {
+  content: "**";
+  font-size: 0.8rem;
+  color: #b01818;
+  vertical-align: top;
+  margin-left: 2px;
+}
+
+.td-format-sig-1:after {
+  content: "*";
+  font-size: 0.8rem;
+  color: #b01818;
+  vertical-align: top;
+  margin-left: 2px;
+}
+
+.td-format-sig-0 {
+  font-style: italic;
+  color: gray !important;
+}
+
 @media only screen and (max-width: 600px) {
   .logo-tab {
     visibility: hidden;
