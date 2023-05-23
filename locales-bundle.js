@@ -111,7 +111,13 @@ window.dictionary = {
 		"9kTW": "zobrazovat předvýpočetní úpravu dat",
 		"bKzR": "parametrické",
 		"pTjq": "neparametrické",
-		"mnd3": "Korelační matice (N=12x4)"
+		"mnd3": "Korelační matice (N=12x4)",
+		"YJuF": "Nejsou k dispozici žádná data.",
+		"95CQ": "přímo úměrná závislost",
+		"PMze": "nepřímo úměrná závislost",
+		"R9Hn": "maximální hodnota koeficientu r",
+		"oEdN": "ANOVA dvojného třídění (N=40)",
+		"420n": "Jednofaktorová ANOVA s opakovaných měřením (N=3*5)"
 	},
 	"en-GB": {
 		"p9wW": "Table",
@@ -224,6 +230,12 @@ window.dictionary = {
 		"9kTW": "show preprocessing description",
 		"bKzR": "parametric",
 		"pTjq": "nonparametric",
-		"mnd3": "Correlation matrix (N=12*4)"
+		"mnd3": "Correlation matrix (N=12*4)",
+		"YJuF": "No data to analyze.",
+		"95CQ": "positive correlation",
+		"PMze": "negative correlation",
+		"R9Hn": "maximum coefficient value",
+		"oEdN": "Two-way ANOVA (N=40)",
+		"420n": "One-way ANOVA with repeated measures (N=3*5)"
 	}
 }

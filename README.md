@@ -4,6 +4,12 @@ Retusa is a Bootstrap-based application for statistical analysis in a browser en
 
 ## What's new
 
+### 1.0.7 (2023-05-23)
+
+- One-way ANOVA with repeated measures added (table & chart)
+- Two-way ANOVA added (table & chart)
+- correlation matrix chart added
+
 ### 1.0.6 (2023-05-18)
 
 - correlation matrix (table) added

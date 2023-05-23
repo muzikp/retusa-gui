@@ -51,7 +51,7 @@ $(function(){
     MatrixAnalysis.prototype.sampleOutputHtml = outputSampleOverviewHtml;
     VectorAnalysis.prototype.sampleOutputHtml = outputSampleOverviewHtml;
     Output.html = function(analysis) {
-        var $h = `<table class="table _table-borderless table-sm"><tbody>` + props(Output.fromAnalysis(analysis)) + `</tbody></table>`;
+        var $h = `<table class="table main-result table-sm"><tbody>` + props(Output.fromAnalysis(analysis)) + `</tbody></table>`;
         return $h;
         function props(node, level = 0) {
             var m = "";
@@ -66,16 +66,20 @@ $(function(){
                 m += `</tbody></table></td>`;
             } 
             else if(node.type == "array") {
-                var types = {};
-                var formats = {};
-                Object.keys(node.properties).forEach(function(p) {
+                var types = {}, formats = {}, ranks = {};
+                var props = {};
+                Object.keys(node.properties).forEach(function(p,i) {                    
                     types[p] = node.properties[p].type;
                     formats[p] = node.properties[p].format;
+                    ranks[p] = i;
                 });
                 var m = "<tr>" + Object.entries(node.properties).map(e => e[1]).map(e => getOutputNodeLabels(e)).join("") + "</tr>";
                 node.value.forEach(function(row) {
-                    m += `<tr>` + Object.entries(row).map(function(v) {
-                        return `<td class="${nodeClass(formats[v[0]], v[1])}" data-value-type="${types[v[0]]}" __value=${v[1]}>${FV(v[1], types[v[0]])}</td>`}
+                    m += `<tr>` + Object.entries(node.properties).map(function(p) {
+                        let f = p[1], k = p[0];                        
+                        var v = row[k];
+                        if(v === undefined) return `<td></td>`;
+                        else return `<td class="${nodeClass(formats[k], v)}" data-value-type="${f.type}" __value=${v}>${FV(v, f.type)}</td>`}
                     ).join("") + "</tr>"
                 })
                 m += `</tbody></table>`;
@@ -511,6 +515,91 @@ const addonLibs = {
             }
         }
     ],
+    "anovaowrm": [
+        /** adds dynamic text keys to the otherwise static table */
+        {
+            type: "after",
+            data: function(analysis, elementId, callback) {
+                $(function(){
+                    var t = $(`#${elementId}`).find(".main-result");
+                    t.find("tr:nth-child(2) > td:nth-child(1)").attr("__text", "K3ls");
+                    t.find("tr:nth-child(3) > td:nth-child(1)").attr("__text", "wGQw");
+                    t.find("tr:nth-child(4) > td:nth-child(1)").attr("__text", "IGv4");
+                    t.find("tr:nth-child(5) > td:nth-child(1)").attr("__text", "aKUo");
+                    if(callback) $(function(){callback()})
+                });
+            }
+        },        
+        {
+            type: "chart",
+            data: function(analysis) {
+                var arrays = [...analysis.args.vectors];
+                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                
+            }
+        }
+    ],
+    "anovatw": [
+        {
+            type: "before",
+            data: function(analysis, callback) {
+                return analysis;
+            }
+        },
+        /** adds dynamic text keys to the otherwise static table */
+        {
+            type: "after",
+            data: function(analysis, elementId, callback) {
+                $(function(){
+                    var t = $(`#${elementId}`).find(".main-result");
+                    t.find("tr:nth-child(2) > td:nth-child(1)").text(analysis.args.f1.name() || $("WGqY")).attr("__text", analysis.args.f1.name() || "WGqY").addClass("code");
+                    t.find("tr:nth-child(3) > td:nth-child(1)").text(analysis.args.f2.name() || $("WGqY")).attr("__text", analysis.args.f2.name() || "O6Av").addClass("code");
+                    t.find("tr:nth-child(4) > td:nth-child(1)").attr("__text", "whdI");
+                    t.find("tr:nth-child(5) > td:nth-child(1)").attr("__text", "IGv4");
+                    t.find("tr:nth-child(6) > td:nth-child(1)").attr("__text", "aKUo");
+                    if(callback) $(function(){callback()})
+                });
+            }
+        },        
+        {
+            type: "chart",
+            data: function(analysis) {
+                var datasets = [];
+                var T = new Matrix(analysis.args.f1, analysis.args.f2, analysis.args.v);
+                var major = analysis.result[0].F > analysis.result[1].F ? 0 : analysis.result[1].F > analysis.result[0].F ? 1 : 0;
+                var minor = Math.abs(major - 1);
+                var f1_keys = T[major].distinct();
+                var f2_keys = T[minor].distinct();
+                f1_keys.forEach(function(k) {
+                    var kt = T.filter(major, (v) => v === k);
+                    var ds = {
+                        label: k,
+                        borderWidth: 1,
+                        padding: 10,
+                        itemRadius: 2,
+                        itemStyle: 'circle',
+                        data: getArraysPercentiles([...kt.pivot(2,minor)]),
+                      };
+                      datasets.push(ds);
+                })
+                var ch = {
+                    type: 'boxplot',
+                    data: {
+                        labels: f2_keys,
+                        datasets: datasets,
+                    },
+                    options: {
+                      responsive: true,
+                      plugins: {
+                        ...ch_title(analysis.title.value, "min = 0,05p, max = 0,95p"),
+                        }
+                    }
+                };
+                return ch;
+                var arrays = [...analysis.args.vectors];
+                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                
+            }
+        }
+    ],
     "ttestind": [
         {
             type: "chart",
@@ -596,6 +685,126 @@ const addonLibs = {
                 if(_.p < 0.05) h.push(`${_.r <= 0.2 ? "Nicméně," : "A navíc,"} tato závislost je <b>statisticky významná</b>, a to s jistotou blížící se ${N(1 - analysis.result.p, {style: "percent"})}.`);
                 else h.push(`${_.r <= 0.2 ? "A navíc, tato závilost není ani statisticky závislá." : "Nicméně, tato závilost není statisticky závislá."}. Příčiny mohou být dvě: buďto v reálném světě spolu tyto veličiny skutečně nesouvisí, nebo já váš vzorek příliš malý na to, aby mu bylo možné věřit.`)
                 return h.join(" ");
+            }
+        }
+    ],
+    "correlMatrix": [
+        {
+            type: "chart",
+            data: function(analysis) {
+                var axisLabels = analysis.parent.smap((v,i) => v.name() || i).asc();
+                var xAxisLabels = analysis.result.map(e => e.x).distinct().asc();
+                var yAxisLabels = analysis.result.map(e => e.y).distinct().asc();
+                var sm = (50 - (axisLabels.length - 4) * 5) < 20 ? 20 : (50 - (axisLabels.length - 4) * 5); //bubble size modifier
+                var methodLabel = `${locale.call("nDx1")}: ${analysis.args.method == 1 ? locale.call("GR2Y") : analysis.args.method == 2 ? locale.call("5BMC") : locale.call("MqE5")}`;
+                var r_data_positive = analysis.result.filter(e => e.r >= 0).map(function(e,i) {
+                    return {
+                        x: e.x, y: e.y, r: e.r * sm
+                    }
+                });
+                var r_data_negative = analysis.result.filter(e => e.r < 0).map(function(e,i) {
+                    return {
+                        x: e.x, y: e.y, r: Math.abs(e.r) * sm
+                    }
+                });
+                var rings = analysis.result.map(function(e){
+                    return {x: e.x, y:e.y, r: sm}
+                })
+                var ch = {
+                    type: 'bubble',
+                    data: {
+                        //labels: "",
+                        datasets: [
+                            {
+                                label: locale.call("95CQ"),
+                                fill: false,
+                                lineTension: 0.1,
+                                borderCapStyle: 'butt',
+                                borderDash: [],
+                                borderJoinStyle: 'miter',
+                                pointBorderColor: `rgba(1,138,199,0)`,
+                                pointBackgroundColor: function(context) {
+                                    var e = analysis.result.find((e,i) => context.raw.x == e.x && context.raw.y == e.y);
+                                    var p = (0.05 - e.p) > 0 ? (0.05 - e.p) * 20 : 0;
+                                    return `rgba(1,138,199,${p})`
+                                },
+                                pointBorderWidth: 2,
+                                pointHoverBorderWidth: 2,
+                                pointRadius: 1,
+                                pointHitRadius: 1,
+                                data:r_data_positive
+                            },
+                            {
+                                label: locale.call("PMze"),
+                                fill: false,
+                                lineTension: 0.1,
+                                borderCapStyle: 'butt',
+                                borderDash: [],
+                                borderJoinStyle: 'miter',
+                                pointBorderColor: `rgb(176,24,24,0)`,
+                                pointBackgroundColor: `rgb(176,24,24,0.5)`,
+                                pointBorderWidth: 1,
+                                pointHoverBorderWidth: 2,
+                                pointRadius: 1,
+                                pointHitRadius: 1,
+                                data: r_data_negative
+                            },
+                            {
+                                label: locale.call("R9Hn"),
+                                fill: false,
+                                lineTension: 0.1,
+                                borderCapStyle: 'butt',
+                                borderDash: [],
+                                borderJoinStyle: 'miter',
+                                pointBorderColor: `rgba(10,10,10,0.1)`,
+                                pointBackgroundColor: `transparent`,
+                                pointBorderWidth: 1,
+                                pointHoverBorderWidth: 2,
+                                pointRadius: 1,
+                                pointHitRadius: 1,
+                                borderDash: [10,5],
+                                data: rings
+                            }
+                        ],
+                    },
+                    options: {
+                      responsive: true,
+                      plugins: {
+                        ...ch_title(analysis.title.value, methodLabel),
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if(context.datasetIndex == 2) return locale.call("R9Hn");
+                                    var x = context.dataset.data[context.dataIndex].x;
+                                    var y = context.dataset.data[context.dataIndex].y;
+                                    return [
+                                        `${x} x ${y}`, 
+                                        `r = ${N(analysis.result.find(e => e.x == x && e.y == y).r)}`,
+                                        `p = ${N(analysis.result.find(e => e.x == x && e.y == y).p)}`,
+                                        `N = ${N(analysis.result.find(e => e.x == x && e.y == y).n)}`
+                                    ];
+                                }
+                            }
+                        }
+                          
+                        },
+                    scales: {
+                        x: {
+                            // will this create y-axis with days of week?
+                            type: 'category',
+                            labels: xAxisLabels.desc(),
+                              offset: true, // Adjust the offset to position labels/bubbles in between ticks
+                            
+                        },
+                        y: {
+                            type: 'category',
+                            labels: yAxisLabels,
+                            offset: true, // Adjust the offset to position labels/bubbles in between ticks
+                        }
+                        }
+                    }
+                };
+                return ch;
             }
         }
     ]

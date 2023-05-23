@@ -507,6 +507,13 @@ $sig-star-size: 0.8rem;
   color: gray !important;
 }
 
+.code {
+  font-family: var(--bs-font-monospace);
+  font-size: inherit;
+  color: var(--bs-code-color);
+  word-wrap: break-word;
+}
+
 @media only screen and (max-width: 600px) {
   .logo-tab {
     visibility: hidden;

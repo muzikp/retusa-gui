@@ -610,7 +610,10 @@ function renderMatrixAnalysisMenu() {
 }
 
 $(document).on("click", "[data-matrix-analysis-form-trigger]", function() {
-  if(!source) return false;
+  if(!source) {
+    msg.alert(locale.call("YJuF"));
+    return false;
+  }
   renderMatrixAnalysisForm($(this).parent().attr("data-target"))
 })
 
@@ -673,6 +676,9 @@ function toggleCalculationFormState(state, callback) {
 }
 
 function renderAnalysisResult(analysis) {
+  if(addonLibs[analysis.name]) {
+    if(addonLibs[analysis.name].find(e => e.type == "before")) analysis = addonLibs[analysis.name].find(e => e.type == "before").data(analysis);
+  }
   var id = srnd();
   var $c = $(createResultCard(id));
   var content = createAnalysisResultHtml(analysis);
@@ -686,6 +692,9 @@ function renderAnalysisResult(analysis) {
   else $c.find(".duration").closest(".row").remove();
   $("#output-container").append($c).ready(function() {
     var $card = $("#output-container").find(`.result-card[id="${id}"]`);
+    if(addonLibs[analysis.name]) {
+      if(addonLibs[analysis.name].find(e => e.type == "after")) addonLibs[analysis.name].find(e => e.type == "after").data(analysis, id);
+    }
     resultAddons(analysis, $card, function() {
       $(document).find(`[id="output-tab"]`).click();
     });
@@ -783,6 +792,13 @@ function srnd(total = 8) {
 const msg = {
   error: function(title = "", message = "", timeout = 3000) {
     iziToast.error({
+      title: title || "",
+      message: message || "",
+      timeout: timeout
+    });
+  },
+  alert: function(title = "", message = "", timeout = 3000) {
+    iziToast.warning({
       title: title || "",
       message: message || "",
       timeout: timeout
