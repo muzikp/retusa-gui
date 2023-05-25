@@ -378,6 +378,16 @@ ul li {
   color: white !important;
 }
 
+.bg-light-red {
+  background-color: #e74f4f !important;
+  color: black !important;
+}
+
+.bg-dark-red {
+  background-color: #b01818 !important;
+  color: white !important;
+}
+
 #table-toolbar {
   display: flex;
   width: 100%;

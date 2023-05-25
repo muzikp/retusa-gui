@@ -333,6 +333,14 @@ $sig-star-size: 0.8rem;
     background-color: $dark-orange !important;
     color: white !important;
   }
+  .bg-light-red {
+    background-color: $light-red !important;
+    color: black !important;
+  }
+  .bg-dark-red {
+    background-color: $dark-red !important;
+    color: white !important;
+  }
   #table-toolbar {
     display: flex;
     width: 100%;

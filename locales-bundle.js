@@ -117,7 +117,12 @@ window.dictionary = {
 		"PMze": "nepřímo úměrná závislost",
 		"R9Hn": "maximální hodnota koeficientu r",
 		"oEdN": "ANOVA dvojného třídění (N=40)",
-		"420n": "Jednofaktorová ANOVA s opakovaných měřením (N=3*5)"
+		"420n": "Jednofaktorová ANOVA s opakovaných měřením (N=3*5)",
+		"ZdDF": "Smíšené modely",
+		"N926": "Obecné linární model",
+		"weRA": "ANCOVA (N=3*5)",
+		"Jc0a": "dva výběry",
+		"oJOn": "více výběrů"
 	},
 	"en-GB": {
 		"p9wW": "Table",
@@ -236,6 +241,11 @@ window.dictionary = {
 		"PMze": "negative correlation",
 		"R9Hn": "maximum coefficient value",
 		"oEdN": "Two-way ANOVA (N=40)",
-		"420n": "One-way ANOVA with repeated measures (N=3*5)"
+		"420n": "One-way ANOVA with repeated measures (N=3*5)",
+		"ZdDF": "Mixed models",
+		"N926": "General linear models",
+		"weRA": "ANCOVA (N=3*5)",
+		"Jc0a": "two samples",
+		"oJOn": "multiple samples"
 	}
 }

@@ -4,6 +4,12 @@ Retusa is a Bootstrap-based application for statistical analysis in a browser en
 
 ## What's new
 
+### 1.0.8 (2023-05-25)
+
+- ANCOVA added (table & chart)
+- Welch's T-test added (table & chart)
+- minor Analysis tab modifications
+
 ### 1.0.7 (2023-05-23)
 
 - One-way ANOVA with repeated measures added (table & chart)

@@ -41,6 +41,15 @@ testTables = {
     },
     method: "anovaowrm"
   },
+  ancova: {
+    data: new Matrix(new StringVector("A", "A", "A", "A", "A", "B", "B", "B", "B", "B", "C", "C", "C", "C", "C").name("study technique"), new NumericVector(67, 88, 75, 77, 85, 92, 69, 77, 74, 88, 96, 91, 88, 82, 80).name("Current grade"), new NumericVector(77, 89, 72, 74, 69, 78, 88, 93, 94, 90, 85, 81, 83, 88, 79).name("Exam score")),
+    args: {
+      f: 0,
+      y: 2,
+      c: 1
+    },
+    method: "ancova"
+  },
   muvscontingency1: {
     data: new Matrix(new StringVector("ZŠ", "ZŠ", "ZŠ", "ZŠ", "SŠ", "SŠ", "SŠ", "SŠ", "VŠ", "VŠ", "VŠ", "VŠ").name("dosažené vzdělání"), new StringVector("A", "B", "C", "D", "A", "B", "C", "D", "A", "B", "C", "D").name("skupina"), new NumericVector(39, 25, 25, 27, 17, 30, 40, 29, 12, 41, 62, 53).name("četnost")),
     args: {

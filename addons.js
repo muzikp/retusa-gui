@@ -67,7 +67,6 @@ $(function(){
             } 
             else if(node.type == "array") {
                 var types = {}, formats = {}, ranks = {};
-                var props = {};
                 Object.keys(node.properties).forEach(function(p,i) {                    
                     types[p] = node.properties[p].type;
                     formats[p] = node.properties[p].format;
@@ -600,7 +599,85 @@ const addonLibs = {
             }
         }
     ],
+    "ancova": [
+        /** adds dynamic text keys to the otherwise static table */
+        {
+            type: "after",
+            data: function(analysis, elementId, callback) {
+                $(function(){
+                    var t = $(`#${elementId}`).find(".main-result");
+                    t.find("tr:nth-child(2) > td:nth-child(1)").text(analysis.args.f.name() || locale.call("dZ4S")).attr("__text", analysis.args.f.name() || "dZ4S").addClass("code").attr("title", locale.call("dZ4S")).attr("__title", locale.call("dZ4S"));
+                    t.find("tr:nth-child(3) > td:nth-child(1)").text(analysis.args.c.name() || locale.call("EBON")).attr("__text", analysis.args.c.name() || "EBON").addClass("code").attr("title", locale.call("EBON")).attr("__title", locale.call("EBON"));
+                    t.find("tr:nth-child(4) > td:nth-child(1)").attr("__text", "whdI");
+                    t.find("tr:nth-child(5) > td:nth-child(1)").attr("__text", "aKUo");
+                    if(analysis.result[0].p < 0.05) t.find("tr:nth-child(2").addClass("bg-light-green").css({"font-weight": "600"});
+                    if(analysis.result[1].p < 0.05) t.find("tr:nth-child(3").addClass("bg-light-red").css({"font-weight": "600"});
+                    if(analysis.result[2].p < 0.05) t.find("tr:nth-child(4").addClass("bg-light-red").css({"font-weight": "600"});
+                    if(callback) $(function(){callback()}) 
+                });
+            }
+        },
+        {
+            type: "chart",
+            data: function(analysis) {
+                var T = new Matrix(analysis.args.f, analysis.args.y, analysis.args.c);
+                var f_keys = T[0].distinct();
+                var dsc = {
+                    label: T[2].name() || locale.call("EBON"),
+                    borderWidth: 1,
+                    padding: 10,
+                    itemRadius: 2,
+                    itemStyle: 'circle',
+                    data: getArraysPercentiles([...T.pivot(2,0)]),
+                };
+                var dsy = {
+                    label: T[1].name() || locale.call("lYdI"),
+                    borderWidth: 1,
+                    padding: 10,
+                    itemRadius: 2,
+                    itemStyle: 'circle',
+                    data: getArraysPercentiles([...T.pivot(1,0)]),
+                };
+                var ch = {
+                    type: 'boxplot',
+                    data: {
+                        labels: f_keys,
+                        datasets: [dsc,dsy],
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                              title: {
+                                display: true,
+                                text: T[0].name() || locale.call("dZ4S")
+                              }
+                            },
+                            y: {
+                                beginAtZero: false
+                            }
+                      },
+                      responsive: true,
+                      plugins: {
+                        ...ch_title(analysis.title.value, "min = 0,05p, max = 0,95p"),
+                        }
+                    }
+                };
+                return ch;
+                var arrays = [...analysis.args.vectors];
+                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                
+            }
+        }
+    ],
     "ttestind": [
+        {
+            type: "chart",
+            data: function(analysis) {
+                var arrays = [analysis.args.vectors[0],analysis.args.vectors[1]];
+                return getBoxPlot(analysis, arrays.map(v => v.name()), getArraysPercentiles(arrays));                                   
+            }
+        }
+    ],
+    "welchttest": [
         {
             type: "chart",
             data: function(analysis) {
