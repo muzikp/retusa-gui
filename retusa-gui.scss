@@ -8,6 +8,24 @@ $light-orange: rgb(244,186,108);
 $dark-orange: rgb(236,137,6);
 $sig-star-size: 0.8rem;
 
+/* table styling */
+
+#table {
+  border-width: var(--bs-border-width) !important;
+  :not(caption)>*>* {
+    padding: 0px !important;
+    border: 0.2px solid lightgray!important;
+  }
+  td {
+    padding: 0px 5px !important;
+  }
+  .index-cell {
+    font-style: italic;
+    background-color: var(--bs-gray-100);
+    text-align: center;
+  }
+}
+
 #workspace {
   position: sticky;
   top: 0px;
@@ -32,6 +50,7 @@ $sig-star-size: 0.8rem;
   }
   .card-header {
     display: flex;
+    max-width: 100% !important;
     justify-content: space-between;
     align-content: center;
     align-items: center;
@@ -96,9 +115,12 @@ $sig-star-size: 0.8rem;
     font-size: 1.5rem;
     font-weight: 600;
     font-variant: all-small-caps;
+    min-width: 25%;
   }
   .argument-badge-panel {
     display: flex;
+    max-width: 75%;
+    overflow: auto;
   }
   .argument-badge {
     font-family: monospace;
@@ -309,6 +331,10 @@ $sig-star-size: 0.8rem;
   .btn-icon-before {
     margin-right: 10px;
   }
+  .light-red {
+    color: $light-red !important;
+    background-color: transparent !important;
+  }
   .bg-light-green {
     background-color: $light-green !important;
     color:black !important;
@@ -482,6 +508,12 @@ $sig-star-size: 0.8rem;
   align-items: center;
 }
 
+.result-addons {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100% !important;
+}
+
 .result-addons > div {
   margin-top: 20px;
 }
@@ -520,6 +552,98 @@ $sig-star-size: 0.8rem;
   font-size: inherit;
   color: var(--bs-code-color);
   word-wrap: break-word;
+}
+
+.chartjs-50p {
+  width: 50% !important;
+}
+
+.chartjs-100p {
+  width: 100% !important;
+}
+
+.formatter-selected {
+  font-weight: 600;
+}
+
+.key-value-table {
+  display: block;
+  .kvt-row {
+    display: flex;
+    width: 100%;
+    .c-m {
+      width: 45%;
+      padding: 2px;
+    }
+    .c-i {
+      width: 10%;
+    }
+  }
+  input {
+    margin-right: 10px;
+  }
+}
+
+.c-flex {
+  justify-content: center;
+  margin-top: 5px;
+}
+
+button.round {
+  border-radius: 50%;
+  width: auto;
+}
+
+.td-format-correl {
+  .negative {
+    color: $dark-red;    
+  }
+  .positive {
+    color: $dark-blue;
+  }
+}
+
+.td-format-correl {
+  .high {
+    font-weight: 900;
+  }
+  .medium {
+    font-weight: 600;
+  }
+  .small {
+    font-weight: 300;
+  }
+  .tiny {
+    font-weight: 100;
+  }
+  .none {
+    font-style: italic;
+    color: gray;
+  }
+}
+
+.td-format-isnan:text {
+  content: "-";
+}
+
+[data-row-action] {
+  padding: 0px !important;
+}
+
+[data-row-action]:before {
+  font-family: "Font Awesome 5 Free"; 
+  font-weight: 600;  
+  margin-right: 1rem;
+}
+
+[data-row-action].remove:before {
+  content: "\f1f8";
+  color: $light-red;
+}
+
+[data-row-action].insert:before {
+  content: "\2b";
+  color: $light-blue;
 }
 
 @media only screen and (max-width: 600px) {

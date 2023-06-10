@@ -17,8 +17,19 @@ $(function(){
 });
 
 function importFromFile() {
-    selectFile("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel", function(file){
-        readBinaryString(file, function(content){
+    selectFile("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, .sav", function(file){
+        if(file.name.match(/.*\.sav/)) {
+            msg.info(locale.call("yPAx"))
+            return;
+            /*
+            readBuffer(file, async function(content) {
+                var m = await window.IO.readSavBuffer(content);
+                debugger;
+
+            })
+            */
+        }
+        else readBinaryString(file, function(content, config = {}){
             try {
                 var wb = XLSX.read(content, {type: 'binary'}); 
                 showXlsSheetsSelector(wb);
@@ -46,8 +57,12 @@ function showXlsVectorConfig(wb, sheet) {
     //    #modal_xls_vector_config
         var ws = wb.Sheets[sheet];
         var r = XLSX.utils.sheet_to_json(ws, {header: 1});
-        r = matrifySheetArray(r, sheet);
-        loadMatrixToTable(r, function(){
+        source = {
+            matrix: matrifySheetArray(r, sheet),
+            version: "1.0",
+            utils: {}
+        }
+        loadMatrixToTable(null, function(){
             msg.ok("Naimportováno",null,5000);
         });
     }
@@ -65,10 +80,12 @@ function openTableFromFile() {
     selectFile(".ret", function(file){
         readFile(file, function(content) {
             try {
-                var bundle = JSON.parse(content);
-                bundle.matrix = Matrix.deserialize(bundle.matrix);
-                loadMatrixToTable(bundle, function(){
-                    msg.ok(`Tabulka ${source.name() ? source.name() + " " : ""}nahrána`, "Celkem řádků: " + source.maxRows())
+                content = JSON.parse(content);
+                source.matrix = Matrix.deserialize(content);
+                source.version = content.version;
+                source.utils = content.utils || {};
+                loadMatrixToTable(null, function(){
+                    msg.ok(`Tabulka ${source.matrix.name() ? source.matrix.name() + " " : ""}nahrána`, "Celkem řádků: " + source.matrix.maxRows())
                 });
             } catch (e) {
                 msg.error("Nepodařilo se nahrát data.", e.message);
@@ -79,7 +96,7 @@ function openTableFromFile() {
 }
 
 function serializeWorkspace() {
-    var m = source.serialize();
+    var m = source.matrix.serialize();
     var filters = [];
     $("[data-filter]").each(function() {
         filters.push({
@@ -90,10 +107,11 @@ function serializeWorkspace() {
     });
     return {
         version: version,
-        matrix: m,
+        matrix: m.matrix,
         utils: {
             filterOn: filterOn,
-            filters: filters
+            filters: filters,
+            actionsLogs: source.utils.actionLogs
         }
     }
 }
@@ -143,5 +161,14 @@ function readBinaryString(file, callback) {
         if(callback) callback(reader.result);
     });
     reader.readAsBinaryString(file);
+}
+
+function readBuffer(file, callback) {
+    const reader = new FileReader();
+    reader.addEventListener("load", function() {
+        if(callback) callback(reader.result);
+    });
+    //reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
 }
 

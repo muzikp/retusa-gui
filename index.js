@@ -1,5 +1,4 @@
 const version = "1.0";
-//const _locale = "en-GB";
 const tableSelector = "#table";
 const log = [];
 const env = "development";
@@ -17,11 +16,13 @@ $(function() {
   init();
   renderMatrixAnalysisMenu();
   initContextMenus();
+  loadStoredMatrix();
 });
 
 function initContextMenus() {
   $(document).ready(function() {
-    $(document).on("contextmenu", "[data-field]", function(e) {
+    $(document).on("contextmenu", "[data-field], [data-index]", function(e) {
+      if($(this).attr("data-field")) {
         $("body").append(createVectorMenu($(this)));
         $("#context-menu").css({
             display: "block",
@@ -29,17 +30,28 @@ function initContextMenus() {
             top: e.pageY
         });
         return false;
+      }
+      else if($(this).attr("data-index")) {
+        $("body").append(createRowMenu($(this),e));
+        $("#context-menu").css({
+            display: "block",
+            left: e.pageX,
+            top: e.pageY
+        });
+        return false
+      } else return true;        
     });
-    $(document).click(function() {
+    /* destroyes any context menu on click outside*/
+    $(document).on("click", function(){
       $("#context-menu").hide();
       $("#context-menu").remove();
-    });
+    })
   });
   return false;
 }
 
 function createVectorMenu(sender) {
-  var vector = source.item($(sender).attr("data-field"));
+  var vector = source.matrix.item($(sender).attr("data-field"));
   var parent = (`<div id="context-menu" class="dropdown-menu" aria-labelledby="dropdownMenuButton">`);
   for(let n of vectorContextMenuTree()) {
     parent += createVectorMenuNode(n,vector,parent);
@@ -48,13 +60,40 @@ function createVectorMenu(sender) {
   return parent;
 }
 
+function createRowMenu(sender, event) {
+  var index = Number($(sender).closest("tr").find(".index-cell").text()) - 1;
+  var parent = (`<div id="context-menu" class="dropdown-menu" aria-labelledby="dropdownMenuButton">`);
+  parent += (`<li class="dropdown-item"><button class="btn insert" data-row-action = "add-before" data-row-index = ${index}>Přidat řádek před</button></li>`);
+  parent += (`<li class="dropdown-item"><button class="btn insert" data-row-action = "add-after" data-row-index = ${index}>Přidat řádek za</button></li>`);
+  parent += (`<li class="dropdown-item"><button class="btn remove" data-row-action = "remove" data-row-index = ${index}>Smazat</button></li>`);
+  parent += "</div>";
+  return parent;
+}
+
+/* row context menu button click handler */
+$(document).on("click", "[data-row-action]", function(){
+  var index = $(this).attr("data-row-index");
+  var action = $(this).attr("data-row-action");
+  if(action == "remove") {
+    source.matrix.forEach(v => v.splice(index,1));
+  }
+  else if(action == "add-before") {
+    source.matrix.forEach(v => v.splice(index,0,null));
+  }
+  else if(action == "add-after") {
+    source.matrix.forEach(v => v.splice(index+1,0,null));
+  }
+  $(tableSelector).bootstrapTable("refresh");
+  storeMatrix()
+})
+
 function createVectorMenuNode(node, vector) {
   if(node.type == "header") {
     return `<li><div class="context-menu-header">${node.value}</div></li>`;
   } 
   else if(node.type == "method") {
     var _m = new VectorAnalysis(node.value);
-    return (`<li class="dropdown-item"><button ${(_m.model.type).indexOf(vector.type()) < 0 ? "disabled" : ""} data-field = "${vector.name()}" data-vector-analysis-trigger class="dropdown-item ${_m.unstable ? "unstable" : ""}" type="button" data-model = "${node.value}" data-model-has-args = ${!!_m.model.args}>${_m.title.value}</button></li>`);
+    return (`<li class="dropdown-item"><button ${(_m.model.type).indexOf(vector.type()) < 0 ? "disabled" : ""} data-field = "${vector.id()}" data-vector-analysis-trigger class="dropdown-item ${_m.unstable ? "unstable" : ""}" type="button" data-model = "${node.value}" data-model-has-args = ${!!_m.model.args}>${_m.title.value}</button></li>`);
   }
   else if(node.type == "parent") {
     var e = `<li class="dropdown"><a class="dropdown-item dropdown-toggle" href="#" id="${node.id}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${node.value}</a><ul class="dropdown-menu" aria-labelledby="${node.id}">`;
@@ -69,7 +108,7 @@ function createVectorMenuNode(node, vector) {
     return `<li><hr class="dropdown-divider"></li>`;
   }
   else if(node.type == "custom") {
-    return (`<li class="dropdown-item"><button data-custom-id = "${node.id}" data-vector-name = "${vector.name()}" class="dropdown-item dropdown-item-button" type="button" onclick='vectorContextMenuTree().find(m => m.id == "${node.id}").function(this)'>${node.value}</button></li>`);
+    return (`<li class="dropdown-item"><button data-custom-id = "${node.id}" data-vector-name = "${vector.id()}" class="dropdown-item dropdown-item-button" type="button" onclick='vectorContextMenuTree().find(m => m.id == "${node.id}").function(this)'>${node.value}</button></li>`);
   }
   return "";
 }
@@ -79,23 +118,44 @@ function createVectorMenuNode(node, vector) {
 function init() {
   readUserConfigFromStorage();
   const applyVectorFilter = function() {
-    return source.applyFilters().item(this.name());
+    return source.matrix.applyFilters().item(this.id());
   }
   NumericVector.prototype.applyFilter = applyVectorFilter;
   StringVector.prototype.applyFilter = applyVectorFilter;
   BooleanVector.prototype.applyFilter = applyVectorFilter;
+  TimeVector.prototype.applyFilter = applyVectorFilter;
   Matrix.prototype.readConfig = function() {
     var t = {
       pagination: true,
+      locale: _locale,
+      smartDisplay: true,
       columns: []
     };
+    t.columns.push({
+      field: "__index",
+      title: "",
+      sortable: false,
+      width: 0,
+      class: "index-cell",
+      dataAlign: "center",
+      dataHalign: "center",
+      formatter: function(value, row, index) {
+        var pageSize = $(tableSelector).bootstrapTable('getOptions').pageSize;
+        var pageNumber = $(tableSelector).bootstrapTable('getOptions').pageNumber;
+        return `${index + 1 + pageSize * (pageNumber - 1)}`
+      }
+    })
     for (let c of this) {
       t.columns.push({
-        field: c.name(),
-        title: c.name(),
+        field: c.id(),
+        title: c.label(),
         sortable: true,
-        filterControl: "select-multiple",
-        formatter: nullFormatter
+        //filterControl: "select-multiple",
+        formatter: function() {
+          var v = arguments[0], r = 0;
+          const name = c.name();
+          return c.format(v,r,c);
+        } || nullFormatter
       })
     }
     return t;
@@ -108,7 +168,7 @@ function init() {
       this.item(field)[index] = this.item(field).parse(value);
       return true;
     } catch (e) {
-      msg.error("Chybná hodnota", e.message, 3000);
+      msg.error(locale.call("BxNy"), e.message, 3000);
       return false;
     }
   };
@@ -117,7 +177,7 @@ function init() {
     for (var r = config.offset; r <= ((config.offset + config.limit - 1) > this.maxRows() ? this.maxRows() : config.offset + config.limit - 1); r++) {
       var row = {};
       for (var v = 0; v < this.length; v++) {
-        row[this[v].name() || v] = this[v][r];
+        row[this[v].id() || v] = this[v][r];
       }
       table.push(row);
     }
@@ -134,12 +194,12 @@ function init() {
     };
     return _;
   }
-  Matrix.prototype.toNamedArray = function() {
+  Matrix.prototype.toNamedArray = function(useNames = false) {
     var _ = [];
     for (var i = 0; i < this.maxRows(); i++) {
       var r = {};
       for (var c = 0; c < this.length; c++) {
-        r[this[c].name()] = this[c][i];
+        r[useNames ? this[c].name() : this[c].id()] = this[c][i];
       }
       _.push(r);
     };
@@ -173,7 +233,7 @@ function init() {
     /* finally limit - offset */
     data = data.slice(p.data.offset, p.data.limit + p.data.offset);
     return {
-      total: source.maxRows(),
+      total: source.matrix.maxRows(),
       totalNotFiltered: data.length,
       rows: data
     };
@@ -191,7 +251,7 @@ function init() {
     for (var r = 0; r < m.maxRows(); r++) {
       var row = {};
       for (var v = 0; v < m.length; v++) {
-        row[m[v].name() || v] = m[v][r];
+        row[m[v].id() || v] = m[v][r];
       }
       data.push(row);
     }
@@ -200,10 +260,12 @@ function init() {
 
   /* render input control on cell doubleclick */
   $(document).one("click-cell.bs.table.bs.table", function(event, field, value, row, $e) {
+    if(field == "__index") return;
     onClickCellBs(...arguments)
   }).on("mouseleave", function() {});
 
   function onClickCellBs(event, field, value, row, $e) {
+    if(field == "__index") return;
     var index = Number($e.closest("tr").attr("data-index"));
     var $i = $(`<input bootstrap-table-cell-input data-index = ${index} data-field = "${field}"  data-value = "${value}" style="z-index: 100;" class="form-control" ${nullify(value) ? 'value = "' + nullify(value) + '"' : ""}>`);
     $e.html($i).find("input").focus().select();
@@ -220,7 +282,7 @@ function init() {
       var index = Number($($e).attr("data-index"));
       var field = $($e).attr("data-field");
       var value = $($e).attr("data-value");
-      var values = source.item(field).distinct().sort((a, b) => a > b ? 1 : -1).filter(_ => (_ !== null && _ !== undefined));
+      var values = source.matrix.item(field).distinct().sort((a, b) => a > b ? 1 : -1).filter(_ => (_ !== null && _ !== undefined));
       var $s = `<select bootstrap-table-cell-select class="form-select" data-index = ${index} data-field="${field}" data-value = "${$($e).attr("data-value")}">`;
       for (var v of values) {
         $s += `<option ${v == value ? "selected" : ""}>${v}</option>`
@@ -233,7 +295,7 @@ function init() {
       var field = $($e).attr("data-field");
       var index = Number($($e).attr("data-index"));
       var value = nullify($($e).val());
-      if (source.updateCell(index, field, value)) {
+      if (source.matrix.updateCell(index, field, value)) {
         $(this).closest("td").empty().text(value);
         $("#table").bootstrapTable('updateCell', {
           index: index,
@@ -246,7 +308,7 @@ function init() {
   }
   /* on input edit mouse leave */
   $(document).on("mouseleave", "[bootstrap-table-cell-input]", function(e) {
-    $(this).closest("td").empty().text($(this).attr("data-value"));
+    $(this).closest("td").empty().text(source.matrix.item($(this).attr("data-field")).format($(this).attr("data-value")));
   });
   /* reinitializes the mouseenter event only after the mouse has left the last cell */
   $(document).on("mouseleave", "td", function() {
@@ -259,7 +321,7 @@ function init() {
     var field = $(this).attr("data-field");
     var index = Number($(this).attr("data-index"));
     var value = nullify($(this).val());
-    if (source.updateCell(index, field, value)) {
+    if (source.matrix.updateCell(index, field, value)) {
       $(this).closest("td").empty().text(value);
       $("#table").bootstrapTable('updateCell', {
         index: index,
@@ -337,14 +399,24 @@ function isN(v) {
 
 $(document).on("click", "#test-dataset", function() {
   var dataset = testTables[$("#test-dataset-selector").val()].data;
-  loadMatrixToTable(dataset);
+  source = {
+    matrix: dataset,
+    version: "1.0",
+    utils: {}
+  }
+  loadMatrixToTable();
   $(".offcanvas").offcanvas("hide");
 });
 
 $(document).on("click", "#test-makro", function() {
   var dataset = testTables[$("#test-dataset-selector").val()];
-  loadMatrixToTable(dataset.data);
-  var analysis = source.analyze(dataset.method);
+  source = {
+    matrix: dataset,
+    version: "1.0",
+    utils: {}
+  }
+  loadMatrixToTable();
+  var analysis = source.matrix.analyze(dataset.method);
   renderAnalysis(analysis, dataset.args);
   $(".offcanvas").offcanvas("hide");
 });
@@ -354,9 +426,9 @@ $(document).on("click", "#test-makro", function() {
 // #region Table rendering
 
 function matrixAJAX(p) {
-  if (!source) return;
+  if (!source?.matrix) return;
   else {
-    var data = source.ajax(p);
+    var data = source.matrix.ajax(p);
     p.success(data);
   }
 }
@@ -364,30 +436,26 @@ function matrixAJAX(p) {
 /* transfer the matrix to the Bootstrap Table */
 function loadMatrixToTable(data, callback, config = {}) {
   //toggleFilteringStatus(false);
-  data.isMatrix ? source = data : source = data.matrix;
+  if(data) source = data;
   $(tableSelector).bootstrapTable('destroy');
-  $(tableSelector).empty().bootstrapTable(source.readConfig());
-  $(tableSelector).bootstrapTable("refreshOptions", {
-    locale: _locale,
-    smartDisplay: true
-  });
-  for (let c of source) {
-    $(tableSelector).find(`[data-field="${c.name()}"]`).attr("data-vector-type", c.type()).addClass(c.type() == 1 ? "th-numeric" : c.type() == 2 ? "th-string" : c.type() == 3 ? "th-boolean" : "")
-    if(data.utils) {
-      (data?.utils?.filters || []).forEach(function(f) {
+  $(tableSelector).empty().bootstrapTable(source.matrix.readConfig());
+  for (let c of source.matrix) {
+    $(tableSelector).find(`[data-field="${c.id()}"]`).attr("data-vector-type", c.type()).addClass(c.type() == 1 ? "th-numeric" : c.type() == 2 ? "th-string" : c.type() == 3 ? "th-boolean" : "")
+    if(source.utils) {
+      (source?.utils?.filters || []).forEach(function(f) {
         $(tableSelector).find(`[data-field="${f.field}"]`).attr("data-filter", f.type == "function" ? f.data : JSON.stringify(f.data)).attr("data-filter-type", f.type);
       });
-      filterOn = !!data?.utils?.filterOn;
-      toggleFilteringStatus(data?.utils?.filterOn);
+      filterOn = !!source?.utils?.filterOn;
+      toggleFilteringStatus(source?.utils?.filterOn);
     }
   }
-  $("#table-name").val(source.name() || "");
+  $("#table-name").val(source.matrix.name() || "");
+  storeMatrix();
   $(document).ready(function() {
     toggleFilteringStatus(data?.utils?.filterOn, true);
     $(document).find(`[id="table-tab"]`).click();
     if(callback) callback($(tableSelector));
   });
-
 }
 
 /** returns HTML layout for the result card */
@@ -420,6 +488,14 @@ function createResultCard(id = srnd()) {
   </div>`
   return card
 }
+
+/* on table name input change */
+$(document).on("change", "#table-name", function(){
+  if(source) {
+    source.matrix?.name($(this).val());
+    storeMatrix(source);
+  }
+})
 
 /* copy the result card as an image to the clipboard */
 $(document).on("click", ".copy-canvas-layout-btn", function() {
@@ -489,7 +565,7 @@ function renderVectorFormSchema(method, vector) {
   $h += "</h5></div>";
   $("#modal_vector_analysis_form").find(".method-title").empty().append($($h));
   var $f = "";
-  $f += `<form data-vector-form action = "javascript:void(0)" data-vector-type = "${vector.type()}" data-field = "${vector.name()}" data-method = "${method}"><table class="table"><tbody>`;
+  $f += `<form data-vector-form action = "javascript:void(0)" data-vector-type = "${vector.type()}" data-field = "${vector.id()}" data-method = "${method}"><table class="table"><tbody>`;
   var i = 0;
   for (let a of analysis.parameters()) {
     $f += `<tr><td class = "${a.required ? "form-control-required" : ""} ${a.description.value ? "form-control-tooltip" : ""}" ${a.description.value ? "title=\"" + a.description.value : ""}">${a.title?.value}</td>`;
@@ -525,11 +601,12 @@ function renderMatrixAnalysisForm(method) {
 /* calculate the vector method (in no argument set or otherwise render the vector method form */
 $(document).on("click", "[data-vector-analysis-trigger]", function() {
   var method = $(this).attr("data-model");
-  var vector = source.item($(this).attr("data-field"));
+  var vector = source.matrix.item($(this).attr("data-field"));
   if ($(this).attr("data-model-has-args") == "true") {
     renderVectorFormSchema(method, vector);
   } else {
     try {
+      logAction({type: "vector", time: Date.now(), id: source.matrix.item($(this).attr("data-field")).id(), method: method, args: null});
       var analysis = vector.applyFilter().analyze(method).run();
       renderAnalysisResult(analysis);
     } catch (e) {
@@ -559,7 +636,8 @@ $(document).on("submit", "[data-vector-form]", function() {
   activeAnalysisModalForm = $(this);
   var args = serializeForm(this);
   try {
-    var analysis = source.applyFilters().item($(this).attr("data-field")).analyze($(this).attr("data-method"), );
+    var analysis = source.matrix.applyFilters().item($(this).attr("data-field")).analyze($(this).attr("data-method"));
+    logAction({type: "vector", time: Date.now(), id: source.matrix.item($(this).attr("data-field")).id(), method: $(this).attr("data-method"), args: args});
     renderAnalysis(analysis, args, $(this));
   } 
   catch(e) 
@@ -610,7 +688,7 @@ function renderMatrixAnalysisMenu() {
 }
 
 $(document).on("click", "[data-matrix-analysis-form-trigger]", function() {
-  if(!source) {
+  if(!source?.matrix) {
     msg.alert(locale.call("YJuF"));
     return false;
   }
@@ -629,7 +707,7 @@ $(document).on("submit", "[data-matrix-form]", function() {
     args[$(this).attr("name")] = $(this).val();
   });
   try {
-    var analysis = source.applyFilters().analyze($(this).attr("data-method"));
+    var analysis = source.matrix.applyFilters().analyze($(this).attr("data-method"));
     renderAnalysis(analysis, args, $(this));
   } 
   catch(e) 
@@ -670,7 +748,7 @@ function toggleCalculationFormState(state, callback) {
     $(sender).find("[data-matrix-form-args-submit]").prop("disabled", false).text(locale.call("np1p"));
   }
   $(document).ready(function(){
-    setTimeout(function(){if(callback) callback()}, 500);
+    setTimeout(function(){if(callback) callback()}, 100);
   })
     
 }
@@ -704,7 +782,7 @@ function renderAnalysisResult(analysis) {
 function createResultCardTitle(analysis) {
   var $t = `<div class="method-title" __text="${analysis.title.key}">${analysis.title.value}</div>`;
   if (analysis.parent.isVector) {
-    $t += `<div class="argument-badge-panel"><div class="argument-badge">${analysis.parent.name()}</div></div>`;
+    $t += `<div class="argument-badge-panel"><div class="argument-badge">${analysis.parent.label()}</div></div>`;
   } else {
     $t += `<div class="argument-badge-panel">`;
     var output = Output.html(analysis, true);
@@ -715,20 +793,18 @@ function createResultCardTitle(analysis) {
         if(arg.multiple)
         {
           for(let v of arg.value) {
-            $t += `<div class="argument-badge">${v.name() || ""}</div>`;  
+            $t += `<div class="argument-badge">${v.label() || ""}</div>`;  
           }
         } else
         {
-          $t += `<div class="argument-badge">${arg.value.name() || ""}</div>`;
+          $t += `<div class="argument-badge">${arg.value.label() || ""}</div>`;
         }
-
       }
-
       if (analysis.model.args[a]?.class == 1) {
-        $t += `<div class="argument-badge ${arg?.type == 1 ? "text-bg-success" : arg?.type == 2 ? "text-bg-warning" : "text-bg-secondary"}">${analysis.parent.item(arg) ? analysis.parent.item(arg).name() : ""}</div>`;
+        $t += `<div class="argument-badge ${arg?.type == 1 ? "text-bg-success" : arg?.type == 2 ? "text-bg-warning" : "text-bg-secondary"}">${analysis.parent.item(arg) ? analysis.parent.item(arg).label() : ""}</div>`;
       } else if (analysis.model.args[a]?.class == 2) {
         for (var v of analysis.args[a]) {
-          if (v?.isVector) $t += `<div class="argument-badge ${v?.type == 1 ? "text-bg-success" : v?.type == 2 ? "text-bg-warning" : "text-bg-secondary"}">${v?.name() || "?"}</div>`;
+          if (v?.isVector) $t += `<div class="argument-badge ${v?.type == 1 ? "text-bg-success" : v?.type == 2 ? "text-bg-warning" : "text-bg-secondary"}">${v?.label() || "?"}</div>`;
         }
       }
     };
@@ -738,7 +814,7 @@ function createResultCardTitle(analysis) {
 }
 
 function collectVectorConfigsForMatrixForm() {
-  return source.smap(function(v){return {name: v.name(), type: v.type()}});
+  return source.matrix.map(function(v){return {id: v.id(), name: v.name(), label: v.label(), type: v.type()}});
 }
 
 // #endregion
@@ -780,6 +856,7 @@ function N(v, options) {
 
 function nullFormatter(v) {
   if (v === null || v === undefined) return `<i style="color: gray" __title="RICH" title="${locale.call("RICH")}">-</i>`;
+  else if(isNaN(v)) return "-";
   //else if(v === true) return "✅";
   //else if(v === false) return "❌";
   else return v;
@@ -836,6 +913,7 @@ function toggleFilteringStatus(status = undefined, skipRefresh = false) {
   } else {
     filterOn = !!status;
   }
+  source.utils.filterOn = filterOn;
   if(!status) {
     //filterOn = false;
     $("#toggle-table-filter").removeClass("on").addClass("off").attr("title", locale.call("Aayt")).attr("__title", "Aayt");
@@ -860,6 +938,52 @@ $(document).on("change", "[data-settings-output-switch]", function(){
   var target = $(this).attr("data-settings-output-switch");
   userConfig[target] = $(this).prop("checked");
   window.localStorage.setItem(target, userConfig[target]);
-})
+});
+
+$(document).on('show.bs.offcanvas', '#actionLogs_canvas', function () {
+  renderActionLogs();
+});
+
+function renderActionLogs() {
+  var t = `<table class="table borderless"><tbody>`;
+  for(let a of (source?.utils?.actionLogs || [])) {
+    t += `<tr>`;
+    t += `<td>${a.type == "vector" ? source.matrix.item(a.id)?.name() : "tabulka"}</td>`;
+    t += `<td>${a.method}</td>`;
+    t += `<td><button class="btn bg-lightgreen" type="button" __title="5nJl"><i class="fa-solid fa-circle-play"></i></button></td>`;
+    t += "</tr>";
+  }
+  t += "</tbody></table>";
+  $("#action-logs-container").empty().append($(t));
+}
+
+function storeMatrix() {
+  var data = source.matrix.serialize();
+  data.utils = source.utils;
+  window.localStorage.setItem("matrix_last", JSON.stringify(data));
+}
+
+function loadStoredMatrix() {
+  var _ = window.localStorage.getItem("matrix_last");
+  if(_) {
+    try {
+      source = {};
+      var _ = JSON.parse(_);
+      source.matrix = Matrix.deserialize(_);
+      source.utils = _.utils;
+      source.version = _.version;
+      loadMatrixToTable();
+    } catch(e) {
+      console.info("Failed to load the last saved data from the memory.");
+    }
+    
+  }
+}
+
+function logAction(data) {
+  if(!source?.utils?.actionLogs) source.utils.actionLogs = [];
+  source.utils.actionLogs.push(data);
+  storeMatrix(source);
+}
 
 // #endregion

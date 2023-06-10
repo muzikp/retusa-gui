@@ -1,4 +1,21 @@
 @charset "UTF-8";
+/* table styling */
+#table {
+  border-width: var(--bs-border-width) !important;
+}
+#table :not(caption) > * > * {
+  padding: 0px !important;
+  border: 0.2px solid lightgray !important;
+}
+#table td {
+  padding: 0px 5px !important;
+}
+#table .index-cell {
+  font-style: italic;
+  background-color: var(--bs-gray-100);
+  text-align: center;
+}
+
 #workspace {
   position: sticky;
   top: 0px;
@@ -27,6 +44,7 @@
 
 .card-header {
   display: flex;
+  max-width: 100% !important;
   justify-content: space-between;
   align-content: center;
   align-items: center;
@@ -103,10 +121,13 @@ td[_title]:after {
   font-size: 1.5rem;
   font-weight: 600;
   font-variant: all-small-caps;
+  min-width: 25%;
 }
 
 .argument-badge-panel {
   display: flex;
+  max-width: 75%;
+  overflow: auto;
 }
 
 .argument-badge {
@@ -348,6 +369,11 @@ ul li {
   margin-right: 10px;
 }
 
+.light-red {
+  color: #e74f4f !important;
+  background-color: transparent !important;
+}
+
 .bg-light-green {
   background-color: #65cb9a !important;
   color: black !important;
@@ -533,6 +559,12 @@ table.implicit td, table.implicit th {
   align-items: center;
 }
 
+.result-addons {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100% !important;
+}
+
 .result-addons > div {
   margin-top: 20px;
 }
@@ -571,6 +603,94 @@ table.implicit td, table.implicit th {
   font-size: inherit;
   color: var(--bs-code-color);
   word-wrap: break-word;
+}
+
+.chartjs-50p {
+  width: 50% !important;
+}
+
+.chartjs-100p {
+  width: 100% !important;
+}
+
+.formatter-selected {
+  font-weight: 600;
+}
+
+.key-value-table {
+  display: block;
+}
+.key-value-table .kvt-row {
+  display: flex;
+  width: 100%;
+}
+.key-value-table .kvt-row .c-m {
+  width: 45%;
+  padding: 2px;
+}
+.key-value-table .kvt-row .c-i {
+  width: 10%;
+}
+.key-value-table input {
+  margin-right: 10px;
+}
+
+.c-flex {
+  justify-content: center;
+  margin-top: 5px;
+}
+
+button.round {
+  border-radius: 50%;
+  width: auto;
+}
+
+.td-format-correl .negative {
+  color: #b01818;
+}
+.td-format-correl .positive {
+  color: #018ac7;
+}
+
+.td-format-correl .high {
+  font-weight: 900;
+}
+.td-format-correl .medium {
+  font-weight: 600;
+}
+.td-format-correl .small {
+  font-weight: 300;
+}
+.td-format-correl .tiny {
+  font-weight: 100;
+}
+.td-format-correl .none {
+  font-style: italic;
+  color: gray;
+}
+
+.td-format-isnan:text {
+  content: "-";
+}
+
+[data-row-action] {
+  padding: 0px !important;
+}
+
+[data-row-action]:before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 600;
+  margin-right: 1rem;
+}
+
+[data-row-action].remove:before {
+  content: "";
+  color: #e74f4f;
+}
+
+[data-row-action].insert:before {
+  content: "+";
+  color: #51b0df;
 }
 
 @media only screen and (max-width: 600px) {

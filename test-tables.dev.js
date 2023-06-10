@@ -1,6 +1,31 @@
 "use strict";
 
 testTables = {
+  vectorconfig: {
+    data: new Matrix(new NumericVector(27, 27, 27, 19, 30, 31, 30, 30, 30, 30, 30, 23, 19, 27, 28, 25, 26, 30, 11, 25, 28, 25, 28, 28, 36, 32, 34, 29, 25, 27).name("values").label("naměřené hodnoty").formatter(function (v, i, a) {
+      return v < a.avg() ? "podprůměr" : "nadprůměr";
+    }), new StringVector("A", "A", "A", "A", "A", "A", "B", "B", "B", "B", "B", "B", "C", "C", "C", "C", "C", "C", "D", "D", "D", "D", "D", "D", "E", "E", "E", "E", "E", "E").name("group").label("skupina respondentů").formatter({
+      "A": "adolescenti",
+      "B": "blbci",
+      "C": "cisterciáci",
+      "D": "debilová",
+      "E": "emilové"
+    })),
+    args: {
+      vectors: [0],
+      factor: 1
+    },
+    method: "anovaow"
+  },
+  correl: {
+    data: new Matrix(new NumericVector(180, 197, 240, 210, 180, 160, 179, 185, 183, 150, 110, 190, 170).name("výška"), new NumericVector(75, 82, 100, 80, 75, 60, 75, 71, 77, 63, 46, 81, 70).name("váha")),
+    args: {
+      x: 0,
+      y: 1,
+      methods: [1, 2, 4]
+    },
+    method: "correl"
+  },
   muvslinreg: {
     data: new Matrix(new NumericVector(180, 197, 240, 210, 180, 160, 179, 185, 183, 150, 110, 190, 170).name("výška"), new NumericVector(75, 82, 100, 80, 75, 60, 75, 71, 77, 63, 46, 81, 70).name("váha")),
     args: {
@@ -11,14 +36,20 @@ testTables = {
     method: "linreg"
   },
   muvsanova1: {
-    data: new Matrix(new NumericVector(27, 27, 27, 19, 30, 31).name("A"), new NumericVector(30, 30, 30, 30, 30, 23).name("B"), new NumericVector(19, 27, 28, 25, 26, 30).name("C"), new NumericVector(11, 25, 28, 25, 28, 28).name("D"), new NumericVector(36, 32, 34, 29, 25, 27).name("E")),
+    data: new Matrix(new NumericVector(27, 27, 27, 19, 30, 31).name("A").label("Aš"), new NumericVector(30, 30, 30, 30, 30, 23).name("B").label("Brno"), new NumericVector(19, 27, 28, 25, 26, 30).name("C").label("Chlumec nad Cidlinou"), new NumericVector(11, 25, 28, 25, 28, 28).name("D").label("Dobřicovice"), new NumericVector(36, 32, 34, 29, 25, 27).name("E").label("Ejpovice")),
     args: {
       vectors: [0, 1, 2, 3, 4]
     },
     method: "anovaow"
   },
   muvsanova2: {
-    data: new Matrix(new NumericVector(27, 27, 27, 19, 30, 31, 30, 30, 30, 30, 30, 23, 19, 27, 28, 25, 26, 30, 11, 25, 28, 25, 28, 28, 36, 32, 34, 29, 25, 27).name("values"), new StringVector("A", "A", "A", "A", "A", "A", "B", "B", "B", "B", "B", "B", "C", "C", "C", "C", "C", "C", "D", "D", "D", "D", "D", "D", "E", "E", "E", "E", "E", "E").name("group")),
+    data: new Matrix(new NumericVector(27, 27, 27, 19, 30, 31, 30, 30, 30, 30, 30, 23, 19, 27, 28, 25, 26, 30, 11, 25, 28, 25, 28, 28, 36, 32, 34, 29, 25, 27).name("values").label("naměřené hodnoty"), new StringVector("A", "A", "A", "A", "A", "A", "B", "B", "B", "B", "B", "B", "C", "C", "C", "C", "C", "C", "D", "D", "D", "D", "D", "D", "E", "E", "E", "E", "E", "E").name("group").label("skupina").formatter({
+      A: "Aš",
+      B: "Brno",
+      C: "Chlumec na Cidlinou",
+      D: "Dobřichovice",
+      E: "Ejpovice"
+    })),
     args: {
       vectors: [0],
       factor: 1
@@ -44,14 +75,18 @@ testTables = {
   ancova: {
     data: new Matrix(new StringVector("A", "A", "A", "A", "A", "B", "B", "B", "B", "B", "C", "C", "C", "C", "C").name("study technique"), new NumericVector(67, 88, 75, 77, 85, 92, 69, 77, 74, 88, 96, 91, 88, 82, 80).name("Current grade"), new NumericVector(77, 89, 72, 74, 69, 78, 88, 93, 94, 90, 85, 81, 83, 88, 79).name("Exam score")),
     args: {
-      f: 0,
-      y: 2,
-      c: 1
+      factor: 0,
+      dependent: 2,
+      covariant: 1
     },
     method: "ancova"
   },
   muvscontingency1: {
-    data: new Matrix(new StringVector("ZŠ", "ZŠ", "ZŠ", "ZŠ", "SŠ", "SŠ", "SŠ", "SŠ", "VŠ", "VŠ", "VŠ", "VŠ").name("dosažené vzdělání"), new StringVector("A", "B", "C", "D", "A", "B", "C", "D", "A", "B", "C", "D").name("skupina"), new NumericVector(39, 25, 25, 27, 17, 30, 40, 29, 12, 41, 62, 53).name("četnost")),
+    data: new Matrix(new StringVector("ZŠ", "ZŠ", "ZŠ", "ZŠ", "SŠ", "SŠ", "SŠ", "SŠ", "VŠ", "VŠ", "VŠ", "VŠ").name("education").label("dosažené vzdělání").formatter({
+      "ZŠ": "základní škola",
+      "SŠ": "střední škola",
+      "VŠ": "vysoká škola"
+    }), new StringVector("A", "B", "C", "D", "A", "B", "C", "D", "A", "B", "C", "D").name("skupina"), new NumericVector(39, 25, 25, 27, 17, 30, 40, 29, 12, 41, 62, 53).name("četnost")),
     args: {
       rows: 0,
       columns: 1,
@@ -60,7 +95,7 @@ testTables = {
     method: "contingency"
   },
   kwanova1: {
-    data: new Matrix(new NumericVector(7, 14, 14, 13, 12, 9, 6, 14, 12, 8).name("fertilizer 1"), new NumericVector(15, 17, 13, 15, 15, 13, 9, 12, 10, 8).name("fertilizer 2"), new NumericVector(6, 8, 8, 9, 5, 14, 13, 8, 10, 9).name("fertilizer 3")),
+    data: new Matrix(new NumericVector(7, 14, 14, 13, 12, 9, 6, 14, 12, 8).name("F1").label("fertilizer 1"), new NumericVector(15, 17, 13, 15, 15, 13, 9, 12, 10, 8).name("F2").label("fertilizer 2"), new NumericVector(6, 8, 8, 9, 5, 14, 13, 8, 10, 9).name("F3").label("fertilizer 3")),
     args: {
       vectors: [0, 1, 2]
     },
@@ -73,193 +108,6 @@ testTables = {
       method: 1
     },
     method: "correlMatrix"
-  },
-  anycorrel: function anycorrel() {
-    return new Matrix(new NumericVector(1, 2, 3, 4, 4, 5, 6, 7, 7, 8, 9, 10, 11, 11, 12, 13, 14, 15, 16, 16).name("proměnná x"), new NumericVector(20, 19, 2, 4, 5, 7, 6, 8, 9, 10, 10, 20, 13, 12, 14, 13, 19, 16, 18, 6).name("proměnná y"), new NumericVector(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20).name("proměnná z"), new BooleanVector(0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1).name("binární proměnná"));
-  },
-  contingency1: function contingency1() {
-    var m = new Matrix();
-    var n = 5000;
-    var empty = 0;
-    m.push(StringVector.generate({
-      total: n,
-      list: ["muži", "ženy", "děti"],
-      nullprob: empty
-    }).name("řádeček"));
-    m.push(StringVector.generate({
-      total: n,
-      list: ["ZŠ", "SŠ", "VŠ"],
-      nullprob: empty
-    }).name("sloupeček"));
-    return m;
-  },
-  contingency2: function contingency2() {
-    var m = new Matrix();
-    var n = 5000;
-    var empty = 0;
-    m.push(StringVector.generate({
-      total: n,
-      list: 50,
-      nullprob: empty
-    }).name("řádeček"));
-    m.push(StringVector.generate({
-      total: n,
-      list: 20,
-      nullprob: empty
-    }).name("sloupeček"));
-    return m;
-  },
-  genreg: function genreg() {
-    var m = new Matrix().name("Regrese: testovací sada dvou náhoně generovaných vektorů N = 5000");
-    var n = 5000;
-    var empty = 0;
-    m.push(NumericVector.generate({
-      total: n,
-      min: 20,
-      max: 500,
-      nullprob: empty
-    }).name("independent"));
-    m.push(NumericVector.generate({
-      total: n,
-      min: 30,
-      max: 50,
-      nullprob: empty
-    }).name("dependent"));
-    return m;
-  },
-  anova1: function anova1() {
-    var m = new Matrix();
-    var n = 5000;
-    var empty = 0.2;
-    m.push(NumericVector.generate({
-      total: n,
-      min: 20,
-      max: 500,
-      nullprob: empty
-    }).name("skóre"));
-    m.push(StringVector.generate({
-      total: n,
-      list: ["Česká republika", "Německo", "Francie", "Španělsko", "Rusko", "Japonsko"],
-      nullprob: empty
-    }).name("stát"));
-    return m;
-  },
-  anova2: function anova2() {
-    var m = new Matrix();
-    var n = 5000;
-    var empty = 0.01;
-    m.push(NumericVector.generate({
-      total: n,
-      min: 20,
-      max: 500,
-      nullprob: empty
-    }).name("Česká republika"));
-    m.push(NumericVector.generate({
-      total: n,
-      min: 200,
-      max: 500,
-      nullprob: empty
-    }).name("Německo"));
-    m.push(NumericVector.generate({
-      total: n,
-      min: 0,
-      max: 300,
-      nullprob: empty
-    }).name("Francie"));
-    m.push(NumericVector.generate({
-      total: n,
-      min: -500,
-      max: 100,
-      nullprob: empty
-    }).name("Španělsko"));
-    m.push(NumericVector.generate({
-      total: n,
-      min: 500,
-      max: 800,
-      nullprob: empty
-    }).name("Rusko"));
-    return m;
-  },
-  ttestind1: function ttestind1() {
-    var m = new Matrix();
-    var n = 2000;
-    var empty = 0.01;
-    m.push(StringVector.generate({
-      total: n,
-      list: ["Česká republika", "Německo"],
-      nullprob: empty
-    }).name("stát"));
-    m.push(NumericVector.generate({
-      total: n,
-      min: 20,
-      max: 90,
-      nullprob: empty
-    }).name("skóre"));
-    return m;
-  },
-  ttestind2: function ttestind2() {
-    var m = new Matrix();
-    var n = 1000;
-    var empty = 0.05;
-    m.push(NumericVector.generate({
-      total: n * 1.1,
-      min: 20,
-      max: 100,
-      nullprob: empty
-    }).name("Česká republika"));
-    m.push(NumericVector.generate({
-      total: n * 1.2,
-      min: 50,
-      max: 120,
-      nullprob: empty
-    }).name("Německo"));
-    return m;
-  }
-};
-var makro = {
-  anova1: function anova1() {
-    runMakro("anovaow", testTables.anova1(), {
-      vectors: [0],
-      factor: 1
-    });
-  },
-  anova2: function anova2() {
-    runMakro("anovaow", testTables.anova2(), {
-      vectors: [0, 1, 2, 3, 4]
-    });
-  },
-  ttestind1: function ttestind1() {
-    runMakro("ttestind", testTables.ttestind1(), {
-      vectors: [1],
-      factor: 0
-    });
-  },
-  muvslinreg: function muvslinreg() {
-    runMakro("linreg", testTables.muvslinreg(), {
-      x: 0,
-      y: 1,
-      model: 1
-    });
-  },
-  anycorrel: function anycorrel() {
-    runMakro("correlPearson", testTables.anycorrel(), [0, 1]);
-    runMakro("correlSpearman", testTables.anycorrel(), [0, 1]);
-    runMakro("correlKendall", testTables.anycorrel(), [0, 1]);
-    runMakro("correlPartial", testTables.anycorrel(), [0, 2, 1]);
-    runMakro("correlBiserial", testTables.anycorrel(), [3, 0]);
-  },
-  correlmatrix: function correlmatrix() {
-    runMakro("correlmatrix", testTables.correlmatrix(), {
-      vectors: [0, 1, 2, 3],
-      method: 1
-    });
-  },
-  muvscontingency: function muvscontingency() {
-    runMakro("contingency", testTables.muvscontingency(), {
-      rows: 0,
-      columns: 1,
-      n: 2
-    });
   }
 };
 

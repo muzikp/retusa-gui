@@ -4,6 +4,15 @@ Retusa is a Bootstrap-based application for statistical analysis in a browser en
 
 ## What's new
 
+### 1.0.9 (2023-06-10)
+
+- action logs added as a side bar panel (toggle with the "reload" icon in the navbar); the 100 last logs are stored both in the file and in the cash
+- vector config extended with "label" and "formatter" views (object and function type formatters)
+- vector "inspect" method added to vector context menu; the output consists of several method and charts (plots) depending on the input vector type
+- correl overview method added, correlation coefficient special formatting added
+- active matrix is automatically stored into the browser store location (test only)
+- percentile renamed to quantile
+
 ### 1.0.8 (2023-05-25)
 
 - ANCOVA added (table & chart)

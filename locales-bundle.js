@@ -122,7 +122,20 @@ window.dictionary = {
 		"N926": "Obecné linární model",
 		"weRA": "ANCOVA (N=3*5)",
 		"Jc0a": "dva výběry",
-		"oJOn": "více výběrů"
+		"oJOn": "více výběrů",
+		"dL3h": "popis proměnné",
+		"BxNy": "nepřípustná hodnota",
+		"SOBP": "Rekódování hodnot",
+		"7ZjQ": "Tabulkové zobrazení",
+		"mvwZ": "Funkce v JS",
+		"wZHG": "Rekódování hodnot nastavíte jednoduše pomocí tabulky klíč/hodnota, podobně jako v SPSS.",
+		"zFHy": "Rekódování hodnot nastavíte pomocí funkce v Javascriptu. Tato metoda poskytuje mimořádně široké možnosti rekódování, je potřeba k ní však ovládat alespoň základy JavaScriptu.",
+		"f8v8": "klíč",
+		"QlgV": "hodnota",
+		"yPAx": "Je mi líto, ale importování souborů sav (SPSS) zatím neumím, ale není všem dnům konec!",
+		"BxMD": "Poslední aktivity",
+		"5nJl": "Znovu spočítat",
+		"y9or": "Tabulku nelze bezpečně  zobrazit vzhledem k její přilišné očekávané velikosti."
 	},
 	"en-GB": {
 		"p9wW": "Table",
@@ -246,6 +259,19 @@ window.dictionary = {
 		"N926": "General linear models",
 		"weRA": "ANCOVA (N=3*5)",
 		"Jc0a": "two samples",
-		"oJOn": "multiple samples"
+		"oJOn": "multiple samples",
+		"dL3h": "variable label",
+		"BxNy": "unaccepted value",
+		"SOBP": "Value recoding",
+		"7ZjQ": "Table view",
+		"mvwZ": "JS function",
+		"wZHG": "You can easily set the recoding of values using a key/value table, similar to SPSS.",
+		"zFHy": "You set the recoding of values using a function in Javascript. This method provides extremely wide recoding options, but it requires at least the basics of JavaScript.",
+		"f8v8": "key",
+		"QlgV": "value",
+		"yPAx": "I'm sorry, but I can't import sav files (SPSS) yet, but it's not the end of days!",
+		"BxMD": "Last actions",
+		"5nJl": "Recalculate",
+		"y9or": "The table cannot be safely displayed due to its excessive expected size."
 	}
 }

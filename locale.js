@@ -1,3 +1,4 @@
+/* global locale */
 var _locale = window.localStorage.getItem("language") || navigator.language || navigator.userLanguage || "en-GB"
 
 $(function(){
