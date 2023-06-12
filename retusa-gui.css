@@ -717,6 +717,33 @@ button.round {
   margin-top: 20px;
   background-color: lightgray;
   color: black;
+  overflow-y: scroll;
+}
+#macro-console .system {
+  color: #018ac7;
+}
+#macro-console pre {
+  margin: 0px !important;
+  padding: 0px !important;
+}
+#macro-console .error {
+  color: #b01818;
+  font-style: italic;
+}
+#macro-console .log {
+  display: flex;
+  width: 100;
+  font-size: 1.1rem;
+}
+#macro-console .log .timestamp {
+  max-width: 25%;
+  min-width: 5rem;
+  display: block;
+}
+#macro-console .log .system {
+  width: auto;
+  font-weight: 600;
+  display: block;
 }
 
 .console-error {

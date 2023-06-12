@@ -31,7 +31,7 @@
         <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#actionLogs_canvas" aria-controls="actionLogs_canvas" style="height: 100%; color: gray;" __title="BxMD"><i class="fa-solid fa-clock-rotate-left fa-xl"></i></button>
       </li>
       <li class="nav-item dropdown">
-        <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#macro_canvas" aria-controls="macro_canvas" style="height: 100%; color: gray;" __title="BxMD"><i class="class fa-brands fa-js fa-xl light-blue"></i></button>
+        <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#macro_canvas" aria-controls="macro_canvas" style="height: 100%; color: gray;" __title="pbUN"><i class="class fa-brands fa-js fa-xl light-blue"></i></button>
       </li>
       <li class="nav-item logo-tab"><a href="https://www.muvs.cvut.cz/" target="_blank" style="margin-right: 20px;"><img src="./media/muvs_logo.png" height="30" alt="MÚVS ČVUT"></a><a href="https://github.com/muzikp/retusa" target="_blank"><img src="./media/retusa-logo-v1-main.png" height="30" alt="Retusa"></a></li>
     </ul>
@@ -454,7 +454,7 @@
         <div id="action-logs-container"></div>
       </div>
     </div>
-    <div class="offcanvas offcanvas-start" id="macro_canvas" tabindex="-1" aria-labelledby="macro_canvasLabel" style="width: 100%;">
+    <div class="offcanvas offcanvas-start" id="macro_canvas" tabindex="-1" aria-labelledby="macro_canvasLabel" style="width: 90%;">
       <div class="offcanvas-header">
         <h5 class="offcanvas-title" id="setting_canvasLabel" __text="pbUN"></h5>
         <button class="btn-close" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -462,28 +462,20 @@
       <div class="offcanvas-body">
         <div id="macro-container">
           <div class="row">
-            <div class="col-9">
-              <div class="mb-3">
-                <label __text="AsgW"></label>
-                <select class="form-select" id="macro-selector">                 </select>
-              </div>
+            <div class="col-4">                             
+              <select class="form-select" id="macro-selector"></select>
             </div>
-            <div class="col-3">
-              <button class="btn btn-success" id="create-new-macro" __text="wWlv" disabled></button>
+            <div class="col-4">
+              <input class="form-control" id="macro-name" type="text" required __placeholder="fpmI">
             </div>
-          </div>
-          <div class="row">
-            <div class="col-3">
-              <button class="btn bg-light-blue" id="macro-run"><i class="fa-solid fa-play fa-xl" style="color: white;"></i></button>
-            </div>
-            <div class="col-6">
-              <input class="form-control" id="macro-name" type="text" required __placeholder="fpmI" disabled>
-            </div>
-            <div class="col-3">
-              <button class="btn bg-light-green" id="macro-save" __text="5kbI" disabled></button>
+            <div class="col-4">
+              <button class="macro-run btn bg-dark-blue" data-mode="ui"><i class="fa-solid fa-play fa-xl" style="color: white;"></i></button>
+              <button class="macro-run btn bg-dark-blue" data-mode="console"><i class="fa-solid fa-bug fa-xl" style="color: white;"></i></button>
+              <button class="btn bg-dark-green" id="macro-save" __title="5kbI"><i class="fa-solid fa-floppy-disk fa-xl"></i></button>
+              <button class="btn bg-dark-red" id="macro-remove"><i class="fa-solid fa-trash fa-xl"></i></button>
             </div>
           </div><br><br>
-          <div class="editor" id="macro-editor"></div><code class="editor" id="macro-console"></code>
+          <div class="editor language-javascript" id="macro-editor"></div><code class="editor" id="macro-console"></code>
         </div>
       </div>
     </div>
@@ -501,17 +493,11 @@
       import { CodeJar } from 'https://cdn.jsdelivr.net/npm/codejar@3.7.0/codejar.min.js';
       window.CodeJar = CodeJar;
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js"></script>
     <!-- BST - main-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.4/bootstrap-table.min.css" integrity="sha512-vaPSEKPBIWEWK+pGIwdLnPzw7S2Tr6rYVT05v+KN89YVpEJavFiY1dPzT+e1ZeyizjEPBicVxJ5QixXZw0Nopw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.4/bootstrap-table.min.js" integrity="sha512-rZAhvMayqW5e/N+xdp011tYAIdxgMMJtKxUXx7scO4iBPSUXAKdkrKIPRu6tLr0O9V6Bs9QujJF3MqmgSNfYPA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.4/bootstrap-table-locale-all.min.js" integrity="sha512-WN3tYK66M3JXI+AXFav6BvHr7ETAj1sDfmvGV2vCZRWTxHD5kUKduEG92P7/OE3K5nsQ24BqUnBVmyCkpXt3/g==" crossorigin="anonymous" referrerpolicy="no-referrer">             </script>
-    <!-- BST - utilities
-    link(href="https://cdn.jsdelivr.net/gh/akottr/dragtable@master/dragtable.css" rel="stylesheet")    
-    script(src="https://cdn.jsdelivr.net/gh/akottr/dragtable@master/jquery.dragtable.js")   
-    -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.4/bootstrap-table-locale-all.min.js" integrity="sha512-WN3tYK66M3JXI+AXFav6BvHr7ETAj1sDfmvGV2vCZRWTxHD5kUKduEG92P7/OE3K5nsQ24BqUnBVmyCkpXt3/g==" crossorigin="anonymous" referrerpolicy="no-referrer">               </script>
     <!-- BST - resizable columns
     script(src='https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.min.js')
     link(href='https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.css' rel='stylesheet')    

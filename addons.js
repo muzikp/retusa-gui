@@ -1550,47 +1550,131 @@ $.fn.keyValueTable = function(config, data = {}){
     };    
 }
 
-$(document).on('show.bs.offcanvas', '#macro_canvas', function () {
-    initMacroContainer();
-});
+/* Macro JS */
 
-function initMacroContainer() {
+let macroJar;
+$(function(){
     const highlight = editor => {
         editor.textContent = editor.textContent
         hljs.highlightBlock(editor)
-      }
-    const jar = CodeJar(document.getElementById("macro-editor"), highlight);
-    $("#macro-selector").empty().append(`<option value="">-- select --</option>`);
-    for(let m of macroExamples)
+    }
+    macroJar = CodeJar(document.getElementById("macro-editor"), highlight);
+    for(let m of macroExamples) {
+        $("#macro-selector").append($(`<option value ="${m.id}">${m.name}</option>`));
+    }
+});
+
+/* on offcanvas loading - refresh list of macros */
+$(document).on('show.bs.offcanvas', '#macro_canvas', function () {
+    var all = [];
+    if(Array.isArray(source?.utils?.macro))
     {
-        $("#macro-selector").append(`<option value="${m.id}">${m.name}</option>`)
-    };
-    $(document).on("change", "#macro-selector", function(){
-        if($(this).val() == -1) return false;
-        else {
-            jar.updateCode(macroExamples.find(m => m.id === $(this).val()).code);
-            $("#macro-name").val(macroExamples.find(m => m.id === $(this).val()).name);
+        for(let m of source.utils.macro) {
+            if(!$("#macro-selector").find(`option[value="${m.id}"]`).val()) $("#macro-selector").prepend($(`<option value ="${m.id}">${m.name}</option>`));
         }
-    })
-    
-    $(document).on("click", "#macro-run", function() {
-        var code = jar.toString();
-        try {
-            eval(code);
-            $(function(){
-                $("#macro-console").append(`<pre>Finnished</pre>`);
-            });            
-        } catch(e) {
-            $("#macro-console").append(`<pre class="console-error">${e.message}</pre>`)
+    }
+});
+
+$(document).on("change", "#macro-selector", function(){
+    if($(this).val() == -1) {
+        macroJar.updateCode(`/* your code */`);
+        $("#macro-save").attr("data-macro-id", generateRandomString(8));
+    }
+    else {
+        var macro = macroExamples.find(m => m.id === $(this).val());
+        if(!macro) {
+            if(Array.isArray(source?.utils?.macro)) {
+                macro = source.utils.macro.find(m = m.id === $(this).val())
+            }
         }
-        
-    });  
-}
+        if(!macro) return false;
+        else
+        {
+            macroJar.updateCode(macro.code);
+            $("#macro-name").val(macro.name);
+            $("#macro-save").attr("data-macro-id", macro.id);
+        }        
+    }
+});
+
+$(document).on("click", "#macro-save", function(){
+    if($(this).val() == -1) return false;
+    else {
+        var code = macroJar.toString();
+        var id = $("#macro-save").attr("data-macro-id");
+        var name = $("#macro-name").val();
+        if(source?.utils) source.utils = {macro: []};
+        source.utils.macro.push({
+            id: id, name: name, code: code
+        });
+        console.dir(source);
+    }
+});
+
+/* runs the macro, modifies the console behaviour */
+$(document).on("click", ".macro-run", function() {
+    var code = macroJar.toString();
+    const _console = console;
+    var debuggerMode = $(this).attr("data-mode") == "console";
+    if(!debuggerMode) $(".macro-run").attr("disabled", true);
+    $("#macro-console").empty();    
+        if(!debuggerMode) {
+            console.log = function() {
+                _log("console", [...arguments].join("\n"));
+            }
+            console.dir = function(obj) {
+                try {
+                    obj = JSON.stringify(obj);
+                } catch (e) {obj = "<i>{ -- unparsable object -- }</i>"};
+                _log("console",obj);
+            }
+            console.error = function() {
+                _log("error", [...arguments].join("\n"));
+            }
+            window.onerror = function(msg, url, line, col, error) {
+                if(msg == "Script error.") msg = "Unknwon script error. Turn on debugger mode, run again and watch the browser console for more error information.";
+                _log("error", msg);                 
+                var suppressErrorAlert = true;    
+                $(".macro-run").removeAttr("disabled");
+                console = _console;
+                delete window.onerror;     
+                return suppressErrorAlert;
+             };
+        }        
+        function evaluateCode(code) {
+            return new Promise((resolve, reject) => {
+              try {       
+                if(!debuggerMode) _log("system", "running in production mode");
+                else _log("system", "running in debugger mode");                
+                $.when(eval(code)).done(function(){resolve()});
+              } catch (error) {
+                reject(error);
+              }
+            });
+          }          
+        evaluateCode(code)
+            .then(() => {
+                if(!debuggerMode) _log("system", "<u>completed</u>; asynchronous operations (such as rendering) might still be running in the background ");                              
+            })
+            .catch((error) => {
+                if(debuggerMode) _console.error(error);
+                else _log("error", error.message)                
+            }).finally(function(){
+                console.dir(arguments);
+                $(".macro-run").removeAttr("disabled");
+                console = _console;
+                delete window.onerror;
+            });    
+    function _log(type, message)
+    {
+        $("#macro-console").prepend(`<div class="log ${type}"><pre class="timestamp">${new Date().toLocaleTimeString()}</pre><pre class="${type}">${message}</pre></div>`)
+    }
+});
 
 const macroExamples = [
     {
         id: "example1",
-        name: "Example 1",
+        name: "Example 1: vector analysis & rendering",
         code: `/* Generates a new matrix, renders; runs two vector analyses and renders them */
 var M = new Matrix(
     NumericVector.generate({min: 200, max: 999, nullprob: 0.02}).name("X").label("Score"),
@@ -1601,7 +1685,7 @@ M[1].analyze("inspect").run().render();`
     },
     {
         id: "example2",
-        name: "Example 2",
+        name: "Example 2: matrix analysis & rendering",
         code: `/* Generates a new matrix, renders; runs correl method with all available methods + linear reggression; renders */
 var M = new Matrix(
     NumericVector.generate({min: 200, max: 999, nullprob: 0.02, total: 1000}).name("X").label("variable x"),
@@ -1612,7 +1696,7 @@ M.analyze("linreg").render(0,1,1);`
     },
     {
         id: "example3",
-        name: "Example 3",
+        name: "Example 3: ajax fetched REST API data",
         code: `/* Gets earthquake public data via Ajax; converts them to a matrix and renders; runs some analyses and renders them*/
 $.ajax({
     url: "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2020-01-01&endtime=2020-01-02",
@@ -1625,8 +1709,39 @@ $.ajax({
     var sig = new NumericVector(...response.features.map(e => e.properties.sig)).name("sig").label("signal");
     var M = new Matrix(id,place,mag,rms,sig).render();
     M.analyze("correlMatrix").render([2,3,4]);
+    M.analyze("linreg").render(2,3,1);
+    M.showTab("output",true, function(){console.log("DONE")});
+});`
+    },
+    {
+        id: "example4",
+        name: "Example 4: ajax fetched REST API data with error (try debugging mode)",
+        code: `/* Gets earthquake public data via Ajax; converts them to a matrix and renders; runs some analyses and renders them*/
+$.ajax({
+    url: "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2020-01-01&endtime=2020-01-02",
+    type: "get"
+}).done(function(response){
+    var id = new StringVector(...response.features.map(e => e.id)).name("id");
+    var place = new StringVector(...response.features.map(e => e.properties.place)).name("place");
+    var mag = new NumericVector(...response.features.map(e => e.properties.mag)).name("mag").label("magnitude");
+    var rms = new NumericVector(...response.features.map(e => e.properties.rms)).name("rms").label("RMS");
+    var sig = new NumericVector(...response.features.map(e => e.properties.sig)).name("sig").label("signal");
+    var M = new Matrix(id,place,mag,rms,sig).render();
+    M.analyze("correlMatrix").render([2,3,4]);
+    M.analyze("linreg").render(0,1,1);
     M.showTab("output",true, function(){console.log("DONE")});
 });`
     }
 ]
 
+function generateRandomString(length=8) {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < length) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      counter += 1;
+    }
+    return result;
+}
