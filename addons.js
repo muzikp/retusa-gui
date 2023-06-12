@@ -1203,23 +1203,33 @@ function vectorContextMenuTree() { return [
             $($f).find(`[data-type=${vector.type()}]`).prop("checked", true);
             $($f).attr("data-vector-name", vector.name());            
             $($f).on("click","[data-view-type]", function(){
+                /* function type formatter */
                 if($(this).attr("data-view-type") == "function") {
                     $("#modal_vector_config").modal("hide");
+                    const highlight = editor => {
+                        editor.textContent = editor.textContent
+                        hljs.highlightBlock(editor)
+                      }
+                    const jar = CodeJar(document.getElementById("formatter-function-editor"), highlight);
+                    jar.updateCode(vector.formatter() || "function(value,index,array)\n{\n\tvar result;\n\t/**--- your code ---*/;\n\treturn result;\n}");
                     $("#modal_vector_config_formatter_function").modal("show");
-                    $("#modal_vector_config_formatter_function").find(`[name="function"]`).text(typeof vector.formatter() == "function" ? vector.formatter().toString() : vector.formatter() || "(v,i,a) => v")
                     $("#modal_vector_config_formatter_function").find("form").on("submit", function(event){
                         if($(event.originalEvent.submitter).attr("data-action") == "confirm") {
-                            vector.formatter($(this).find(`[name="function"]`).val());
+                            vector.formatter(jar.toString());
                             $("#vector-config").find(`#vector-formatter-edit[data-view-type="function"]`).addClass("formatter-selected");
                             $("#vector-config").find(`#vector-formatter-edit[data-view-type="object"]`).removeClass("formatter-selected");
                             loadMatrixToTable();
                         } else {
-                            vector.formatter({});                            
+                            if(typeof vector.formatter() != "object") vector.formatter({});
+                            //$("#modal_vector_config_formatter_function").find(`[name="function"]`).text("").val("");
+                            $("#vector-config").find(`#vector-formatter-edit[data-view-type="function"]`).removeClass("formatter-selected");
+                            loadMatrixToTable();
                         } 
                         $("#modal_vector_config_formatter_function").modal("hide");
                         $("#modal_vector_config").modal("show");                        
                     })
                 }
+                /* object type formatter */
                 else {  
                     $("#modal_vector_config_formatter_object").find(".modal-body").keyValueTable({key: {type: vector.type == 1 ? "number" : "text"}, value: {type: "text"}}, vector.formatter())
                     .closest("form").on("submit", function(event){
@@ -1230,12 +1240,15 @@ function vectorContextMenuTree() { return [
                             });
                             $(function(){
                                 vector.formatter(f);
+                                $("#vector-config").find(`#vector-formatter-edit[data-view-type="object"]`).addClass("formatter-selected");
+                                $("#vector-config").find(`#vector-formatter-edit[data-view-type="function"]`).removeClass("formatter-selected");
                                 $("#modal_vector_config_formatter_object").modal("hide");
                                 loadMatrixToTable();
                             })
                         } else 
                         {
-                            vector.formatter({});  
+                            if(typeof vector.formatter() != "function") vector.formatter({});
+                            loadMatrixToTable();
                             $("#modal_vector_config_formatter_object").modal("hide");    
                             $("#modal_vector_config").modal("show");
                         }
@@ -1505,7 +1518,13 @@ $(document).on("submit", "#vector-filter", function(event) {
     return false;
 })
 
-$.fn.keyValueTable = function(config, data = {}){ 
+$.fn.keyValueTable = function(config, data = {}){
+    if(typeof data == "function") data = {};
+    try {
+        if(typeof data != "object") data = JSON.parse(data);
+    } catch (e) {
+        data = {};
+    }
     $(this).empty();
     var t = `<div class="key-value-table"><div class="kvt-row"><div class="c-m"><div class="header" __text="f8v8">klíč</div></div><div class="c-m"><div class="header" __text="QlgV">hodnota</div></div><div class="c-i"></div></div>`;
     for(let k of Object.keys(data)) {
@@ -1530,3 +1549,84 @@ $.fn.keyValueTable = function(config, data = {}){
         return r;
     };    
 }
+
+$(document).on('show.bs.offcanvas', '#macro_canvas', function () {
+    initMacroContainer();
+});
+
+function initMacroContainer() {
+    const highlight = editor => {
+        editor.textContent = editor.textContent
+        hljs.highlightBlock(editor)
+      }
+    const jar = CodeJar(document.getElementById("macro-editor"), highlight);
+    $("#macro-selector").empty().append(`<option value="">-- select --</option>`);
+    for(let m of macroExamples)
+    {
+        $("#macro-selector").append(`<option value="${m.id}">${m.name}</option>`)
+    };
+    $(document).on("change", "#macro-selector", function(){
+        if($(this).val() == -1) return false;
+        else {
+            jar.updateCode(macroExamples.find(m => m.id === $(this).val()).code);
+            $("#macro-name").val(macroExamples.find(m => m.id === $(this).val()).name);
+        }
+    })
+    
+    $(document).on("click", "#macro-run", function() {
+        var code = jar.toString();
+        try {
+            eval(code);
+            $(function(){
+                $("#macro-console").append(`<pre>Finnished</pre>`);
+            });            
+        } catch(e) {
+            $("#macro-console").append(`<pre class="console-error">${e.message}</pre>`)
+        }
+        
+    });  
+}
+
+const macroExamples = [
+    {
+        id: "example1",
+        name: "Example 1",
+        code: `/* Generates a new matrix, renders; runs two vector analyses and renders them */
+var M = new Matrix(
+    NumericVector.generate({min: 200, max: 999, nullprob: 0.02}).name("X").label("Score"),
+    StringVector.generate({list: ["A","B","C"], nullprob: 0.03}).name("G").label("Group").formatter({"A": "1st group", "B": "2nd group", "C": "3rd group"})
+).render();
+M[0].analyze("inspect").render(true);
+M[1].analyze("inspect").run().render();`
+    },
+    {
+        id: "example2",
+        name: "Example 2",
+        code: `/* Generates a new matrix, renders; runs correl method with all available methods + linear reggression; renders */
+var M = new Matrix(
+    NumericVector.generate({min: 200, max: 999, nullprob: 0.02, total: 1000}).name("X").label("variable x"),
+    NumericVector.generate({min: -200, max: 400, nullprob: 0.02, total: 1000}).name("Y").label("variable y")    
+).render();
+M.analyze("correl").render(0,1,[1,2,3,4]);
+M.analyze("linreg").render(0,1,1);`
+    },
+    {
+        id: "example3",
+        name: "Example 3",
+        code: `/* Gets earthquake public data via Ajax; converts them to a matrix and renders; runs some analyses and renders them*/
+$.ajax({
+    url: "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2020-01-01&endtime=2020-01-02",
+    type: "get"
+}).done(function(response){
+    var id = new StringVector(...response.features.map(e => e.id)).name("id");
+    var place = new StringVector(...response.features.map(e => e.properties.place)).name("place");
+    var mag = new NumericVector(...response.features.map(e => e.properties.mag)).name("mag").label("magnitude");
+    var rms = new NumericVector(...response.features.map(e => e.properties.rms)).name("rms").label("RMS");
+    var sig = new NumericVector(...response.features.map(e => e.properties.sig)).name("sig").label("signal");
+    var M = new Matrix(id,place,mag,rms,sig).render();
+    M.analyze("correlMatrix").render([2,3,4]);
+    M.showTab("output",true, function(){console.log("DONE")});
+});`
+    }
+]
+

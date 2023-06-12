@@ -1,50 +1,22 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Retusa GUI (demo)</title>
+    <title>Retusa GUI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="icon" type="image/x-icon" href="./media/favicon.ico">
     <link rel="stylesheet" href="./retusa-gui.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js">   </script>
+    <!-- JQUERY-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"> </script>
+    <!--script(src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous")  -->
+    <!-- Bootstrap-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4/dist/css/iziToast.min.css" integrity="sha256-f6fW47QDm1m01HIep+UjpCpNwLVkBYKd+fhpb4VQ+gE=" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/treeflex@2.0/dist/css/treeflex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous">   </script>
-    <script src="https://cdn.jsdelivr.net/npm/izitoast@1.4/dist/js/iziToast.min.js" integrity="sha256-321PxS+POvbvWcIVoRZeRmf32q7fTFQJ21bXwTNWREY=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js" integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.umd.min.js" integrity="sha512-TJ7U6JRJx5IpyvvO9atNnBzwJIoZDaQnQhb0Wmw32Rj5BQHAmJG16WzaJbDns2Wk5VG6gMt4MytZApZG47rCdg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.2.0/build/index.umd.min.js" integrity="sha256-lZ42RHZULOoTAiaHBcds7rTHWPABtn9tMXZ84Z9W9bw=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <!-- bootstrap-table libs-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.4/bootstrap-table.min.css" integrity="sha512-vaPSEKPBIWEWK+pGIwdLnPzw7S2Tr6rYVT05v+KN89YVpEJavFiY1dPzT+e1ZeyizjEPBicVxJ5QixXZw0Nopw==" crossorigin="anonymous" referrerpolicy="no-referrer">
-    <link href="https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.css" rel="stylesheet">
-    <link href="https://unpkg.com/bootstrap-table@1.21.4/dist/extensions/reorder-rows/bootstrap-table-reorder-rows.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.4/bootstrap-table.min.js" integrity="sha512-rZAhvMayqW5e/N+xdp011tYAIdxgMMJtKxUXx7scO4iBPSUXAKdkrKIPRu6tLr0O9V6Bs9QujJF3MqmgSNfYPA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.4/bootstrap-table-locale-all.min.js" integrity="sha512-WN3tYK66M3JXI+AXFav6BvHr7ETAj1sDfmvGV2vCZRWTxHD5kUKduEG92P7/OE3K5nsQ24BqUnBVmyCkpXt3/g==" crossorigin="anonymous" referrerpolicy="no-referrer">         </script>
-    <script src="https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.min.js"></script>
-    <script src="https://unpkg.com/bootstrap-table@1.21.4/dist/extensions/resizable/bootstrap-table-resizable.min.js"> </script>
-    <!-- file import libs-->
-    <script src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
-    <!-- font-awesome-->
-    <script src="https://kit.fontawesome.com/53e6813db7.js" crossorigin="anonymous"></script>
-    <!-- root libs-->
-    <script type="text/javascript" src="./bundle.min.js" charset="UTF-8"></script>
-    <script src="./locales-bundle.js"></script>
-    <script src="./locale.js"></script>
-    <script src="./addons.js"></script>
-    <script src="./test-tables.js"></script>
-    <script src="./source.js"></script>
-    <script src="./index.js"></script>
   </head>
   <body>
     <div id="splash"><img class="logo" src="./media/retusa-logo-v1-main.png" alt="Retusa loading"></div>
     <ul class="nav nav-tabs" id="workspace" role="tablist">
       <li class="nav-item dropdown">
         <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#setting_canvas" aria-controls="setting_canvas" style="height: 100%; color: gray;" __title="EP1G"><i class="fa-solid fa-gear fa-xl"></i></button>
-      </li>
-      <li class="nav-item dropdown">
-        <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#actionLogs_canvas" aria-controls="actionLogs_canvas" style="height: 100%; color: gray;" __title="BxMD"><i class="fa-solid fa-clock-rotate-left fa-xl"></i></button>
       </li>
       <li class="nav-item" role="presentation" tab-target="table">
         <button class="nav-link" id="table-tab" data-bs-toggle="tab" data-bs-target="#table-tab-pane" type="button" role="tab" aria-controls="table-tab-pane" aria-selected="false" __text="p9wW">Tabulka</button>
@@ -54,6 +26,12 @@
       </li>
       <li class="nav-item" role="presentation" tab-target="output">
         <button class="nav-link" id="output-tab" data-bs-toggle="tab" data-bs-target="#output-tab-pane" type="button" role="tab" aria-controls="output-tab-pane" aria-selected="false" __text="slEd">Výsledky</button>
+      </li>
+      <li class="nav-item dropdown">
+        <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#actionLogs_canvas" aria-controls="actionLogs_canvas" style="height: 100%; color: gray;" __title="BxMD"><i class="fa-solid fa-clock-rotate-left fa-xl"></i></button>
+      </li>
+      <li class="nav-item dropdown">
+        <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#macro_canvas" aria-controls="macro_canvas" style="height: 100%; color: gray;" __title="BxMD"><i class="class fa-brands fa-js fa-xl light-blue"></i></button>
       </li>
       <li class="nav-item logo-tab"><a href="https://www.muvs.cvut.cz/" target="_blank" style="margin-right: 20px;"><img src="./media/muvs_logo.png" height="30" alt="MÚVS ČVUT"></a><a href="https://github.com/muzikp/retusa" target="_blank"><img src="./media/retusa-logo-v1-main.png" height="30" alt="Retusa"></a></li>
     </ul>
@@ -76,7 +54,7 @@
             </button>
           </div>
         </div>
-        <div id="table" data-show-export="true" data-toggle="table" data-reorderable-columns="true" data-resizable="true" data-reorderable-rows="true" data-formatter="nullFormatter" data-ajax="matrixAJAX" data-side-pagination="server"></div>
+        <div id="table" data-show-export="true" data-toggle="table" data-formatter="nullFormatter" data-ajax="matrixAJAX" data-side-pagination="server" style="width: 100%;"></div>
       </div>
       <div class="tab-pane fade" id="analysis-tab-pane" role="tabpanel" aria-labelledby="analysis-tab" tabindex="0">
         <div class="tf-tree example" id="matrix-method-tree">
@@ -281,9 +259,8 @@
             <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body"> 
-            <div class="function-filters">
-              <hr>
-              <textarea class="form-control" name="function" required rows="10"></textarea>
+            <div class="editor lauguage-js" id="formatter-function-editor" name="function">
+              <!--textarea.form-control(name = "function" spellcheck=false rows = 10)-->
             </div>
           </div>
           <div class="modal-footer">
@@ -441,7 +418,7 @@
                 <button class="btn btn-info" id="test-dataset" __text="iTkC">Pouze data</button>
               </div>
               <div class="col-6">
-                <button class="btn btn-success" id="test-makro" __text="yG2T">Data a výpočet</button>
+                <button class="btn btn-success" id="test-macro" __text="yG2T">Data a výpočet</button>
               </div>
             </div>
           </div>
@@ -468,7 +445,7 @@
         </div>
       </div>
     </div>
-    <div class="offcanvas offcanvas-start" id="actionLogs_canvas" tabindex="-1" aria-labelledby="setting_canvasLabel">
+    <div class="offcanvas offcanvas-start" id="actionLogs_canvas" tabindex="-1" aria-labelledby="actionLogs_canvasLabel">
       <div class="offcanvas-header">
         <h5 class="offcanvas-title" id="setting_canvasLabel" __text="BxMD"></h5>
         <button class="btn-close" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -477,5 +454,81 @@
         <div id="action-logs-container"></div>
       </div>
     </div>
+    <div class="offcanvas offcanvas-start" id="macro_canvas" tabindex="-1" aria-labelledby="macro_canvasLabel" style="width: 100%;">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="setting_canvasLabel" __text="pbUN"></h5>
+        <button class="btn-close" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div id="macro-container">
+          <div class="row">
+            <div class="col-9">
+              <div class="mb-3">
+                <label __text="AsgW"></label>
+                <select class="form-select" id="macro-selector">                 </select>
+              </div>
+            </div>
+            <div class="col-3">
+              <button class="btn btn-success" id="create-new-macro" __text="wWlv" disabled></button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-3">
+              <button class="btn bg-light-blue" id="macro-run"><i class="fa-solid fa-play fa-xl" style="color: white;"></i></button>
+            </div>
+            <div class="col-6">
+              <input class="form-control" id="macro-name" type="text" required __placeholder="fpmI" disabled>
+            </div>
+            <div class="col-3">
+              <button class="btn bg-light-green" id="macro-save" __text="5kbI" disabled></button>
+            </div>
+          </div><br><br>
+          <div class="editor" id="macro-editor"></div><code class="editor" id="macro-console"></code>
+        </div>
+      </div>
+    </div>
+    <!-- --- dependcies ----->
+    <!-- MISC-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4/dist/css/iziToast.min.css" integrity="sha256-f6fW47QDm1m01HIep+UjpCpNwLVkBYKd+fhpb4VQ+gE=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/treeflex@2.0/dist/css/treeflex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/izitoast@1.4/dist/js/iziToast.min.js" integrity="sha256-321PxS+POvbvWcIVoRZeRmf32q7fTFQJ21bXwTNWREY=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js" integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.umd.min.js" integrity="sha512-TJ7U6JRJx5IpyvvO9atNnBzwJIoZDaQnQhb0Wmw32Rj5BQHAmJG16WzaJbDns2Wk5VG6gMt4MytZApZG47rCdg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.2.0/build/index.umd.min.js" integrity="sha256-lZ42RHZULOoTAiaHBcds7rTHWPABtn9tMXZ84Z9W9bw=" crossorigin="anonymous"></script>
+    <!-- code editor pack-->
+    <script type="module">
+      import { CodeJar } from 'https://cdn.jsdelivr.net/npm/codejar@3.7.0/codejar.min.js';
+      window.CodeJar = CodeJar;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js"></script>
+    <!-- BST - main-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.4/bootstrap-table.min.css" integrity="sha512-vaPSEKPBIWEWK+pGIwdLnPzw7S2Tr6rYVT05v+KN89YVpEJavFiY1dPzT+e1ZeyizjEPBicVxJ5QixXZw0Nopw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.4/bootstrap-table.min.js" integrity="sha512-rZAhvMayqW5e/N+xdp011tYAIdxgMMJtKxUXx7scO4iBPSUXAKdkrKIPRu6tLr0O9V6Bs9QujJF3MqmgSNfYPA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.4/bootstrap-table-locale-all.min.js" integrity="sha512-WN3tYK66M3JXI+AXFav6BvHr7ETAj1sDfmvGV2vCZRWTxHD5kUKduEG92P7/OE3K5nsQ24BqUnBVmyCkpXt3/g==" crossorigin="anonymous" referrerpolicy="no-referrer">             </script>
+    <!-- BST - utilities
+    link(href="https://cdn.jsdelivr.net/gh/akottr/dragtable@master/dragtable.css" rel="stylesheet")    
+    script(src="https://cdn.jsdelivr.net/gh/akottr/dragtable@master/jquery.dragtable.js")   
+    -->
+    <!-- BST - resizable columns
+    script(src='https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.min.js')
+    link(href='https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.css' rel='stylesheet')    
+    script(src='https://unpkg.com/bootstrap-table@1.21.4/dist/extensions/resizable/bootstrap-table-resizable.min.js')    
+    -->
+    <!-- file import libs-->
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- font-awesome-->
+    <script src="https://kit.fontawesome.com/53e6813db7.js" crossorigin="anonymous"></script>
+    <!-- root libs-->
+    <script type="text/javascript" src="./bundle.min.js" charset="UTF-8"></script>
+    <script src="./locales-bundle.js"></script>
+    <script src="./locale.js"></script>
+    <script src="./addons.js"></script>
+    <script src="./test-tables.js"></script>
+    <script src="./source.js"></script>
+    <script src="./index.js"></script>
   </body>
 </html>

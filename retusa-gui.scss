@@ -8,20 +8,64 @@ $light-orange: rgb(244,186,108);
 $dark-orange: rgb(236,137,6);
 $sig-star-size: 0.8rem;
 
-/* table styling */
+@import url("https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/dracula.min.css");
 
+/* colors */
+
+.light-red {
+  color: $light-red !important;
+  background-color: transparent !important;
+}
+.light-blue {
+  color: $light-blue !important;
+  background-color: transparent;
+}
+.bg-light-green {
+  background-color: $light-green !important;
+  color:black !important;
+}
+.bg-dark-green {
+  background-color: $dark-green !important;
+  color: white !important;
+}
+.bg-light-blue {
+  background-color: $light-blue !important;
+  color: black !important;
+}
+.bg-dark-blue {
+  background-color: $dark-blue !important;
+  color: white !important;
+}
+.bg-light-orange {
+  background-color: $light-orange !important;
+  color: black !important;
+}
+.bg-dark-orange {
+  background-color: $dark-orange !important;
+  color: white !important;
+}
+.bg-light-red {
+  background-color: $light-red !important;
+  color: black !important;
+}
+.bg-dark-red {
+  background-color: $dark-red !important;
+  color: white !important;
+}
+
+/* table styling */
 #table {
-  border-width: var(--bs-border-width) !important;
   :not(caption)>*>* {
-    padding: 0px !important;
-    border: 0.2px solid lightgray!important;
+    padding: 0px auto;
   }
   td {
     padding: 0px 5px !important;
+    border-bottom: 1px lightgray solid;
+    background-color: white !important;
   }
   .index-cell {
     font-style: italic;
-    background-color: var(--bs-gray-100);
+    background-color: var(--bs-gray-100) !important;
     text-align: center;
   }
 }
@@ -330,43 +374,7 @@ $sig-star-size: 0.8rem;
   }
   .btn-icon-before {
     margin-right: 10px;
-  }
-  .light-red {
-    color: $light-red !important;
-    background-color: transparent !important;
-  }
-  .bg-light-green {
-    background-color: $light-green !important;
-    color:black !important;
-  }
-  .bg-dark-green {
-    background-color: $dark-green !important;
-    color: white !important;
-  }
-  .bg-light-blue {
-    background-color: $light-blue !important;
-    color: black !important;
-  }
-  .bg-dark-blue {
-    background-color: $dark-blue !important;
-    color: white !important;
-  }
-  .bg-light-orange {
-    background-color: $light-orange !important;
-    color: black !important;
-  }
-  .bg-dark-orange {
-    background-color: $dark-orange !important;
-    color: white !important;
-  }
-  .bg-light-red {
-    background-color: $light-red !important;
-    color: black !important;
-  }
-  .bg-dark-red {
-    background-color: $dark-red !important;
-    color: white !important;
-  }
+  }  
   #table-toolbar {
     display: flex;
     width: 100%;
@@ -644,6 +652,43 @@ button.round {
 [data-row-action].insert:before {
   content: "\2b";
   color: $light-blue;
+}
+
+.editor {
+  border-radius: 6px;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+  font-family: 'Source Code Pro', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  height: 340px;
+  letter-spacing: normal;
+  line-height: 20px;
+  padding: 10px;
+  tab-size: 4;
+}
+
+#macro-console {
+  width: 100%;
+  display: block;
+  margin-top: 20px;
+  background-color: lightgray;
+  color: black;
+}
+
+.console-error {
+  color: red;
+  font-style: italic;
+}
+
+[bootstrap-table-cell-input] {
+  padding: 0px !important;
+  margin: 0px !important;
+  border: none !important;
+  background-color: transparent !important;
+  border-radius: 0px !important;
+  display: block;
+  min-width: 0px !important;
+  max-width: 100% !important;
 }
 
 @media only screen and (max-width: 600px) {

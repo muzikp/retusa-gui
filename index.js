@@ -3,7 +3,11 @@ const tableSelector = "#table";
 const log = [];
 const env = "development";
 const defTableName = "lastTable";
-let source;
+let source = {
+  matrix: null,
+  version: version,
+  utils: {}
+};
 var activeAnalysisModalForm;
 var filterOn = true;
 var userConfig = {
@@ -63,9 +67,9 @@ function createVectorMenu(sender) {
 function createRowMenu(sender, event) {
   var index = Number($(sender).closest("tr").find(".index-cell").text()) - 1;
   var parent = (`<div id="context-menu" class="dropdown-menu" aria-labelledby="dropdownMenuButton">`);
-  parent += (`<li class="dropdown-item"><button class="btn insert" data-row-action = "add-before" data-row-index = ${index}>Přidat řádek před</button></li>`);
-  parent += (`<li class="dropdown-item"><button class="btn insert" data-row-action = "add-after" data-row-index = ${index}>Přidat řádek za</button></li>`);
-  parent += (`<li class="dropdown-item"><button class="btn remove" data-row-action = "remove" data-row-index = ${index}>Smazat</button></li>`);
+  parent += (`<li class="dropdown-item"><button class="btn insert" data-row-action = "add-before" data-row-index = ${index} __text="VvTS">${locale.call("VvTS")}</button></li>`);
+  //parent += (`<li class="dropdown-item"><button class="btn insert" data-row-action = "add-after" data-row-index = ${index}>Přidat řádek za</button></li>`);
+  parent += (`<li class="dropdown-item"><button class="btn remove" data-row-action = "remove" data-row-index = ${index} __text="3aMG">${locale.call("3aMG")}</button></li>`);
   parent += "</div>";
   return parent;
 }
@@ -75,14 +79,14 @@ $(document).on("click", "[data-row-action]", function(){
   var index = $(this).attr("data-row-index");
   var action = $(this).attr("data-row-action");
   if(action == "remove") {
-    source.matrix.forEach(v => v.splice(index,1));
+    source.matrix.forEach(v => v.splice(index ,1));
   }
   else if(action == "add-before") {
     source.matrix.forEach(v => v.splice(index,0,null));
   }
   else if(action == "add-after") {
     source.matrix.forEach(v => v.splice(index+1,0,null));
-  }
+  }  
   $(tableSelector).bootstrapTable("refresh");
   storeMatrix()
 })
@@ -124,13 +128,28 @@ function init() {
   StringVector.prototype.applyFilter = applyVectorFilter;
   BooleanVector.prototype.applyFilter = applyVectorFilter;
   TimeVector.prototype.applyFilter = applyVectorFilter;
+  /* SDK: renders the matrix */
+  Matrix.prototype.render = function() {
+    var data = {
+      matrix: this,
+      version: version,
+      utils: {}
+    };    
+    loadMatrixToTable(data);
+    return this;
+  }
+  Matrix.prototype.showTab = function(tab = "output", scrollToBottom = false, callback = function(){return true}) {
+    $("#macro_canvas").offcanvas("hide");
+    activateTab(tab, scrollToBottom, callback);
+  }
   Matrix.prototype.readConfig = function() {
     var t = {
       pagination: true,
       locale: _locale,
       smartDisplay: true,
-      columns: []
+      columns: []      
     };
+    /* index column */
     t.columns.push({
       field: "__index",
       title: "",
@@ -149,7 +168,7 @@ function init() {
       t.columns.push({
         field: c.id(),
         title: c.label(),
-        sortable: true,
+        //sortable: true,
         //filterControl: "select-multiple",
         formatter: function() {
           var v = arguments[0], r = 0;
@@ -168,7 +187,7 @@ function init() {
       this.item(field)[index] = this.item(field).parse(value);
       return true;
     } catch (e) {
-      msg.error(locale.call("BxNy"), e.message, 3000);
+      msg.error(locale.call("BxNy"), e.message, 5000);
       return false;
     }
   };
@@ -245,6 +264,18 @@ function init() {
       else return this;
     } else return this;
   }
+    /* SDK: renders the matrix analysis result */
+  MatrixAnalysis.prototype.render = function() {
+    if(!this.result) this.run(...arguments);
+    renderAnalysisResult(this);
+    return this;
+  }
+  /* SDK: renders the matrix analysis result */
+  VectorAnalysis.prototype.render = function() {
+    if(!this.result) this.run(...arguments);
+    renderAnalysisResult(this);
+    return this;
+  }
   // #region Cell editor
   function matrixToBSFormat(m) {
     var data = [];
@@ -275,10 +306,11 @@ function init() {
     onCellInputKeyDown(this, event)
   });
 
+  /* handles opening cell editors and moving across the table from an open table*/
   function onCellInputKeyDown($e, event) {
     if (event.key == "Escape") $(this).closest("td").empty().text($(this).attr("data-value"));
     /* renders the select control with distinct values */
-    else if (event.key == "Control" || event.key == "Tab") {
+    else if (event.key == "Control") {
       var index = Number($($e).attr("data-index"));
       var field = $($e).attr("data-field");
       var value = $($e).attr("data-value");
@@ -304,12 +336,99 @@ function init() {
           reinit: false
         });
       }
+    } 
+    /* jump to the next cell and open cell editor */
+    else if (event.key == "Tab")
+    {
+      const backward = event.shiftKey;      
+      event.preventDefault();
+      mouseLeaveElement($e, function(prev) {
+        // move back
+        if(backward) 
+        {
+          var next = $(prev).prev("td");
+          if(next.index() < 0) {
+            next = prev.closest("tr").prev("tr").find("td").last();          
+          }
+          if(next.index() == 0) {
+            next = prev.closest("tr").prev().find("td").last();
+          }
+          let index = Number(next.closest("tr").attr("data-index"));
+          if(isNaN(index)) {
+            next = prev.closest("tbody").find("tr").last().find("td").last();
+            index = next.closest("tr").attr("data-index");
+          }
+          var field = source.matrix[next.index() -1].id();        
+          var value = source.matrix[next.index() -1][index];   
+          onClickCellBs(event, field, value, index, next);          
+        } 
+        else /* move forward */
+        {
+          var next = $(prev).next("td");
+          if(next.index() < 0) {
+            next = prev.closest("tr").next("tr").find("td").first().next();          
+          }
+          if(next.index() == 0) next = next.next("td");
+          let index = Number(next.closest("tr").attr("data-index"));
+          if(isNaN(index)) {
+            index = 0;
+            next = prev.closest("tbody").find("tr").first().find("td").first().next();
+          }
+          var field = source.matrix[next.index() -1].id();        
+          var value = source.matrix[next.index() -1][index];   
+          onClickCellBs(event, field, value, index, next);          
+        }         
+        return false
+      });
+      return false;
+    } 
+    /* jump to the the upper/lower cell and open cell editor */
+    else if (event.which == 38 || event.which == 40) {
+      event.preventDefault();
+      mouseLeaveElement($e, function(prev) {
+        // move up
+        const cindex = $(prev).index();        
+        if(event.which == 38) 
+        {          
+          var next = $($(prev).closest("tr").prev().find("td")[cindex]);
+          if(next.index() < 0) {
+            var next = $($(prev).closest("tbody").find("tr").last().find("td")[cindex]);
+          }       
+          var rindex = next.closest("tr").attr("data-index");
+          var field = source.matrix[cindex -1].id();        
+          var value = source.matrix[cindex -1][rindex];   
+          onClickCellBs(event, field, value, rindex, next);          
+        } 
+        else /* move down */
+        {
+          var next = $($(prev).closest("tr").next().find("td")[cindex]);
+          if(next.index() < 0) {
+            var next = $($(prev).closest("tbody").find("tr").first().find("td")[cindex]);
+          }     
+          var rindex = next.closest("tr").attr("data-index");  
+          var field = source.matrix[cindex -1].id();        
+          var value = source.matrix[cindex -1][rindex];   
+          onClickCellBs(event, field, value, rindex, next);         
+        }         
+        return false
+      });
+      return false;
+
     }
+    else return false;
   }
-  /* on input edit mouse leave */
-  $(document).on("mouseleave", "[bootstrap-table-cell-input]", function(e) {
-    $(this).closest("td").empty().text(source.matrix.item($(this).attr("data-field")).format($(this).attr("data-value")));
-  });
+  /* EVENT: on input edit mouse leave */
+  $(document).on("mouseleave", "[bootstrap-table-cell-input]", function(e) {mouseLeaveElement($(this))});
+
+  /* HANDLER: on input edit mouse leave */
+  function mouseLeaveElement(e, callback){
+    var vector = source.matrix.item($(e).attr("data-field"));
+    var value;    
+    if(source.matrix.updateCell($(e).attr("data-index"), $(e).attr("data-field"), $(e).val()))  value = vector.parse($(e).val());
+    else value = vector.parse($(e).attr("data-value"));    
+    var that = $(e).closest("td").empty().text(vector.format(value)).attr("data-value", value);
+    $(() => callback ? callback(that) : false);
+  }
   /* reinitializes the mouseenter event only after the mouse has left the last cell */
   $(document).on("mouseleave", "td", function() {
     $(document).one("click-cell.bs.table.bs.table", function(event, field, value, row, $e) {
@@ -395,7 +514,7 @@ function isN(v) {
 
 // #endregion
 
-// #region test datasets & makro
+// #region test datasets & macro
 
 $(document).on("click", "#test-dataset", function() {
   var dataset = testTables[$("#test-dataset-selector").val()].data;
@@ -408,10 +527,10 @@ $(document).on("click", "#test-dataset", function() {
   $(".offcanvas").offcanvas("hide");
 });
 
-$(document).on("click", "#test-makro", function() {
+$(document).on("click", "#test-macro", function() {
   var dataset = testTables[$("#test-dataset-selector").val()];
   source = {
-    matrix: dataset,
+    matrix: dataset.data,
     version: "1.0",
     utils: {}
   }
@@ -434,11 +553,12 @@ function matrixAJAX(p) {
 }
 
 /* transfer the matrix to the Bootstrap Table */
-function loadMatrixToTable(data, callback, config = {}) {
+function loadMatrixToTable(data, callback, config = {activateTab: true}) {
   //toggleFilteringStatus(false);
   if(data) source = data;
+  if(!source?.matrix) return;
   $(tableSelector).bootstrapTable('destroy');
-  $(tableSelector).empty().bootstrapTable(source.matrix.readConfig());
+  $(tableSelector).empty().bootstrapTable(source.matrix.readConfig());  
   for (let c of source.matrix) {
     $(tableSelector).find(`[data-field="${c.id()}"]`).attr("data-vector-type", c.type()).addClass(c.type() == 1 ? "th-numeric" : c.type() == 2 ? "th-string" : c.type() == 3 ? "th-boolean" : "")
     if(source.utils) {
@@ -453,7 +573,7 @@ function loadMatrixToTable(data, callback, config = {}) {
   storeMatrix();
   $(document).ready(function() {
     toggleFilteringStatus(data?.utils?.filterOn, true);
-    $(document).find(`[id="table-tab"]`).click();
+    if(config.activateTab) $(document).find(`[id="table-tab"]`).click();
     if(callback) callback($(tableSelector));
   });
 }
@@ -913,7 +1033,7 @@ function toggleFilteringStatus(status = undefined, skipRefresh = false) {
   } else {
     filterOn = !!status;
   }
-  source.utils.filterOn = filterOn;
+  try {source.utils.filterOn = filterOn} catch(e) {}  
   if(!status) {
     //filterOn = false;
     $("#toggle-table-filter").removeClass("on").addClass("off").attr("title", locale.call("Aayt")).attr("__title", "Aayt");
@@ -974,6 +1094,7 @@ function loadStoredMatrix() {
       source.version = _.version;
       loadMatrixToTable();
     } catch(e) {
+      console.error(e);
       console.info("Failed to load the last saved data from the memory.");
     }
     

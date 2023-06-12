@@ -64,9 +64,11 @@ function updateLocale() {
     locale: _locale
   });
   window.localStorage.setItem("language", _locale);
-  if (source) loadMatrixToTable(source);
+  if (source) loadMatrixToTable(null, null, {
+    activateTab: false
+  });
   $(document).ready(function () {
-    $(".offcanvas").offcanvas("hide");
+    //$(".offcanvas").offcanvas("hide");
     $("#splash").fadeOut(500);
   });
 }

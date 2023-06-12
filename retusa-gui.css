@@ -1,18 +1,68 @@
 @charset "UTF-8";
-/* table styling */
-#table {
-  border-width: var(--bs-border-width) !important;
+@import url("https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/dracula.min.css");
+/* colors */
+.light-red {
+  color: #e74f4f !important;
+  background-color: transparent !important;
 }
+
+.light-blue {
+  color: #51b0df !important;
+  background-color: transparent;
+}
+
+.bg-light-green {
+  background-color: #65cb9a !important;
+  color: black !important;
+}
+
+.bg-dark-green {
+  background-color: #2e9a71 !important;
+  color: white !important;
+}
+
+.bg-light-blue {
+  background-color: #51b0df !important;
+  color: black !important;
+}
+
+.bg-dark-blue {
+  background-color: #018ac7 !important;
+  color: white !important;
+}
+
+.bg-light-orange {
+  background-color: #f4ba6c !important;
+  color: black !important;
+}
+
+.bg-dark-orange {
+  background-color: #ec8906 !important;
+  color: white !important;
+}
+
+.bg-light-red {
+  background-color: #e74f4f !important;
+  color: black !important;
+}
+
+.bg-dark-red {
+  background-color: #b01818 !important;
+  color: white !important;
+}
+
+/* table styling */
 #table :not(caption) > * > * {
-  padding: 0px !important;
-  border: 0.2px solid lightgray !important;
+  padding: 0px auto;
 }
 #table td {
   padding: 0px 5px !important;
+  border-bottom: 1px lightgray solid;
+  background-color: white !important;
 }
 #table .index-cell {
   font-style: italic;
-  background-color: var(--bs-gray-100);
+  background-color: var(--bs-gray-100) !important;
   text-align: center;
 }
 
@@ -369,51 +419,6 @@ ul li {
   margin-right: 10px;
 }
 
-.light-red {
-  color: #e74f4f !important;
-  background-color: transparent !important;
-}
-
-.bg-light-green {
-  background-color: #65cb9a !important;
-  color: black !important;
-}
-
-.bg-dark-green {
-  background-color: #2e9a71 !important;
-  color: white !important;
-}
-
-.bg-light-blue {
-  background-color: #51b0df !important;
-  color: black !important;
-}
-
-.bg-dark-blue {
-  background-color: #018ac7 !important;
-  color: white !important;
-}
-
-.bg-light-orange {
-  background-color: #f4ba6c !important;
-  color: black !important;
-}
-
-.bg-dark-orange {
-  background-color: #ec8906 !important;
-  color: white !important;
-}
-
-.bg-light-red {
-  background-color: #e74f4f !important;
-  color: black !important;
-}
-
-.bg-dark-red {
-  background-color: #b01818 !important;
-  color: white !important;
-}
-
 #table-toolbar {
   display: flex;
   width: 100%;
@@ -691,6 +696,43 @@ button.round {
 [data-row-action].insert:before {
   content: "+";
   color: #51b0df;
+}
+
+.editor {
+  border-radius: 6px;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+  font-family: "Source Code Pro", monospace;
+  font-size: 14px;
+  font-weight: 400;
+  height: 340px;
+  letter-spacing: normal;
+  line-height: 20px;
+  padding: 10px;
+  tab-size: 4;
+}
+
+#macro-console {
+  width: 100%;
+  display: block;
+  margin-top: 20px;
+  background-color: lightgray;
+  color: black;
+}
+
+.console-error {
+  color: red;
+  font-style: italic;
+}
+
+[bootstrap-table-cell-input] {
+  padding: 0px !important;
+  margin: 0px !important;
+  border: none !important;
+  background-color: transparent !important;
+  border-radius: 0px !important;
+  display: block;
+  min-width: 0px !important;
+  max-width: 100% !important;
 }
 
 @media only screen and (max-width: 600px) {

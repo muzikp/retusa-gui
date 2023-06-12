@@ -1,6 +1,6 @@
 window.dictionary = {
 	"cs-CZ": {
-		"p9wW": "Tabulka",
+		"p9wW": "Data",
 		"jHc3": "Analýza",
 		"slEd": "Výsledky",
 		"zvh3": "Zdroje",
@@ -135,10 +135,17 @@ window.dictionary = {
 		"yPAx": "Je mi líto, ale importování souborů sav (SPSS) zatím neumím, ale není všem dnům konec!",
 		"BxMD": "Poslední aktivity",
 		"5nJl": "Znovu spočítat",
-		"y9or": "Tabulku nelze bezpečně  zobrazit vzhledem k její přilišné očekávané velikosti."
+		"y9or": "Tabulku nelze bezpečně  zobrazit vzhledem k její přilišné očekávané velikosti.",
+		"VvTS": "vložit řádek před",
+		"3aMG": "smazat řádek",
+		"pbUN": "Makro JS",
+		"AsgW": "vybrat skript",
+		"fpmI": "název skriptu",
+		"wWlv": "nový skript",
+		"5kbI": "uložit"
 	},
 	"en-GB": {
-		"p9wW": "Table",
+		"p9wW": "Data",
 		"jHc3": "Analysis",
 		"slEd": "Output",
 		"zvh3": "Sources",
@@ -272,6 +279,13 @@ window.dictionary = {
 		"yPAx": "I'm sorry, but I can't import sav files (SPSS) yet, but it's not the end of days!",
 		"BxMD": "Last actions",
 		"5nJl": "Recalculate",
-		"y9or": "The table cannot be safely displayed due to its excessive expected size."
+		"y9or": "The table cannot be safely displayed due to its excessive expected size.",
+		"VvTS": "insert a row before",
+		"3aMG": "remove the row",
+		"pbUN": "Macro JS",
+		"AsgW": "select script",
+		"fpmI": "script name",
+		"wWlv": "new script",
+		"5kbI": "save"
 	}
 }
