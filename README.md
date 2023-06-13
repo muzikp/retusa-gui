@@ -6,16 +6,16 @@ Retusa is a Bootstrap-based application for statistical analysis in a browser en
 
 ### 1.1.0 (2023-06-12)
 
-- macro (early development & test purposes only) extension with a few examples (including data AJAX calling) added; docs TBA
-- action logs added as a side bar panel (toggle with the "reload" icon in the navbar); the 100 last logs are stored both in the file and in the cash
-- minor data table manipulation improvements (inserting/removing rows, tab edit jumping to next/prev cell); sorting temporaly disabled due to wrong indexing
+- Macro JS (early development & test purposes only) extension with a few examples (including data AJAX calling) added; docs TBA
+- action logs added as a side bar panel (toggle with the "reload" icon in the navbar); the 100 last logs are stored both in the file and in the cash - not implemented so far
+- minor data table manipulation improvements (inserting/removing rows, tab/arrows edit jumping to next/prev cell); sorting temporaly disabled due to wrong indexing
 - vector config extended with "label" and "formatter" views (object and function type formatters)
-- JavaScript editors boosted with CodeJar and Highlint.js styling
+- JavaScript editors boosted with CodeJar and Highlight.js styling
 - vector "inspect" method added to vector context menu; the output consists of several method and charts (plots) depending on the input vector type
 - correl overview method added (instead of particular method options), correlation coefficient special formatting added
 - active matrix is automatically stored into the browser store location (test only)
-- percentile renamed to quantile
 - virtual property "id" added to the core library; most vector operations use id attribute as the main identifier
+- percentile renamed to quantile
 
 ### 1.0.8 (2023-05-25)
 
