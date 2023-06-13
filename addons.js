@@ -1628,17 +1628,19 @@ $(document).on("click", ".macro-run", function() {
                 } catch (e) {obj = "<i>{ -- unparsable object -- }</i>"};
                 _log("console",obj);
             }
-            console.error = function() {
-                _log("error", [...arguments].join("\n"));
+            console.error = function(obj) {
+                try {
+                    obj = JSON.stringify(obj);
+                } catch (e) {obj = "<i>{ -- unparsable object -- }</i>"};
+                _log("error",obj);
             }
             window.onerror = function(msg, url, line, col, error) {
-                if(msg == "Script error.") msg = "Unknwon script error. Turn on debugger mode, run again and watch the browser console for more error information.";
-                _log("error", msg);                 
-                var suppressErrorAlert = true;    
+                if(msg == "Script error.") msg = "<u>Unknown script error</u>. Run again in debugger mode and watch the browser console for more error information.";
+                _log("error", msg);
                 $(".macro-run").removeAttr("disabled");
                 console = _console;
                 delete window.onerror;     
-                return suppressErrorAlert;
+                return true;
              };
         }        
         function evaluateCode(code) {
@@ -1646,8 +1648,9 @@ $(document).on("click", ".macro-run", function() {
               try {       
                 if(!debuggerMode) _log("system", "running in production mode");
                 else _log("system", "running in debugger mode");                
-                $.when(eval(code)).done(function(){resolve()});
+                $.when(eval(code)).done(function(){resolve()})
               } catch (error) {
+                _console.log(error);
                 reject(error);
               }
             });
@@ -1660,7 +1663,6 @@ $(document).on("click", ".macro-run", function() {
                 if(debuggerMode) _console.error(error);
                 else _log("error", error.message)                
             }).finally(function(){
-                console.dir(arguments);
                 $(".macro-run").removeAttr("disabled");
                 console = _console;
                 delete window.onerror;
@@ -1702,34 +1704,29 @@ $.ajax({
     url: "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2020-01-01&endtime=2020-01-02",
     type: "get"
 }).done(function(response){
+    /* maps the response JSON as vectors */
     var id = new StringVector(...response.features.map(e => e.id)).name("id");
     var place = new StringVector(...response.features.map(e => e.properties.place)).name("place");
     var mag = new NumericVector(...response.features.map(e => e.properties.mag)).name("mag").label("magnitude");
     var rms = new NumericVector(...response.features.map(e => e.properties.rms)).name("rms").label("RMS");
     var sig = new NumericVector(...response.features.map(e => e.properties.sig)).name("sig").label("signal");
+    /* creates a new matrix from the vectors and let it render */
     var M = new Matrix(id,place,mag,rms,sig).render();
+    /* analyzes the correlation matrix and renders the result */
     M.analyze("correlMatrix").render([2,3,4]);
-    M.analyze("linreg").render(2,3,1);
-    M.showTab("output",true, function(){console.log("DONE")});
-});`
-    },
-    {
-        id: "example4",
-        name: "Example 4: ajax fetched REST API data with error (try debugging mode)",
-        code: `/* Gets earthquake public data via Ajax; converts them to a matrix and renders; runs some analyses and renders them*/
-$.ajax({
-    url: "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2020-01-01&endtime=2020-01-02",
-    type: "get"
-}).done(function(response){
-    var id = new StringVector(...response.features.map(e => e.id)).name("id");
-    var place = new StringVector(...response.features.map(e => e.properties.place)).name("place");
-    var mag = new NumericVector(...response.features.map(e => e.properties.mag)).name("mag").label("magnitude");
-    var rms = new NumericVector(...response.features.map(e => e.properties.rms)).name("rms").label("RMS");
-    var sig = new NumericVector(...response.features.map(e => e.properties.sig)).name("sig").label("signal");
-    var M = new Matrix(id,place,mag,rms,sig).render();
-    M.analyze("correlMatrix").render([2,3,4]);
-    M.analyze("linreg").render(0,1,1);
-    M.showTab("output",true, function(){console.log("DONE")});
+    /* activate the "output" tab */
+    M.showTab("output",true, function(){
+        /* after output tab activation callback */
+        /* throws an arror as a StringVector instance is passed, instead of NumericVector; while running in production mode, you won't get neither the error stack trace nor the description; to get them, you have to run the script in debugger mode; however, you get can get the error message if you wrap the asynchronous/callback function in the try/catch block */
+        try {
+            M.analyze("linreg").render(0,1,1);
+        } catch(e)
+        {
+            console.error(e);
+        }
+        /* with correct method arguments */        
+        M.analyze("linreg").render(2,3,1);
+    });
 });`
     }
 ]
